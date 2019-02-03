@@ -15,7 +15,8 @@ Class {
 		'title',
 		'doi',
 		'keywords',
-		'data'
+		'data',
+		'cite'
 	],
 	#category : #Zoa
 }
@@ -62,6 +63,12 @@ ZoaDocument >> booktitle: aString [
 ]
 
 { #category : #accessing }
+ZoaDocument >> brief: aString [ 
+	briefs ifNil: [  briefs := OrderedCollection new. ].
+	briefs add: aString
+]
+
+{ #category : #accessing }
 ZoaDocument >> briefs [
 	^ briefs
 ]
@@ -73,7 +80,7 @@ ZoaDocument >> briefs: anObject [
 
 { #category : #accessing }
 ZoaDocument >> cite [
-	self shouldBeImplemented 
+	^ cite ifNil: [ self hashCite ]
 ]
 
 { #category : #accessing }
@@ -193,6 +200,26 @@ ZoaDocument >> pdfUrl [
 { #category : #accessing }
 ZoaDocument >> pdfUrl: aZnUrl [
 	data at: #pdfUrl put: aZnUrl
+]
+
+{ #category : #accessing }
+ZoaDocument >> printString [
+	^ String
+		streamContents: [ :str | 
+			str
+				nextPutAll: date year asString;
+				nextPutAll: '|';
+				nextPutAll: doi;
+				nextPutAll: ' | ';
+				nextPutAll: self cite;
+				nextPutAll: ' | ';
+				nextPutAll: self authors first;
+				nextPutAll: ' | ';
+				nextPutAll: self title;
+				nextPutAll: ' | ';
+				nextPutAll: self tags asArray asString;
+				nextPutAll: ' | ';
+				nextPutAll: self keywords asArray asString  ]
 ]
 
 { #category : #accessing }

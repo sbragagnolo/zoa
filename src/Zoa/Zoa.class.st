@@ -100,6 +100,11 @@ Zoa >> initialize [
 	root := Zoa defaultFolder. 
 ]
 
+{ #category : #list }
+Zoa >> listAll [
+	^ self findAll collect: #doi
+]
+
 { #category : #load }
 Zoa >> load: anUrl [
 	^ (ZoaLoader loaderFor: anUrl host) new loadDocument: anUrl
