@@ -15,6 +15,20 @@ Zoa class >> defaultFolder [
 	^ (FileLocator home / '.zoa') ensureCreateDirectory 
 ]
 
+{ #category : #read }
+Zoa >> browse: aDocument [
+	^ ([ :spec | 
+	spec
+		command: 'open';
+		argument: aDocument pdfUrl ] asOSTask
+		future: TKTNewProcessTaskRunner new) waitForCompletion: 1 minute
+]
+
+{ #category : #read }
+Zoa >> browseDoi: aDoi [
+	^ self browse: (self findByDoi: aDoi)
+]
+
 { #category : #accesing }
 Zoa >> documents [
 	^ root / #database 
@@ -122,13 +136,17 @@ Zoa >> localLoad:aFileReference [
 
 { #category : #read }
 Zoa >> read: aDocument [
+	(#/ asFileReference / #tmp / aDocument hash asString , 'pdf') exists
+		ifTrue:
+			[ (#/ asFileReference / #tmp / aDocument hash asString , 'pdf') delete ].
 	(#/ asFileReference / #tmp / aDocument hash asString , 'pdf')
 		ensureCreateFile binaryWriteStream nextPutAll: aDocument pdfContent.
-	^ [ :spec | 
+	^ ([ :spec | 
 	spec
 		command: 'open';
 		argument: (#/ asFileReference / #tmp / aDocument hash asString , 'pdf') fullName ]
-		asOSTask future waitForCompletion: 1 minute
+		asOSTask future: TKTNewProcessTaskRunner new)
+		waitForCompletion: 1 minute
 ]
 
 { #category : #read }
