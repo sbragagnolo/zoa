@@ -7,7 +7,7 @@ Class {
 { #category : #accessing }
 ZoaLoader class >> loaderFor: aString [
 	| loaders |
-	loaders := ZoaLoader subclasses select: [ :s | s loads: aString ].
+	loaders := ZoaLoader allSubclasses select: [ :s | s loads: aString ].
 	loaders
 		ifEmpty: [ self error: (' No loader detected for {1}' format: aString) ].
 	^ loaders first
@@ -51,17 +51,18 @@ ZoaLoader >> setAbstract: aString into: aZoaDocument [
 
 { #category : #accessing }
 ZoaLoader >> setAuthor: aString into: aZoaDocument [
+	| extracted |
+	extracted := ('§' split: (aString copyReplaceAll: ' and ' with: '§'))
+		select: #isNotEmpty.
 	aZoaDocument
 		authors:
-			(('§'
-				split:
-					((aString copyReplaceAll: ' and ' with: '§')
-						copyReplaceAll: ','
-						with: '§')) select: #isNotEmpty)
+			((aZoaDocument authors ifNil: [ OrderedCollection new ])
+				addAll: extracted;
+				yourself)
 ]
 
 { #category : #accessing }
-ZoaLoader >> setAuthors: aString into: aZoaDocument [ 
+ZoaLoader >> setAuthors: aString into: aZoaDocument [  
 	aZoaDocument authors:( (';' split: aString ) collect:#trimBoth)
 ]
 
@@ -118,6 +119,11 @@ ZoaLoader >> setMonth: aString into: aZoaDocument [
 ZoaLoader >> setNumber: aString into: aZoaDocument [
 	(aString copyReplaceAll: ',' with: '')
 		ifNotEmpty: [ :v | aZoaDocument number: v asNumber ]
+]
+
+{ #category : #setting }
+ZoaLoader >> setOnlineDate: aString into: aZoaDocument [ 
+	aZoaDocument date: aString asDate 
 ]
 
 { #category : #accessing }

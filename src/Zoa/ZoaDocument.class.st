@@ -31,6 +31,17 @@ ZoaDocument >> abstract: anObject [
 ]
 
 { #category : #accessing }
+ZoaDocument >> arxivId [
+	^ data at:#arxiv
+]
+
+{ #category : #accessing }
+ZoaDocument >> arxivId: aString [ 
+	doi := aString. 
+	data at: #arxiv put: aString
+]
+
+{ #category : #accessing }
 ZoaDocument >> authors [
 	^ authors
 ]
@@ -96,9 +107,20 @@ ZoaDocument >> doi: aString [
 ]
 
 { #category : #accessing }
+ZoaDocument >> hashCite [
+	^ (authors first copyFrom: 1 to: 4)
+		, (date year asString copyFrom: 3 to: 4) , '-' , self hash asString
+]
+
+{ #category : #accessing }
 ZoaDocument >> initialize [
 	super initialize.
 	data := Dictionary new
+]
+
+{ #category : #accessing }
+ZoaDocument >> isArxiv [
+	^ data includesKey: #arxiv
 ]
 
 { #category : #accessing }
@@ -157,6 +179,13 @@ ZoaDocument >> pdf: anObject [
 ]
 
 { #category : #accessing }
+ZoaDocument >> pdfContent [
+	pdf
+		ifNil: [ ^ self error: 'Unavailable content. execute getPdf before' ].
+	^ pdf
+]
+
+{ #category : #accessing }
 ZoaDocument >> pdfUrl [
 	^ data at: #pdfUrl
 ]
@@ -174,6 +203,13 @@ ZoaDocument >> publisher [
 { #category : #accessing }
 ZoaDocument >> publisher: aString [
 	data at: #publisher put: aString
+]
+
+{ #category : #accessing }
+ZoaDocument >> read [
+	pdf
+		ifNil: [ self error: 'Unavailable content. execute getPdf before' ].
+	^ pdf
 ]
 
 { #category : #accessing }

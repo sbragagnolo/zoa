@@ -29,14 +29,14 @@ ZoaACMLoader >> loadMetaFor: anUrl into: document [
 	[ stream upToAll: '<meta name="'.
 	stream atEnd ]
 		whileFalse: [ var := stream upToAll: '" content="'.
-			content := stream upToAll: '">'.
+			content := stream upToAll: '"'.
 			self
 				perform:
 					('set{1}:into:'
 						format:
 							{(''
 								join:
-									(('_' split: (var copyReplaceAll: 'citation' with: ''))
+									(('_' split: ((var copyReplaceAll: 'citation' with: '') copyReplaceAll: ':' with: ''))
 										collect: #capitalized))}) asSymbol
 				withArguments:
 					{content.
