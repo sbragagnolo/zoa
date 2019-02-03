@@ -135,7 +135,7 @@ ZoaDocument >> isbn: aString [
 
 { #category : #accessing }
 ZoaDocument >> keywords [
-	^ keywords
+	^ keywords ifNil: [ ^ {  } ]
 ]
 
 { #category : #accessing }
@@ -214,7 +214,7 @@ ZoaDocument >> read [
 
 { #category : #accessing }
 ZoaDocument >> tags [
-	^ tags
+	^ tags ifNil: [ {} ]
 ]
 
 { #category : #accessing }

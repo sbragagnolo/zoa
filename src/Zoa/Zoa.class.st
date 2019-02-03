@@ -5,8 +5,7 @@ Class {
 	#name : #Zoa,
 	#superclass : #Object,
 	#instVars : [
-		'root',
-		'loaded'
+		'root'
 	],
 	#category : #Zoa
 }
@@ -53,14 +52,38 @@ Zoa >> findAllInDirectory: aDirectory [
 ]
 
 { #category : #find }
+Zoa >> findByAuthor: anAuthor [
+	^ self findByCollection: #authors value: anAuthor
+]
+
+{ #category : #find }
+Zoa >> findByCollection: anAccessor value: aValue [
+	^ self findAll
+		select: [ :doc | 
+			(doc perform: anAccessor)
+				anySatisfy: [ :v | 
+					(v includesSubstring: aValue caseSensitive: false)
+						or: [ (aValue includesSubstring: v caseSensitive: false)
+								or: [ (v alike: aValue) > aValue size ] ] ] ]
+]
+
+{ #category : #find }
 Zoa >> findByDoi: aDoi [
-	^ loaded
-		at: aDoi
-		ifAbsentPut: [ (self documents / aDoi , 'doi') exists
-				ifTrue: [ self localLoad: self documents / aDoi , 'doi' ]
-				ifFalse: [ (self documents / aDoi , 'arx') exists
-						ifTrue: [ self localLoad: self documents / aDoi , 'arx' ]
-						ifFalse: [ self saveDoi: aDoi ] ] ]
+	^ (self documents / aDoi , 'doi') exists
+		ifTrue: [ self localLoad: self documents / aDoi , 'doi' ]
+		ifFalse: [ (self documents / aDoi , 'arx') exists
+				ifTrue: [ self localLoad: self documents / aDoi , 'arx' ]
+				ifFalse: [ self saveDoi: aDoi ] ]
+]
+
+{ #category : #find }
+Zoa >> findByKeyword: aKeyword [
+	^ self findByCollection: #keywords value: aKeyword
+]
+
+{ #category : #find }
+Zoa >> findByTag: aKeyword [
+	^ self findByCollection: #tags value: aKeyword
 ]
 
 { #category : #command }
@@ -75,7 +98,6 @@ Zoa >> getPdf: aString [
 Zoa >> initialize [ 
 	super initialize.
 	root := Zoa defaultFolder. 
-	loaded := Dictionary new
 ]
 
 { #category : #load }
