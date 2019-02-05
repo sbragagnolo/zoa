@@ -12,7 +12,6 @@ Class {
 ZoaCommandLine class >> bibtex [
 	"The usual Hello-World example, demonstrating a Clap command with a couple options."
 
-	<commandline>
 	^ (ClapCommand withName: 'bibtex')
 		description: 'Gets the bibtex of a given doi ';
 		add: ClapFlag forHelp;
@@ -31,7 +30,6 @@ ZoaCommandLine class >> bibtex [
 ZoaCommandLine class >> brief [
 	"The usual Hello-World example, demonstrating a Clap command with a couple options."
 
-	<commandline>
 	^ (ClapCommand withName: 'brief')
 		description: 'Sets a brief on an article ';
 		add: ClapFlag forHelp;
@@ -58,7 +56,6 @@ ZoaCommandLine class >> brief [
 ZoaCommandLine class >> browseArticle [
 	"The usual Hello-World example, demonstrating a Clap command with a couple options."
 
-	<commandline>
 	^ (ClapCommand withName: 'browse')
 		description: '(Web)Browses the PDF of all the matching articles. if it is';
 		add: ClapFlag forHelp;
@@ -88,7 +85,6 @@ ZoaCommandLine class >> browseArticle [
 ZoaCommandLine class >> cite [
 	"The usual Hello-World example, demonstrating a Clap command with a couple options."
 
-	<commandline>
 	^ (ClapCommand withName: 'cite')
 		description: 'Sets a cite on an article ';
 		add: ClapFlag forHelp;
@@ -110,7 +106,6 @@ ZoaCommandLine class >> cite [
 ZoaCommandLine class >> fetch [
 	"The usual Hello-World example, demonstrating a Clap command with a couple options."
 
-	<commandline>
 	^ (ClapCommand withName: 'fetch')
 		description:
 			'Fetch an article  (Only works with ACM, IEEE, ArxIv and ResearchGate articles) ';
@@ -136,7 +131,6 @@ ZoaCommandLine class >> fetch [
 ZoaCommandLine class >> getPdf [
 	"The usual Hello-World example, demonstrating a Clap command with a couple options."
 
-	<commandline>
 	^ (ClapCommand withName: 'getpdf')
 		description: 'Downloads the PDF of all the matching articles. if it is';
 		add: ClapFlag forHelp;
@@ -166,7 +160,6 @@ ZoaCommandLine class >> getPdf [
 ZoaCommandLine class >> list [
 	"The usual Hello-World example, demonstrating a Clap command with a couple options."
 
-	<commandline>
 	^ (ClapCommand withName: 'list')
 		description: 'List available entries';
 		add: ClapFlag forHelp;
@@ -203,7 +196,6 @@ ZoaCommandLine class >> list [
 ZoaCommandLine class >> read [
 	"The usual Hello-World example, demonstrating a Clap command with a couple options."
 
-	<commandline>
 	^ (ClapCommand withName: 'read')
 		description: 'Open the PDF of all the matching articles. if it is';
 		add: ClapFlag forHelp;
@@ -233,9 +225,9 @@ ZoaCommandLine class >> read [
 ZoaCommandLine class >> submit [
 	"The usual Hello-World example, demonstrating a Clap command with a couple options."
 
-	<commandline>
 	^ (ClapCommand withName: 'submit')
-		description: 'it executes git add .; git commit -m ":neesage" ; git pull; push. Super naive " ';
+		description:
+			'it executes git add .; git commit -m ":neesage" ; git pull; push. Super naive " ';
 		add: ClapFlag forHelp;
 		meaning: [ :args | 
 			args
@@ -251,12 +243,10 @@ ZoaCommandLine class >> submit [
 ZoaCommandLine class >> tagscommand [
 	"The usual Hello-World example, demonstrating a Clap command with a couple options."
 
-	<commandline>
 	^ (ClapCommand withName: 'tag')
 		description: 'Adds or remove a tag from a document ';
 		add: ClapFlag forHelp;
-		add:
-			((ClapPositional withName: 'doi') description: 'Doi find for the tag');
+		add: ((ClapPositional withName: 'doi') description: 'Doi find for the tag');
 		add:
 			((ClapPositional withName: 'tag')
 				multiple: true;
@@ -276,6 +266,33 @@ ZoaCommandLine class >> with: arguments [
 	^ self new
 		setArguments: arguments;
 		yourself
+]
+
+{ #category : #accessing }
+ZoaCommandLine class >> zoa [
+	"The usual Hello-World example, demonstrating a Clap command with a couple options."
+
+	<commandline>
+	^ (ClapCommand withName: 'zoa')
+		description: 'Zoa ';
+		add: ClapFlag forHelp;
+		add: self bibtex;
+		add: self brief;
+		add: self browseArticle;
+		add: self cite;
+		add: self fetch;
+		add: self getPdf;
+		add: self list;
+		add: self read;
+		add: self tagscommand;
+		add: self submit;
+		meaning: [ :args | 
+			args
+				atName: 'help'
+				ifFound: [ :help | 
+					help
+						value;
+						exitSuccess ] ]
 ]
 
 { #category : #accessing }
