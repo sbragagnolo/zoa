@@ -116,9 +116,54 @@ ZoaCommandLine >> argumentAt: argumentName [
 ]
 
 { #category : #filtering }
+ZoaCommandLine >> corresponds: aZoaDocument to: aClapNamedArgument [
+	| values property |
+	values := ' ' split: aClapNamedArgument value.
+	property := aZoaDocument
+		perform: (self filters at: aClapNamedArgument name) asSymbol.
+	^ values
+		allSatisfy: [ :v | property includesSubstring: v caseSensitive: false ]
+]
+
+{ #category : #accessing }
+ZoaCommandLine >> fetch [
+	arguments validateAll.
+	self fetchOn: self outStream
+]
+
+{ #category : #accessing }
+ZoaCommandLine >> fetchOn: aStream [
+	| zoa document |
+	zoa := Zoa new.
+	[ document := (self argumentAt: #doi)
+		ifTrue: [ zoa saveDoi: (self argumentAt: #value) ]
+		ifFalse: [ zoa saveUrl: (self argumentAt: #value) asUrl ].
+	aStream
+		nextPutAll:
+			(' Successfully downloaded {1}:{2}'
+				format:
+					{document doi.
+					document title}).
+	aStream nextPut: Character lf ]
+		on: Error
+		do: [ :e | 
+			self
+				error:
+					(' Error downloading {1}:{2}'
+						format:
+							{document doi.
+							document title}) ]
+]
+
+{ #category : #filtering }
 ZoaCommandLine >> filter: aCollection with: aFilterconf [
 	^ aCollection
 		select: [ :doc | self corresponds: doc to: aFilterconf ]
+]
+
+{ #category : #accessing }
+ZoaCommandLine >> filters [
+	^ {('--ft' -> #title)} asDictionary
 ]
 
 { #category : #accessing }
@@ -149,6 +194,21 @@ ZoaCommandLine >> listOn: aStream [
 { #category : #accessing }
 ZoaCommandLine >> outStream [
 	^ outStream ifNil: [ outStream := VTermOutputDriver on: arguments context stdout ]
+]
+
+{ #category : #projecting }
+ZoaCommandLine >> project: aZoaDocument with: aCollection [
+	^ aCollection collect: [ :p | self projection: p on: aZoaDocument ]
+]
+
+{ #category : #projecting }
+ZoaCommandLine >> projection: aString on: aZoaDocument [
+	^ aZoaDocument perform: (self projections at: aString)
+]
+
+{ #category : #accessing }
+ZoaCommandLine >> projections [
+	^ {('--t' -> #title)} asDictionary 
 ]
 
 { #category : #accessing }
