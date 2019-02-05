@@ -126,8 +126,7 @@ ZoaCommandLine >> briefOn: aStream [
 		briefs:
 			((arguments atName: #brief) isExplicit
 				ifTrue: [ self argumentAt: #brief ]
-				ifFalse: [ | future |
-					self launchEditorAndRead synchronizeTimeout: 48 hours ]).
+				ifFalse: [ self launchEditorAndRead ]).
 	zoa save: document.
 	aStream nextPutAll: 'Successfully saved brief'
 ]
@@ -195,17 +194,17 @@ ZoaCommandLine >> filters [
 
 { #category : #brief }
 ZoaCommandLine >> launchEditorAndRead [
-	| editor tmp future |
+	| editor tmp |
 	tmp := FileLocator temp / UUID new asString.
 	editor := (arguments atName: #editor) isExplicit
 		ifTrue: [ (arguments atName: #editor) namedArgument value ]
 		ifFalse: [ 'vi' ].
 	([ :spec | 
-	^ spec
+	spec
 		command: editor;
 		arguments: {tmp fullName} ] asOSTask
-		future: TKTNewProcessTaskRunner new)
-		andThen: [ :v | tmp asFileReference readStream upToEnd ]
+		future: TKTNewProcessTaskRunner new) synchronizeTimeout: 48 hours.
+	^ tmp asFileReference readStream upToEnd
 ]
 
 { #category : #accessing }
