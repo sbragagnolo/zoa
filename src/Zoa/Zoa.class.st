@@ -31,7 +31,7 @@ Zoa >> browseDoi: aDoi [
 
 { #category : #accesing }
 Zoa >> documents [
-	^ root / #database 
+	^ (root / #database) ensureCreateDirectory
 ]
 
 { #category : #convenience }
