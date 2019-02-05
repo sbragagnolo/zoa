@@ -152,6 +152,22 @@ ZoaCommandLine >> argumentAt: argumentName [
 ]
 
 { #category : #brief }
+ZoaCommandLine >> bibtex [
+	arguments validateAll. 
+	self bibtexOn: self outStream .
+]
+
+{ #category : #brief }
+ZoaCommandLine >> bibtexOn: aStream [
+	| zoa document |
+	zoa := Zoa new.
+	(self argumentAt: #doi) isEmptyOrNil
+		ifTrue: [ self error: ' DOI is a compulsory argument' ].
+	document := zoa findByDoi: (self argumentAt: #doi).
+	aStream nextPutAll: document bibtex
+]
+
+{ #category : #brief }
 ZoaCommandLine >> brief [
 	arguments validateAll. 
 	self briefOn: self outStream .
