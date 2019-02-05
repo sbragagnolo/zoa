@@ -9,6 +9,25 @@ Class {
 }
 
 { #category : #accessing }
+ZoaCommandLine class >> bibtex [
+	"The usual Hello-World example, demonstrating a Clap command with a couple options."
+
+	<commandline>
+	^ (ClapCommand withName: 'bibtex')
+		description: 'Gets the bibtex of a given doi ';
+		add: ClapFlag forHelp;
+		add: ((ClapPositional withName: 'doi') description: 'Doi find for the tag');
+		meaning: [ :args | 
+			args
+				atName: 'help'
+				ifFound: [ :help | 
+					help
+						value;
+						exitSuccess ].
+			(self with: args) bibtex ]
+]
+
+{ #category : #accessing }
 ZoaCommandLine class >> brief [
 	"The usual Hello-World example, demonstrating a Clap command with a couple options."
 
@@ -46,7 +65,11 @@ ZoaCommandLine class >> fetch [
 		add: ClapFlag forHelp;
 		add: ((ClapFlag withName: 'url') description: 'Fetches by Url');
 		add: ((ClapFlag withName: 'doi') description: 'Fetches by Doi');
-		add: ((ClapPositional withName: 'value') description: 'Shows briefs');
+		add:
+			((ClapPositional withName: 'value')
+				description: '[{URL*} | {DOI*}';
+				multiple: true;
+				yourself);
 		meaning: [ :args | 
 			args
 				atName: 'help'
@@ -55,13 +78,6 @@ ZoaCommandLine class >> fetch [
 						value;
 						exitSuccess ].
 			(self with: args) fetch ]
-]
-
-{ #category : #accessing }
-ZoaCommandLine class >> filter: aName description: description [
-	^ (ClapCommand withName: aName)
-		description: description;
-		add: (ClapPositional withName: 'filter')
 ]
 
 { #category : #accessing }
@@ -86,6 +102,8 @@ ZoaCommandLine class >> list [
 		add: ((ClapFlag withName: 't') description: 'Shows title');
 		add: ((ClapFlag withName: 'a') description: 'Shows abstract');
 		add: ((ClapFlag withName: 'd') description: 'Shows Doi');
+		add: ((ClapFlag withName: 'tag') description: 'Shows Doi');
+		add: ((ClapFlag withName: 'kw') description: 'Shows Doi');
 		add: ((ClapFlag withName: 'b') description: 'Shows briefs');
 		meaning: [ :args | 
 			args
@@ -95,6 +113,30 @@ ZoaCommandLine class >> list [
 						value;
 						exitSuccess ].
 			(self with: args) list ]
+]
+
+{ #category : #accessing }
+ZoaCommandLine class >> tagscommand [
+	"The usual Hello-World example, demonstrating a Clap command with a couple options."
+
+	<commandline>
+	^ (ClapCommand withName: 'tag')
+		description: 'Adds or remove a tag from a document ';
+		add: ClapFlag forHelp;
+		add:
+			((ClapPositional withName: 'doi') description: 'Doi find for the tag');
+		add:
+			((ClapPositional withName: 'tag')
+				multiple: true;
+				description: 'One or many tags');
+		meaning: [ :args | 
+			args
+				atName: 'help'
+				ifFound: [ :help | 
+					help
+						value;
+						exitSuccess ].
+			(self with: args) tag ]
 ]
 
 { #category : #'instance creation' }
@@ -156,9 +198,11 @@ ZoaCommandLine >> fetch [
 ZoaCommandLine >> fetchOn: aStream [
 	| zoa document |
 	zoa := Zoa new.
-	[ document := (self argumentAt: #doi)
-		ifTrue: [ zoa saveDoi: (self argumentAt: #value) ]
-		ifFalse: [ zoa saveUrl: (self argumentAt: #value) asUrl ].
+	[ ((arguments atName: #value) allOccurrencesCollect: #value)
+		do: [ :id | 
+			document := (self argumentAt: #doi)
+				ifTrue: [ zoa saveDoi: id ]
+				ifFalse: [ zoa saveUrl: id asUrl ] ].
 	aStream
 		nextPutAll:
 			(' Successfully downloaded {1}:{2}'
@@ -244,7 +288,7 @@ ZoaCommandLine >> project: aZoaDocument with: aCollection [
 
 { #category : #projecting }
 ZoaCommandLine >> projection: aString on: aZoaDocument [
-	^ aZoaDocument perform: (self projections at: aString)
+	^( aZoaDocument perform: (self projections at: aString) asSymbol ) asString
 ]
 
 { #category : #accessing }
@@ -252,12 +296,38 @@ ZoaCommandLine >> projections [
 	^ {('--t' -> #title).
 	('--a' -> #abstract).
 	('--d' -> #doi).
-	('--b' -> #briefs)} asDictionary
+	('--b' -> #briefs).
+	('--kw' -> #arrayKeywords).
+	('--tag' -> #arrayTags)} asDictionary
 ]
 
 { #category : #accessing }
 ZoaCommandLine >> setArguments: args [
 	arguments := args
+]
+
+{ #category : #brief }
+ZoaCommandLine >> tag [
+	arguments validateAll. 
+	self tagOn: self outStream .
+]
+
+{ #category : #brief }
+ZoaCommandLine >> tagOn: aStream [
+	| zoa document msg |
+	zoa := Zoa new.
+	(self argumentAt: #doi) isEmptyOrNil
+		ifTrue: [ self error: ' DOI is a compulsory argument' ].
+	document := zoa findByDoi: (self argumentAt: #doi).
+	((arguments atName: #tag) allOccurrencesCollect: #value)
+		do: [ :tag | 
+			(document tags includes: tag)
+				ifTrue: [ msg := 'removed'.
+					document tags remove: tag ]
+				ifFalse: [ msg := 'added'.
+					document tags add: tag ] ].
+	zoa save: document.
+	aStream nextPutAll: ('Successfully {1} tag' format: {msg})
 ]
 
 { #category : #accessing }
@@ -266,6 +336,8 @@ ZoaCommandLine >> titleFor: aCollection [
 	titles := {('--t' -> 'Title').
 	('--a' -> 'Abstract').
 	('--d' -> 'Doi').
-	('--b' -> 'Brief')} asDictionary.
+	('--b' -> 'Brief').
+	('--tag' -> 'Tags').
+	('--kw' -> 'Keywords')} asDictionary.
 	^ aCollection collect: [ :t | titles at: t ]
 ]

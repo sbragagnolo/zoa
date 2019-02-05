@@ -32,6 +32,16 @@ ZoaDocument >> abstract: anObject [
 ]
 
 { #category : #accessing }
+ZoaDocument >> arrayKeywords [
+	^ self keywords asArray 
+]
+
+{ #category : #accessing }
+ZoaDocument >> arrayTags [
+	^ self tags asArray 
+]
+
+{ #category : #accessing }
 ZoaDocument >> arxivId [
 	^ data at:#arxiv
 ]
@@ -54,7 +64,28 @@ ZoaDocument >> authors: anObject [
 
 { #category : #accessing }
 ZoaDocument >> bibtex [
-	self shouldBeImplemented 
+	^ String
+		streamContents:
+			[ :str | 
+			str
+				nextPut: $@;
+				nextPutAll: self kind;
+				nextPut: ${;
+				nextPutAll: self citeRmod;
+				nextPut: $,;
+				nextPutAll: String lf.
+			data
+				keysAndValuesDo: [ :k :v | 
+					str
+						nextPutAll: k;
+						nextPut: $=;
+						nextPut: ${;
+						nextPutAll: v;
+						nextPut: $};
+						nextPut: $,;
+						nextPutAll: String lf ].
+			(self instVarNames reject: [ :v | v = #data ])
+				do: [ :v | self stream: v into: str ] ] self instVarNames
 ]
 
 { #category : #accessing }
@@ -75,6 +106,12 @@ ZoaDocument >> briefs: anObject [
 { #category : #accessing }
 ZoaDocument >> cite [
 	^ cite ifNil: [ self hashCite ]
+]
+
+{ #category : #accessing }
+ZoaDocument >> citeRmod [
+	^ (authors first copyFrom: 1 to: 4)
+		, (date year asString copyFrom: 3 to: 4)
 ]
 
 { #category : #accessing }
@@ -136,7 +173,7 @@ ZoaDocument >> isbn: aString [
 
 { #category : #accessing }
 ZoaDocument >> keywords [
-	^ keywords ifNil: [ ^ {  } ]
+	^ keywords ifNil: [ ^ {} ]
 ]
 
 { #category : #accessing }
@@ -146,7 +183,7 @@ ZoaDocument >> keywords: aCollection [
 
 { #category : #accessing }
 ZoaDocument >> kind [
-	^ data at: #kind
+	^ data at: #kind ifAbsent: [ 'UNKNOWN' ]
 ]
 
 { #category : #accessing }
@@ -231,6 +268,24 @@ ZoaDocument >> read [
 	pdf
 		ifNil: [ self error: 'Unavailable content. execute getPdf before' ].
 	^ pdf
+]
+
+{ #category : #accessing }
+ZoaDocument >> stream: aVar into: str [
+	| val |
+	val := self instVarNamed: aVar.
+	val ifNil: [ ^ self ].
+	val := (val isString not and: [ val isCollection ])
+		ifTrue: [ ', ' join: val ]
+		ifFalse: [ val asString ].
+	str
+		nextPutAll: aVar;
+		nextPut: $=;
+		nextPut: ${;
+		nextPutAll: val;
+		nextPut: $};
+		nextPut: $,;
+		nextPutAll: String lf
 ]
 
 { #category : #accessing }
