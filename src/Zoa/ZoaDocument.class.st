@@ -228,7 +228,9 @@ ZoaDocument >> pdfContent [
 
 { #category : #accessing }
 ZoaDocument >> pdfUrl [
-	^ data at: #pdfUrl
+	^ data
+		at: #pdfUrl
+		ifAbsent: [ self error: ('Pdf url for doi: {1} not found" ' format: {doi}) ]
 ]
 
 { #category : #accessing }

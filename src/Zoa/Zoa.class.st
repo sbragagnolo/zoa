@@ -101,11 +101,16 @@ Zoa >> findByTag: aKeyword [
 ]
 
 { #category : #command }
-Zoa >> getPdf: aString [
-	| doc |
-	doc := self findByDoi: aString.
+Zoa >> getPdf: doc [
 	doc pdf: (ZnEasy get: doc pdfUrl) entity contents.
 	self save: doc
+]
+
+{ #category : #command }
+Zoa >> getPdfByDoi: aString [
+	| doc |
+	doc := self findByDoi: aString.
+	self getPdf: doc
 ]
 
 { #category : #initialization }
@@ -183,4 +188,16 @@ Zoa >> saveUrl: aZnUrl [
 	doc := self load: aZnUrl.
 	self save: doc.
 	^ doc 
+]
+
+{ #category : #read }
+Zoa >> submit [
+	^ ([ :spec | 
+	spec
+		command: 'bash';
+		option: '-c';
+		argument:
+			('cd {1} && git add . && git commit -m" generated message" && git pull && git push '
+				format: {root fullName}) ] asOSTask
+		future: TKTNewProcessTaskRunner new) synchronizeTimeout: 10 minutes
 ]

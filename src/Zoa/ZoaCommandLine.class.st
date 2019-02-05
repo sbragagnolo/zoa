@@ -185,8 +185,9 @@ ZoaCommandLine class >> list [
 		add: ((ClapFlag withName: 't') description: 'Shows title');
 		add: ((ClapFlag withName: 'a') description: 'Shows abstract');
 		add: ((ClapFlag withName: 'd') description: 'Shows Doi');
-		add: ((ClapFlag withName: 'tag') description: 'Shows Doi');
-		add: ((ClapFlag withName: 'kw') description: 'Shows Doi');
+		add: ((ClapFlag withName: 'tag') description: 'Shows tags');
+		add: ((ClapFlag withName: 'ct') description: 'Shows cite');
+		add: ((ClapFlag withName: 'kw') description: 'Shows keywords');
 		add: ((ClapFlag withName: 'b') description: 'Shows briefs');
 		meaning: [ :args | 
 			args
@@ -226,6 +227,24 @@ ZoaCommandLine class >> read [
 						value;
 						exitSuccess ].
 			(self with: args) read ]
+]
+
+{ #category : #accessing }
+ZoaCommandLine class >> submit [
+	"The usual Hello-World example, demonstrating a Clap command with a couple options."
+
+	<commandline>
+	^ (ClapCommand withName: 'submit')
+		description: 'it executes git add .; git commit -m ":neesage" ; git pull; push. Super naive " ';
+		add: ClapFlag forHelp;
+		meaning: [ :args | 
+			args
+				atName: 'help'
+				ifFound: [ :help | 
+					help
+						value;
+						exitSuccess ].
+			(self with: args) submit ]
 ]
 
 { #category : #accessing }
@@ -419,7 +438,17 @@ ZoaCommandLine >> getPdfOn: aStream [
 	| all zoa |
 	all := self findWithFilters.
 	zoa := Zoa new.
-	all do: [ :doc | zoa getPdf: doc ]
+	all
+		do: [ :doc | 
+			[ zoa getPdf: doc ]
+				on: Error
+				do: [ :e | 
+					aStream
+						nextPutAll: ' Error on doi: ';
+						nextPutAll: doc doi;
+						nextPutAll: ' ';
+						nextPutAll: e messageText;
+						nextPutAll: String lf ] ]
 ]
 
 { #category : #brief }
@@ -476,7 +505,7 @@ ZoaCommandLine >> projection: aString on: aZoaDocument [
 { #category : #accessing }
 ZoaCommandLine >> projections [
 	^ {('--t' -> #title).
-	('--c' -> #cite).
+	('--ct' -> #cite).
 	('--a' -> #abstract).
 	('--d' -> #doi).
 	('--b' -> #briefs).
@@ -501,6 +530,14 @@ ZoaCommandLine >> readOn: aStream [
 { #category : #accessing }
 ZoaCommandLine >> setArguments: args [
 	arguments := args
+]
+
+{ #category : #brief }
+ZoaCommandLine >> submit [
+	Zoa new submit.
+	self outStream
+		nextPutAll: ' submitted ';
+		nextPutAll: String lf
 ]
 
 { #category : #brief }
@@ -535,6 +572,7 @@ ZoaCommandLine >> titleFor: aCollection [
 	('--d' -> 'Doi').
 	('--b' -> 'Brief').
 	('--tag' -> 'Tags').
-	('--kw' -> 'Keywords')} asDictionary.
+	('--kw' -> 'Keywords').
+	('--ct' -> 'Cite')} asDictionary.
 	^ aCollection collect: [ :t | titles at: t ]
 ]
