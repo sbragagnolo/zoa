@@ -55,6 +55,58 @@ ZoaCommandLine class >> brief [
 ]
 
 { #category : #accessing }
+ZoaCommandLine class >> browseArticle [
+	"The usual Hello-World example, demonstrating a Clap command with a couple options."
+
+	<commandline>
+	^ (ClapCommand withName: 'browse')
+		description: '(Web)Browses the PDF of all the matching articles. if it is';
+		add: ClapFlag forHelp;
+		add: ((ClapNamedParameter withName: 'fd') description: 'Filters by Doi');
+		add: ((ClapNamedParameter withName: 'ft') description: 'Filters by Title');
+		add: ((ClapNamedParameter withName: 'fct') description: 'Filters by Cite');
+		add:
+			((ClapNamedParameter withName: 'fkw')
+				description: 'Filters by Keywords');
+		add: ((ClapNamedParameter withName: 'ftag') description: 'Filters by Tags');
+		add:
+			((ClapNamedParameter withName: 'fabs')
+				description: 'Filters by abstract');
+		add:
+			((ClapNamedParameter withName: 'fbr') description: 'Filters by briefs');
+		meaning: [ :args | 
+			args
+				atName: 'help'
+				ifFound: [ :help | 
+					help
+						value;
+						exitSuccess ].
+			(self with: args) browseArticle ]
+]
+
+{ #category : #accessing }
+ZoaCommandLine class >> cite [
+	"The usual Hello-World example, demonstrating a Clap command with a couple options."
+
+	<commandline>
+	^ (ClapCommand withName: 'cite')
+		description: 'Sets a cite on an article ';
+		add: ClapFlag forHelp;
+		add:
+			((ClapPositional withName: 'doi')
+				description: 'Doi find for the brief');
+		add: ((ClapPositional withName: 'cite') description: 'Citation');
+		meaning: [ :args | 
+			args
+				atName: 'help'
+				ifFound: [ :help | 
+					help
+						value;
+						exitSuccess ].
+			(self with: args) cite ]
+]
+
+{ #category : #accessing }
 ZoaCommandLine class >> fetch [
 	"The usual Hello-World example, demonstrating a Clap command with a couple options."
 
@@ -81,6 +133,36 @@ ZoaCommandLine class >> fetch [
 ]
 
 { #category : #accessing }
+ZoaCommandLine class >> getPdf [
+	"The usual Hello-World example, demonstrating a Clap command with a couple options."
+
+	<commandline>
+	^ (ClapCommand withName: 'getpdf')
+		description: 'Downloads the PDF of all the matching articles. if it is';
+		add: ClapFlag forHelp;
+		add: ((ClapNamedParameter withName: 'fd') description: 'Filters by Doi');
+		add: ((ClapNamedParameter withName: 'ft') description: 'Filters by Title');
+		add: ((ClapNamedParameter withName: 'fct') description: 'Filters by Cite');
+		add:
+			((ClapNamedParameter withName: 'fkw')
+				description: 'Filters by Keywords');
+		add: ((ClapNamedParameter withName: 'ftag') description: 'Filters by Tags');
+		add:
+			((ClapNamedParameter withName: 'fabs')
+				description: 'Filters by abstract');
+		add:
+			((ClapNamedParameter withName: 'fbr') description: 'Filters by briefs');
+		meaning: [ :args | 
+			args
+				atName: 'help'
+				ifFound: [ :help | 
+					help
+						value;
+						exitSuccess ].
+			(self with: args) getPdf ]
+]
+
+{ #category : #accessing }
 ZoaCommandLine class >> list [
 	"The usual Hello-World example, demonstrating a Clap command with a couple options."
 
@@ -90,6 +172,7 @@ ZoaCommandLine class >> list [
 		add: ClapFlag forHelp;
 		add: ((ClapNamedParameter withName: 'fd') description: 'Filters by Doi');
 		add: ((ClapNamedParameter withName: 'ft') description: 'Filters by title');
+		add: ((ClapNamedParameter withName: 'fct') description: 'Filters by Cite');
 		add:
 			((ClapNamedParameter withName: 'fkw')
 				description: 'Filters by Keywords');
@@ -113,6 +196,36 @@ ZoaCommandLine class >> list [
 						value;
 						exitSuccess ].
 			(self with: args) list ]
+]
+
+{ #category : #accessing }
+ZoaCommandLine class >> read [
+	"The usual Hello-World example, demonstrating a Clap command with a couple options."
+
+	<commandline>
+	^ (ClapCommand withName: 'read')
+		description: 'Open the PDF of all the matching articles. if it is';
+		add: ClapFlag forHelp;
+		add: ((ClapNamedParameter withName: 'fd') description: 'Filters by Doi');
+		add: ((ClapNamedParameter withName: 'ft') description: 'Filters by Title');
+		add: ((ClapNamedParameter withName: 'fct') description: 'Filters by Cite');
+		add:
+			((ClapNamedParameter withName: 'fkw')
+				description: 'Filters by Keywords');
+		add: ((ClapNamedParameter withName: 'ftag') description: 'Filters by Tags');
+		add:
+			((ClapNamedParameter withName: 'fabs')
+				description: 'Filters by abstract');
+		add:
+			((ClapNamedParameter withName: 'fbr') description: 'Filters by briefs');
+		meaning: [ :args | 
+			args
+				atName: 'help'
+				ifFound: [ :help | 
+					help
+						value;
+						exitSuccess ].
+			(self with: args) read ]
 ]
 
 { #category : #accessing }
@@ -189,6 +302,38 @@ ZoaCommandLine >> briefOn: aStream [
 	aStream nextPutAll: 'Successfully saved brief'
 ]
 
+{ #category : #accessing }
+ZoaCommandLine >> browseArticle [
+	arguments validateAll.
+	self browseArticleOn: self outStream
+]
+
+{ #category : #accessing }
+ZoaCommandLine >> browseArticleOn: aStream [
+	| all zoa |
+	all := self findWithFilters.
+	zoa := Zoa new.
+	all do: [ :doc | zoa browse: doc ]
+]
+
+{ #category : #brief }
+ZoaCommandLine >> cite [
+	arguments validateAll. 
+	self citeOn: self outStream .
+]
+
+{ #category : #brief }
+ZoaCommandLine >> citeOn: aStream [
+	| zoa document |
+	zoa := Zoa new.
+	(self argumentAt: #doi) isEmptyOrNil
+		ifTrue: [ self error: ' DOI is a compulsory argument' ].
+	document := zoa findByDoi: (self argumentAt: #doi).
+	document cite: (self argumentAt: #cite).
+	zoa save: document.
+	aStream nextPutAll: 'Successfully saved brief'
+]
+
 { #category : #filtering }
 ZoaCommandLine >> corresponds: aZoaDocument to: aClapNamedArgument [
 	| values property |
@@ -244,12 +389,37 @@ ZoaCommandLine >> filter: aCollection with: aFilterconf [
 
 { #category : #accessing }
 ZoaCommandLine >> filters [
-	^ {('--ft' -> #title).
+	^ {
+	('--fct' -> #cite).
+	('--ft' -> #title).
 	('--fd' -> #doi).
 	('--fkw' -> #keywords).
 	('--ftag' -> #tags).
 	('--fabs' -> #abstract).
 	('--fbr' -> #briefs)} asDictionary
+]
+
+{ #category : #listing }
+ZoaCommandLine >> findWithFilters [
+	| filters |
+	filters := arguments namedParameters collect: #value.
+	^ filters
+		inject: Zoa new findAll
+		into: [ :acc :each | self filter: acc with: each ]
+]
+
+{ #category : #accessing }
+ZoaCommandLine >> getPdf [
+	arguments validateAll.
+	self getPdfOn: self outStream
+]
+
+{ #category : #accessing }
+ZoaCommandLine >> getPdfOn: aStream [
+	| all zoa |
+	all := self findWithFilters.
+	zoa := Zoa new.
+	all do: [ :doc | zoa getPdf: doc ]
 ]
 
 { #category : #brief }
@@ -275,12 +445,8 @@ ZoaCommandLine >> list [
 
 { #category : #listing }
 ZoaCommandLine >> listOn: aStream [
-	| filters projection all |
-	all := Zoa new findAll.
-	filters := arguments namedParameters collect: #value.
-	all := filters
-		inject: all
-		into: [ :acc :each | self filter: acc with: each ].
+	|  projection all |
+	all := self findWithFilters. 
 	projection := arguments flags collect: #word.
 	projection ifEmpty: [ projection := {'--t'} ].
 	aStream nextPutAll: (' | ' join: (self titleFor: projection)).
@@ -310,11 +476,26 @@ ZoaCommandLine >> projection: aString on: aZoaDocument [
 { #category : #accessing }
 ZoaCommandLine >> projections [
 	^ {('--t' -> #title).
+	('--c' -> #cite).
 	('--a' -> #abstract).
 	('--d' -> #doi).
 	('--b' -> #briefs).
 	('--kw' -> #arrayKeywords).
 	('--tag' -> #arrayTags)} asDictionary
+]
+
+{ #category : #accessing }
+ZoaCommandLine >> read [
+	arguments validateAll.
+	self readOn: self outStream
+]
+
+{ #category : #accessing }
+ZoaCommandLine >> readOn: aStream [
+	| all zoa |
+	all := self findWithFilters.
+	zoa := Zoa new.
+	zoa readAll: all
 ]
 
 { #category : #accessing }

@@ -65,27 +65,31 @@ ZoaDocument >> authors: anObject [
 { #category : #accessing }
 ZoaDocument >> bibtex [
 	^ String
-		streamContents:
-			[ :str | 
+		streamContents: [ :str | 
 			str
 				nextPut: $@;
 				nextPutAll: self kind;
 				nextPut: ${;
-				nextPutAll: self citeRmod;
+				nextPutAll: self cite;
 				nextPut: $,;
 				nextPutAll: String lf.
 			data
 				keysAndValuesDo: [ :k :v | 
-					str
-						nextPutAll: k;
-						nextPut: $=;
-						nextPut: ${;
-						nextPutAll: v;
-						nextPut: $};
-						nextPut: $,;
-						nextPutAll: String lf ].
-			(self instVarNames reject: [ :v | v = #data ])
-				do: [ :v | self stream: v into: str ] ] self instVarNames
+					| val |
+					val := (v isString not and: [ v isCollection ])
+						ifTrue: [ ', ' join: v ]
+						ifFalse: [ v asString ].
+					k = #kind
+						ifFalse: [ str
+								nextPutAll: k;
+								nextPut: $=;
+								nextPut: ${;
+								nextPutAll: val;
+								nextPut: $};
+								nextPut: $,;
+								nextPutAll: String lf ] ].
+			(self class instVarNames reject: [ :v | #(data tags briefs pdf) includes: v  ])
+				do: [ :v | self stream: v into: str ] ]
 ]
 
 { #category : #accessing }
@@ -109,9 +113,8 @@ ZoaDocument >> cite [
 ]
 
 { #category : #accessing }
-ZoaDocument >> citeRmod [
-	^ (authors first copyFrom: 1 to: 4)
-		, (date year asString copyFrom: 3 to: 4)
+ZoaDocument >> cite: aCite [
+	^ cite := aCite
 ]
 
 { #category : #accessing }

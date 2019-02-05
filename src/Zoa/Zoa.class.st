@@ -21,7 +21,7 @@ Zoa >> browse: aDocument [
 	spec
 		command: 'open';
 		argument: aDocument pdfUrl ] asOSTask
-		future: TKTNewProcessTaskRunner new) waitForCompletion: 1 minute
+		future: TKTNewProcessTaskRunner new) waitForCompletion: 1 second
 ]
 
 { #category : #read }
@@ -146,7 +146,7 @@ Zoa >> read: aDocument [
 		command: 'open';
 		argument: (#/ asFileReference / #tmp / aDocument hash asString , 'pdf') fullName ]
 		asOSTask future: TKTNewProcessTaskRunner new)
-		waitForCompletion: 1 minute
+		waitForCompletion: 2 seconds 
 ]
 
 { #category : #read }
