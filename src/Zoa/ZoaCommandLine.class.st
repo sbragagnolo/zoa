@@ -70,39 +70,6 @@ ZoaCommandLine class >> list [
 			(self with: args) list ]
 ]
 
-{ #category : #accessing }
-ZoaCommandLine class >> load [
-	"The usual Hello-World example, demonstrating a Clap command with a couple options."
-
-	<commandline>
-	^ (ClapCommand withName: 'list')
-		description: 'List available entries';
-		add: ClapFlag forHelp;
-		add: ((ClapNamedParameter withName: 'fd') description: 'Filters by Doi');
-		add: ((ClapNamedParameter withName: 'ft') description: 'Filters by title');
-		add:
-			((ClapNamedParameter withName: 'fkw')
-				description: 'Filters by Keywords');
-		add: ((ClapNamedParameter withName: 'ftag') description: 'Filters by Tags');
-		add:
-			((ClapNamedParameter withName: 'fabs')
-				description: 'Filters by abstract');
-		add:
-			((ClapNamedParameter withName: 'fbr') description: 'Filters by briefs');
-		add: ((ClapFlag withName: 't') description: 'Shows title');
-		add: ((ClapFlag withName: 'a') description: 'Shows abstract');
-		add: ((ClapFlag withName: 'd') description: 'Shows Doi');
-		add: ((ClapFlag withName: 'b') description: 'Shows briefs');
-		meaning: [ :args | 
-			args
-				atName: 'help'
-				ifFound: [ :help | 
-					help
-						value;
-						exitSuccess ].
-			(self with: args) list ]
-]
-
 { #category : #'instance creation' }
 ZoaCommandLine class >> with: arguments [
 	^ self new
@@ -121,8 +88,13 @@ ZoaCommandLine >> corresponds: aZoaDocument to: aClapNamedArgument [
 	values := ' ' split: aClapNamedArgument value.
 	property := aZoaDocument
 		perform: (self filters at: aClapNamedArgument name) asSymbol.
-	^ values
-		allSatisfy: [ :v | property includesSubstring: v caseSensitive: false ]
+	property := property isString
+		ifTrue: [ {property} ]
+		ifFalse: [ property ].
+	^ property
+		anySatisfy: [ :p | 
+			(values select: [ :v | p includesSubstring: v caseSensitive: false ])
+				size >= (values size * 0.5) ]
 ]
 
 { #category : #accessing }
@@ -163,7 +135,12 @@ ZoaCommandLine >> filter: aCollection with: aFilterconf [
 
 { #category : #accessing }
 ZoaCommandLine >> filters [
-	^ {('--ft' -> #title)} asDictionary
+	^ {('--ft' -> #title).
+	('--fd' -> #doi).
+	('--fkw' -> #keywords).
+	('--ftag' -> #tags).
+	('--fabs' -> #abstract).
+	('--fbr' -> #briefs)} asDictionary
 ]
 
 { #category : #accessing }
@@ -208,7 +185,10 @@ ZoaCommandLine >> projection: aString on: aZoaDocument [
 
 { #category : #accessing }
 ZoaCommandLine >> projections [
-	^ {('--t' -> #title)} asDictionary 
+	^ {('--t' -> #title).
+	('--a' -> #abstract).
+	('--d' -> #doi).
+	('--b' -> #briefs)} asDictionary
 ]
 
 { #category : #accessing }
