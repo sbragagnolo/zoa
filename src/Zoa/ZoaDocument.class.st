@@ -63,12 +63,6 @@ ZoaDocument >> booktitle: aString [
 ]
 
 { #category : #accessing }
-ZoaDocument >> brief: aString [ 
-	briefs ifNil: [  briefs := OrderedCollection new. ].
-	briefs add: aString
-]
-
-{ #category : #accessing }
 ZoaDocument >> briefs [
 	^ briefs
 ]

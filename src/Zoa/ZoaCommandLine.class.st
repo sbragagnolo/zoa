@@ -9,6 +9,33 @@ Class {
 }
 
 { #category : #accessing }
+ZoaCommandLine class >> brief [
+	"The usual Hello-World example, demonstrating a Clap command with a couple options."
+
+	<commandline>
+	^ (ClapCommand withName: 'brief')
+		description: 'Sets a brief on an article ';
+		add: ClapFlag forHelp;
+		add:
+			((ClapNamedParameter withName: 'editor')
+				description: 'Command editor to open');
+		add:
+			((ClapPositional withName: 'doi')
+				description: 'Doi find for the brief');
+		add:
+			((ClapPositional withName: 'brief')
+				description: 'Optional parameter wiht the text message');
+		meaning: [ :args | 
+			args
+				atName: 'help'
+				ifFound: [ :help | 
+					help
+						value;
+						exitSuccess ].
+			(self with: args) brief ]
+]
+
+{ #category : #accessing }
 ZoaCommandLine class >> fetch [
 	"The usual Hello-World example, demonstrating a Clap command with a couple options."
 
@@ -82,6 +109,29 @@ ZoaCommandLine >> argumentAt: argumentName [
 	^ (arguments atName: argumentName) value
 ]
 
+{ #category : #brief }
+ZoaCommandLine >> brief [
+	arguments validateAll. 
+	self briefOn: self outStream .
+]
+
+{ #category : #brief }
+ZoaCommandLine >> briefOn: aStream [
+	| zoa document |
+	zoa := Zoa new.
+	(self argumentAt: #doi) isEmptyOrNil
+		ifTrue: [ self error: ' DOI is a compulsory argument' ].
+	document := zoa findByDoi: (self argumentAt: #doi).
+	document
+		briefs:
+			((arguments atName: #brief) isExplicit
+				ifTrue: [ self argumentAt: #brief ]
+				ifFalse: [ | future |
+					self launchEditorAndRead synchronizeTimeout: 48 hours ]).
+	zoa save: document.
+	aStream nextPutAll: 'Successfully saved brief'
+]
+
 { #category : #filtering }
 ZoaCommandLine >> corresponds: aZoaDocument to: aClapNamedArgument [
 	| values property |
@@ -141,6 +191,21 @@ ZoaCommandLine >> filters [
 	('--ftag' -> #tags).
 	('--fabs' -> #abstract).
 	('--fbr' -> #briefs)} asDictionary
+]
+
+{ #category : #brief }
+ZoaCommandLine >> launchEditorAndRead [
+	| editor tmp future |
+	tmp := FileLocator temp / UUID new asString.
+	editor := (arguments atName: #editor) isExplicit
+		ifTrue: [ (arguments atName: #editor) namedArgument value ]
+		ifFalse: [ 'vi' ].
+	([ :spec | 
+	^ spec
+		command: editor;
+		arguments: {tmp fullName} ] asOSTask
+		future: TKTNewProcessTaskRunner new)
+		andThen: [ :v | tmp asFileReference readStream upToEnd ]
 ]
 
 { #category : #accessing }
