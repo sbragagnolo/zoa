@@ -333,7 +333,7 @@ ZoaCommandLine >> briefOn: aStream [
 		briefs:
 			((arguments atName: #brief) isExplicit
 				ifTrue: [ self argumentAt: #brief ]
-				ifFalse: [ self launchEditorAndRead ]).
+				ifFalse: [ self launchEditorAndReadOn: document ]).
 	zoa save: document.
 	aStream nextPutAll: 'Successfully saved brief'
 ]
@@ -469,9 +469,10 @@ ZoaCommandLine >> getPdfOn: aStream [
 ]
 
 { #category : #brief }
-ZoaCommandLine >> launchEditorAndRead [
-	| editor tmp |
+ZoaCommandLine >> launchEditorAndReadOn: aDocument [
+	| editor tmp content |
 	tmp := FileLocator temp / UUID new asString.
+	tmp nextPutAll: (aDocument briefs ifNil: [ '' ]).
 	editor := (arguments atName: #editor) isExplicit
 		ifTrue: [ (arguments atName: #editor) namedArgument value ]
 		ifFalse: [ 'vi' ].
@@ -480,7 +481,9 @@ ZoaCommandLine >> launchEditorAndRead [
 		command: editor;
 		arguments: {tmp fullName} ] asOSTask
 		future: TKTNewProcessTaskRunner new) synchronizeTimeout: 48 hours.
-	^ tmp asFileReference readStream upToEnd
+	content := tmp asFileReference readStream upToEnd.
+	tmp asFileReference delete.
+	^ content
 ]
 
 { #category : #accessing }
