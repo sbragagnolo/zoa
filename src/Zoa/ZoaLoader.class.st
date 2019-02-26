@@ -20,11 +20,10 @@ ZoaLoader >> loadBibtex: aContent into: document [
 		copyReplaceAll: '<br>'
 		with: '') copyReplaceAll: ' =' with: '=') readStream.
 	document kind: (stream upToAll: '{').
-	lines := (((aContent contents copyReplaceAll: '<br>' with: '')
+	lines := ((((aContent contents copyReplaceAll: '<br>' with: '')
 		copyReplaceAll: '{'
-		with: '') copyReplaceAll: '}' with: '') lines
-		select: [ :l | l includes: $= ]
-		thenCollect: #trim.
+		with: '') copyReplaceAll: '}' with: '') copyReplaceAll: '"' with: '')
+		lines select: [ :l | l includes: $= ] thenCollect: #trim.
 	lines
 		do: [ :p | 
 			| pair |
@@ -32,7 +31,8 @@ ZoaLoader >> loadBibtex: aContent into: document [
 			self
 				perform:
 					('set{1}:into:'
-						format: {('' join: (('_' split: (pair at: 1) trimBoth) collect: #capitalized))})
+						format:
+							{('' join: (('_' split: (pair at: 1) trimBoth) collect: #capitalized))})
 						asSymbol
 				withArguments:
 					{(pair at: 2).
@@ -98,6 +98,11 @@ ZoaLoader >> setIsbn: aString into: aZoaDocument [
 ]
 
 { #category : #accessing }
+ZoaLoader >> setIssn: aString into: aZoaDocument [ 
+	^ self setISSN: aString into: aZoaDocument 
+]
+
+{ #category : #accessing }
 ZoaLoader >> setJournal: aString into: aZoaDocument [
 	aZoaDocument journal: aString
 ]
@@ -121,10 +126,15 @@ ZoaLoader >> setMonth: aString into: aZoaDocument [
 			(Date year: current year month: monthNumber day: current day)
 ]
 
+{ #category : #'as yet unclassified' }
+ZoaLoader >> setNote: aString into: aZoaDocument [
+	aZoaDocument note: aString
+]
+
 { #category : #accessing }
 ZoaLoader >> setNumber: aString into: aZoaDocument [
 	(aString copyReplaceAll: ',' with: '')
-		ifNotEmpty: [ :v | aZoaDocument number: v asNumber ]
+		ifNotEmpty: [ :v | aZoaDocument number: v trimBoth asNumber ]
 ]
 
 { #category : #setting }
@@ -138,7 +148,7 @@ ZoaLoader >> setPages: aString into: aZoaDocument [
 		pages:
 			(('-' split: (aString copyReplaceAll: ',' with: ''))
 				select: #isNotEmpty
-				thenCollect: #asNumber)
+				thenCollect: [ : v | v trimBoth asNumber])
 ]
 
 { #category : #setting }
@@ -151,10 +161,15 @@ ZoaLoader >> setTitle: aString into: aZoaDocument [
 	aZoaDocument title: aString
 ]
 
+{ #category : #url }
+ZoaLoader >> setUrl: aString into: aZoaDocument [ 
+	
+]
+
 { #category : #settings }
 ZoaLoader >> setVolume: aString into: aZoaDocument [
 	(aString copyReplaceAll: ',' with: '')
-		ifNotEmpty: [ :v | aZoaDocument volume: v asNumber ]
+		ifNotEmpty: [ :v | aZoaDocument volume: v trimBoth asNumber ]
 ]
 
 { #category : #settings }
@@ -164,7 +179,7 @@ ZoaLoader >> setYear: aString into: aZoaDocument [
 	aZoaDocument
 		date:
 			(Date
-				year: aString asNumber
+				year: aString trimBoth asNumber
 				month: current monthIndex
 				day: current day)
 ]

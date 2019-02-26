@@ -224,6 +224,11 @@ ZoaDocument >> link: anObject [
 	link := anObject
 ]
 
+{ #category : #acessing }
+ZoaDocument >> note: aString [
+	data at: #note put: aString
+]
+
 { #category : #accessing }
 ZoaDocument >> number: anInteger [
 	data at: #number put: anInteger
