@@ -19,7 +19,7 @@ ZoaScienceDirectLoader >> loadDocument: anUrl [
 	[ id allButFirst  isAllDigits ] whileFalse: [ id := segments removeLast ].
 	bibtex := (ZnEasy
 		get:
-			('https://www.sciencedirect.com/sdfe/arp/cite?pii={1}&format=text/x-bibtex'
+			('https://www.sciencedirect.com/sdfe/arp/cite?pii={1}&format=text/x-bibtex&withabstract=true'
 				format: {id})) entity.
 	self loadBibtex: bibtex into: document.
 	self setPdfUrlIfNeeded: document with: id. 
