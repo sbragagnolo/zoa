@@ -6,15 +6,12 @@ Class {
 
 { #category : #api }
 ZoaResearchGateLoader class >> loads: aString [
-	^ aString = 'researchgate.net'
+	^ (aString indexOfSubCollection: 'researchgate.net') > 0
 ]
 
 { #category : #'as yet unclassified' }
-ZoaResearchGateLoader >> loadCitation: anId [
-	^ (ZnEasy
-		get:
-			('https://www.researchgate.net/lite.publication.PublicationDownloadCitationModal.downloadCitation.html?fileType=BibTeX&citation=citation&publicationUid={1}'
-				format: {anId})) entity
+ZoaResearchGateLoader >> idFor: anUrl [
+	^ ('_' split: anUrl segments last) first
 ]
 
 { #category : #'as yet unclassified' }
@@ -27,5 +24,6 @@ ZoaResearchGateLoader >> loadDocument: anUrl [
 			('https://www.researchgate.net/lite.publication.PublicationDownloadCitationModal.downloadCitation.html?fileType=BibTeX&citation=citation-abstract&publicationUid={1}'
 				format: {('_' split: anUrl segments last) first})) entity.
 	self loadBibtex: bibtex into: document.
+	self ensureDoiOn: document id: (self idFor: anUrl).
 	^ document
 ]

@@ -14,6 +14,12 @@ ZoaLoader class >> loaderFor: aString [
 ]
 
 { #category : #'as yet unclassified' }
+ZoaLoader >> ensureDoiOn: aDocument id: anId [
+	aDocument doi
+		ifNil: [ aDocument doi: (self class name , '/' , anId asString) ]
+]
+
+{ #category : #'as yet unclassified' }
 ZoaLoader >> loadBibtex: aContent into: document [
 	| stream lines |
 	stream := ((aContent readStream upToEnd
@@ -115,15 +121,15 @@ ZoaLoader >> setKeywords: aString into: aZoaDocument [
 { #category : #'as yet unclassified' }
 ZoaLoader >> setMonth: aString into: aZoaDocument [
 	| current monthNumber |
-	monthNumber := (aString copyReplaceAll: ',' with: '') copyReplaceAll:'.' with: ''.
-	
+	monthNumber := ((aString copyReplaceAll: ',' with: '')
+		copyReplaceAll: '.'
+		with: '') trimBoth.
 	monthNumber := monthNumber isAllDigits
 		ifTrue: [ monthNumber asInteger ]
 		ifFalse: [ Month indexOfMonth: monthNumber ].
 	current := aZoaDocument date ifNotNil: [ :d | d ] ifNil: [ Date new ].
 	aZoaDocument
-		date:
-			(Date year: current year month: monthNumber day: current day)
+		date: (Date year: current year month: monthNumber day: current day)
 ]
 
 { #category : #'as yet unclassified' }

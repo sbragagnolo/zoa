@@ -22,8 +22,8 @@ ZoaIEEELoader >> loadDocument: anUrl [
 			('https://ieeexplore.ieee.org/xpl/downloadCitations?recordIds={1}&download-format=download-bibtex&citations-format=citation-abstract'
 				format: {id})) entity.
 	self loadBibtex: bibtex into: document.
-	self setPdfUrlIfNeeded: document with: id. 
-	
+	self setPdfUrlIfNeeded: document with: id.
+	self ensureDoiOn: document id: id.
 	^ document
 ]
 

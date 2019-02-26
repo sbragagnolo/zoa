@@ -13,12 +13,22 @@ ZoaACMLoader class >> loads: aString [
 ]
 
 { #category : #'as yet unclassified' }
+ZoaACMLoader >> idFor: anUrl [
+	| id |
+	id := anUrl query
+		at: 'id'
+		ifAbsent: [ ('.' split: (anUrl query at: 'doid')) first ].
+	^ id
+]
+
+{ #category : #'as yet unclassified' }
 ZoaACMLoader >> loadDocument: anUrl [
 	| document |
 	document := ZoaDocument new.
 	document link: anUrl.
 	self loadMetaFor: anUrl into: document.
 	document abstract: (self privateAbstractFor: anUrl).
+	self ensureDoiOn: document id: (self idFor: anUrl).
 	^ document
 ]
 
@@ -36,8 +46,11 @@ ZoaACMLoader >> loadMetaFor: anUrl into: document [
 						format:
 							{(''
 								join:
-									(('_' split: ((var copyReplaceAll: 'citation' with: '') copyReplaceAll: ':' with: ''))
-										collect: #capitalized))}) asSymbol
+									(('_'
+										split:
+											((var copyReplaceAll: 'citation' with: '')
+												copyReplaceAll: ':'
+												with: '')) collect: #capitalized))}) asSymbol
 				withArguments:
 					{content.
 					document} ]
@@ -46,9 +59,7 @@ ZoaACMLoader >> loadMetaFor: anUrl into: document [
 { #category : #'as yet unclassified' }
 ZoaACMLoader >> privateAbstractFor: anUrl [
 	| stream id |
-	id := anUrl query
-		at: 'id'
-		ifAbsent: [ ('.' split: (anUrl query at: 'doid')) first ].
+	id := self idFor: anUrl.
 	stream := (ZnEasy
 		get: ('https://dl.acm.org/tab_abstract.cfm?id={1}' format: {id}))
 		entity readStream.
