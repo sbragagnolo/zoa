@@ -146,7 +146,7 @@ Zoa >> loadDoi: aDoi [
 ]
 
 { #category : #load }
-Zoa >> localLoad:aFileReference [
+Zoa >> localLoad: aFileReference [
 	^ (STONReader on: aFileReference readStream ) next
 ]
 
@@ -155,12 +155,18 @@ Zoa >> manageRedirect: aString [
 	| stream url return |
 	stream := aString readStream.
 	stream upToAll: 'window.location'.
-	stream upToAll: '='.
-	url := ((stream upTo: $;) copyReplaceAll: $' asString with: '')
-		trimBoth.
+	stream atEnd
+		ifFalse: [ stream upToAll: '='.
+			url := ((stream upTo: $;) copyReplaceAll: $' asString with: '')
+				trimBoth ]
+		ifTrue: [ stream reset upToAll: '<iframe'.
+			stream upToAll: 'src="'.
+			stream atEnd
+				ifTrue: [ ^ self error: 'Unable to manage redirect' ].
+			url := stream upToAll: '"' ].
 	return := ZnEasy get: url asUrl.
 	self assert: return contentType sub = 'pdf'.
-	^ return contents 
+	^ return contents
 ]
 
 { #category : #read }
