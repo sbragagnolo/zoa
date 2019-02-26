@@ -16,7 +16,10 @@ ZoaLoader class >> loaderFor: aString [
 { #category : #'as yet unclassified' }
 ZoaLoader >> ensureDoiOn: aDocument id: anId [
 	aDocument doi
-		ifNil: [ aDocument doi: (self class name , '/' , anId asString) ]
+		ifNil: [ aDocument doi: self class name , '/' , anId asString ]
+		ifNotNil: [ (aDocument doi indexOfSubCollection: 'doi.org') > 0
+				ifTrue:
+					[ aDocument doi: ('/' join: (aDocument doi asZnUrl segments last: 2)) ] ]
 ]
 
 { #category : #'as yet unclassified' }

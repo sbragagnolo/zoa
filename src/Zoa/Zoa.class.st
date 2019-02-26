@@ -104,9 +104,14 @@ Zoa >> findByTag: aKeyword [
 
 { #category : #command }
 Zoa >> getPdf: doc [
+	| entity contents |
 	doc pdfUrl ifNil: [ ^ self error: 'No url available for this text' ].
 	doc pdf
-		ifNil: [ doc pdf: (ZnEasy get: doc pdfUrl) entity contents.
+		ifNil: [ entity := (ZnEasy get: doc pdfUrl) entity.
+			entity contentType sub = 'html'
+				ifTrue: [ doc pdf: (self manageRedirect: entity contents) ].
+			entity contentType sub = 'pdf'
+				ifTrue: [ doc pdf: entity contents ].
 			self save: doc ]
 ]
 
@@ -141,6 +146,19 @@ Zoa >> loadDoi: aDoi [
 { #category : #load }
 Zoa >> localLoad:aFileReference [
 	^ (STONReader on: aFileReference readStream ) next
+]
+
+{ #category : #'as yet unclassified' }
+Zoa >> manageRedirect: aString [
+	| stream url return |
+	stream := aString readStream.
+	stream upToAll: 'window.location'.
+	stream upToAll: '='.
+	url := ((stream upTo: $;) copyReplaceAll: $' asString with: '')
+		trimBoth.
+	return := ZnEasy get: url asUrl.
+	self assert: return contentType sub = 'pdf'.
+	^ return contents 
 ]
 
 { #category : #read }
