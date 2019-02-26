@@ -538,7 +538,15 @@ ZoaCommandLine >> readOn: aStream [
 	| all zoa |
 	all := self findWithFilters.
 	zoa := Zoa new.
-	zoa readAll: all
+	all
+		do: [ :doc | 
+			[ zoa read: doc ]
+				on: Error
+				do: [ :err | 
+					aStream
+						nextPutAll: ('Error loading doi: {1}' format: {doc doi});
+						newLine ] ].
+
 ]
 
 { #category : #accessing }

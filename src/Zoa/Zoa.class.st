@@ -17,12 +17,14 @@ Zoa class >> defaultFolder [
 
 { #category : #read }
 Zoa >> browse: aDocument [
-	aDocument pdfUrl ifNil: [ ^  self error: 'No url registered on this text'  ].
-	
+	| url |
+	url := aDocument pdfUrl
+		ifNil: [ aDocument link
+				ifNil: [ ^ self error: 'No url registered on this text' ] ].
 	^ ([ :spec | 
 	spec
 		command: 'open';
-		argument: aDocument  ] asOSTask
+		argument: url asString ] asOSTask
 		future: TKTNewProcessTaskRunner new) waitForCompletion: 1 second
 ]
 
@@ -174,11 +176,6 @@ Zoa >> read: aDocument [
 		argument: (#/ asFileReference / #tmp / aDocument hash asString , 'pdf') fullName ]
 		asOSTask future: TKTNewProcessTaskRunner new)
 		waitForCompletion: 2 seconds 
-]
-
-{ #category : #read }
-Zoa >> readAll: anArray [
-	anArray do: [ :d | self read: d ]
 ]
 
 { #category : #read }
