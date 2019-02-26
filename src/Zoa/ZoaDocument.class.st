@@ -236,6 +236,7 @@ ZoaDocument >> number: anInteger [
 
 { #category : #accessing }
 ZoaDocument >> pages: aCollection [
+	aCollection ifEmpty: [ ^ self ].
 	data at: #pages put: (aCollection min to: aCollection max)
 ]
 
