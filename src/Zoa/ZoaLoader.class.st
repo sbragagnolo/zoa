@@ -110,7 +110,8 @@ ZoaLoader >> setKeywords: aString into: aZoaDocument [
 { #category : #'as yet unclassified' }
 ZoaLoader >> setMonth: aString into: aZoaDocument [
 	| current monthNumber |
-	monthNumber := aString copyReplaceAll: ',' with: ''.
+	monthNumber := (aString copyReplaceAll: ',' with: '') copyReplaceAll:'.' with: ''.
+	
 	monthNumber := monthNumber isAllDigits
 		ifTrue: [ monthNumber asInteger ]
 		ifFalse: [ Month indexOfMonth: monthNumber ].

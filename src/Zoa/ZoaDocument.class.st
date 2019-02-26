@@ -225,6 +225,11 @@ ZoaDocument >> link: anObject [
 ]
 
 { #category : #accessing }
+ZoaDocument >> number: anInteger [
+	data at: #number put: anInteger
+]
+
+{ #category : #accessing }
 ZoaDocument >> pages: aCollection [
 	data at: #pages put: (aCollection min to: aCollection max)
 ]
@@ -331,4 +336,14 @@ ZoaDocument >> title [
 { #category : #accessing }
 ZoaDocument >> title: aString [ 
 	title := aString
+]
+
+{ #category : #accessing }
+ZoaDocument >> volume [
+	^ data at: #volume
+]
+
+{ #category : #accessing }
+ZoaDocument >> volume: anInteger [
+	data at: #volume put: anInteger
 ]
