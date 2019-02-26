@@ -97,6 +97,11 @@ ZoaLoader >> setIsbn: aString into: aZoaDocument [
 	aZoaDocument isbn: aString
 ]
 
+{ #category : #accessing }
+ZoaLoader >> setJournal: aString into: aZoaDocument [
+	aZoaDocument journal: aString
+]
+
 { #category : #keywords }
 ZoaLoader >> setKeywords: aString into: aZoaDocument [ 
 	aZoaDocument keywords: ((';' split: aString) collect: #trimBoth)

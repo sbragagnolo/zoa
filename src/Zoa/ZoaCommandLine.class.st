@@ -395,7 +395,7 @@ ZoaCommandLine >> fetch [
 ZoaCommandLine >> fetchOn: aStream [
 	| zoa document |
 	zoa := Zoa new.
-	[ ((arguments atName: #value) allOccurrencesCollect: #value)
+	 ((arguments atName: #value) allOccurrencesCollect: #value)
 		do: [ :id | 
 			document := (self argumentAt: #doi)
 				ifTrue: [ zoa saveDoi: id ]
@@ -406,9 +406,9 @@ ZoaCommandLine >> fetchOn: aStream [
 				format:
 					{document doi.
 					document title}).
-	aStream nextPut: Character lf ]
+	aStream nextPut: Character lf "]
 		on: Error
-		do: [ :e | self error: ' Error fetching document ' ]
+		do: [ :e | self error: ' Error fetching document ' ]"
 ]
 
 { #category : #filtering }

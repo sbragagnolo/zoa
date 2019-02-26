@@ -185,6 +185,16 @@ ZoaDocument >> issn: aString [
 ]
 
 { #category : #accessing }
+ZoaDocument >> journal [
+	^ data at: #journal
+]
+
+{ #category : #accessing }
+ZoaDocument >> journal: aString [ 
+	data at: #journal put: aString
+]
+
+{ #category : #accessing }
 ZoaDocument >> keywords [
 	^ keywords ifNil: [ ^ {} ]
 ]
