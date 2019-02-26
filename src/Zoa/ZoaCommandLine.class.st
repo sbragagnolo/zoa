@@ -408,13 +408,7 @@ ZoaCommandLine >> fetchOn: aStream [
 					document title}).
 	aStream nextPut: Character lf ]
 		on: Error
-		do: [ :e | 
-			self
-				error:
-					(' Error downloading {1}:{2}'
-						format:
-							{document doi.
-							document title}) ]
+		do: [ :e | self error: ' Error fetching document ' ]
 ]
 
 { #category : #filtering }
