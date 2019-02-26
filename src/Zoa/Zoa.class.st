@@ -211,12 +211,17 @@ Zoa >> saveUrl: aZnUrl [
 
 { #category : #read }
 Zoa >> submit [
-	^ ([ :spec | 
+	| future |
+	future := [ :spec | 
 	spec
 		command: 'bash';
 		option: '-c';
 		argument:
 			('cd {1} && git add . && git commit -m" generated message" && git pull && git push '
 				format: {root fullName}) ] asOSTask
-		future: TKTNewProcessTaskRunner new) synchronizeTimeout: 10 minutes
+		future: TKTNewProcessTaskRunner new.
+	future waitForCompletion: 10 minutes.
+	^ future isFailure
+		ifTrue: [ ' Error during submition. Check your git repo' ]
+		ifFalse: [ 'Submitted!' ]
 ]

@@ -556,9 +556,10 @@ ZoaCommandLine >> setArguments: args [
 
 { #category : #brief }
 ZoaCommandLine >> submit [
-	Zoa new submit.
+	| message |
+	message := Zoa new submit.
 	self outStream
-		nextPutAll: ' submitted ';
+		nextPutAll: message;
 		nextPutAll: String lf
 ]
 
