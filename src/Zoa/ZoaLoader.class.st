@@ -152,7 +152,7 @@ ZoaLoader >> setOnlineDate: aString into: aZoaDocument [
 ZoaLoader >> setPages: aString into: aZoaDocument [
 	aZoaDocument
 		pages:
-			(('-' split: (aString copyReplaceAll: ',' with: ''))
+			(('-' split: (aString copyReplaceAll: ',' with: '') trimBoth )
 				select: #isNotEmpty
 				thenCollect: [ : v | v trimBoth asNumber])
 ]
