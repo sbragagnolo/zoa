@@ -9,7 +9,7 @@ ZoaLoader class >> loaderFor: aString [
 	| loaders |
 	loaders := ZoaLoader allSubclasses select: [ :s | s loads: aString ].
 	loaders
-		ifEmpty: [ self error: (' No loader detected for {1}' format: aString) ].
+		ifEmpty: [ self error: (' No loader detected for {1}' format: {aString}) ].
 	^ loaders first
 ]
 

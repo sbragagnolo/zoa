@@ -105,8 +105,9 @@ Zoa >> findByTag: aKeyword [
 { #category : #command }
 Zoa >> getPdf: doc [
 	doc pdfUrl ifNil: [ ^ self error: 'No url available for this text' ].
-	doc pdf: (ZnEasy get: doc pdfUrl) entity contents.
-	self save: doc
+	doc pdf
+		ifNil: [ doc pdf: (ZnEasy get: doc pdfUrl) entity contents.
+			self save: doc ]
 ]
 
 { #category : #command }
