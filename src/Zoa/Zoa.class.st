@@ -17,10 +17,12 @@ Zoa class >> defaultFolder [
 
 { #category : #read }
 Zoa >> browse: aDocument [
+	aDocument pdfUrl ifNil: [ ^  self error: 'No url registered on this text'  ].
+	
 	^ ([ :spec | 
 	spec
 		command: 'open';
-		argument: aDocument pdfUrl ] asOSTask
+		argument: aDocument  ] asOSTask
 		future: TKTNewProcessTaskRunner new) waitForCompletion: 1 second
 ]
 
@@ -102,6 +104,7 @@ Zoa >> findByTag: aKeyword [
 
 { #category : #command }
 Zoa >> getPdf: doc [
+	doc pdfUrl ifNil: [ ^ self error: 'No url available for this text' ].
 	doc pdf: (ZnEasy get: doc pdfUrl) entity contents.
 	self save: doc
 ]

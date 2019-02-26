@@ -22,5 +22,16 @@ ZoaIEEELoader >> loadDocument: anUrl [
 			('https://ieeexplore.ieee.org/xpl/downloadCitations?recordIds={1}&download-format=download-bibtex&citations-format=citation-abstract'
 				format: {id})) entity.
 	self loadBibtex: bibtex into: document.
+	self setPdfUrlIfNeeded: document with: id. 
+	
 	^ document
+]
+
+{ #category : #'as yet unclassified' }
+ZoaIEEELoader >> setPdfUrlIfNeeded: document with: id [
+	document pdfUrl
+		ifNil: [ document
+				pdfUrl:
+					('https://ieeexplore.ieee.org/stamp/stamp.jsp?tp=&arnumber={1}'
+						format: {id}) ]
 ]
