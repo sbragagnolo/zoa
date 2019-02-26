@@ -175,6 +175,16 @@ ZoaDocument >> isbn: aString [
 ]
 
 { #category : #accessing }
+ZoaDocument >> issn [
+	^ data at: #isnn ifAbsent: [ nil ]
+]
+
+{ #category : #accessing }
+ZoaDocument >> issn: aString [
+	data at: #isnn put: aString
+]
+
+{ #category : #accessing }
 ZoaDocument >> keywords [
 	^ keywords ifNil: [ ^ {} ]
 ]
