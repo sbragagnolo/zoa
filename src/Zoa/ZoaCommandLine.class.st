@@ -406,7 +406,7 @@ ZoaCommandLine >> fetchOn: aStream [
 				format:
 					{document doi.
 					document title}).
-	aStream nextPut: Character lf "]
+	aStream newLine  "]
 		on: Error
 		do: [ :e | self error: ' Error fetching document ' ]"
 ]
