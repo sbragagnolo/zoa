@@ -491,9 +491,9 @@ ZoaCommandLine >> listOn: aStream [
 	|  projection all |
 	all := self findWithFilters. 
 	projection := arguments flags collect: #word.
-	projection ifEmpty: [ projection := {'--t'} ].
+	projection ifEmpty: [ projection := {'--d' . '--t' } ].
 	aStream nextPutAll: (' | ' join: (self titleFor: projection)).
-	aStream nextPut: Character lf.
+	aStream newLine . 
 	all
 		do: [ :each | 
 			aStream
@@ -503,7 +503,7 @@ ZoaCommandLine >> listOn: aStream [
 
 { #category : #accessing }
 ZoaCommandLine >> outStream [
-	^ outStream ifNil: [ outStream := VTermOutputDriver on: arguments context stdout ]
+	^ outStream ifNil: [ outStream := ZnNewLineWriterStream on: (VTermOutputDriver on: arguments context stdout) ]
 ]
 
 { #category : #projecting }
