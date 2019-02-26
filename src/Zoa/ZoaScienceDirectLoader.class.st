@@ -6,7 +6,7 @@ Class {
 
 { #category : #api }
 ZoaScienceDirectLoader class >> loads: aString [
-	^ aString = 'sciencedirect.com'
+	^ (aString indexOfSubCollection: 'sciencedirect.com') > 0
 ]
 
 { #category : #'as yet unclassified' }
