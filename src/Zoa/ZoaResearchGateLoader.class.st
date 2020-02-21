@@ -1,7 +1,10 @@
+"
+Downloads from Research gate
+"
 Class {
 	#name : #ZoaResearchGateLoader,
 	#superclass : #ZoaLoader,
-	#category : #Zoa
+	#category : #'Zoa-Loader'
 }
 
 { #category : #api }

@@ -1,7 +1,10 @@
+"
+Downloads from IEEE
+"
 Class {
 	#name : #ZoaIEEELoader,
 	#superclass : #ZoaLoader,
-	#category : #Zoa
+	#category : #'Zoa-Loader'
 }
 
 { #category : #api }

@@ -1,3 +1,6 @@
+"
+Command line is a Zoa API for commandline. 
+"
 Class {
 	#name : #ZoaCommandLine,
 	#superclass : #Object,
@@ -5,7 +8,7 @@ Class {
 		'outStream',
 		'arguments'
 	],
-	#category : #Zoa
+	#category : #'Zoa-API'
 }
 
 { #category : #accessing }

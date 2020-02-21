@@ -1,11 +1,20 @@
+"
+Downloads from ACM
+"
 Class {
 	#name : #ZoaACMLoader,
 	#superclass : #ZoaLoader,
 	#instVars : [
 		'page'
 	],
-	#category : #Zoa
+	#category : #'Zoa-Loader'
 }
+
+{ #category : #api }
+ZoaACMLoader class >> formatUrl: aZnUrl forDoi: aDoi [
+	^ ('https://dl.acm.org/action/exportCiteProcCitation?dois={1}&targetFile=custom-bibtex&format=bibTex'
+		format: {aDoi urlEncoded}) asZnUrl
+]
 
 { #category : #api }
 ZoaACMLoader class >> loads: aString [
@@ -15,9 +24,7 @@ ZoaACMLoader class >> loads: aString [
 { #category : #'as yet unclassified' }
 ZoaACMLoader >> idFor: anUrl [
 	| id |
-	id := anUrl query
-		at: 'id'
-		ifAbsent: [ ('.' split: (anUrl query at: 'doid')) first ].
+	id := anUrl query at: 'id' ifAbsent: [ anUrl query at: 'dois' ].
 	^ id
 ]
 
@@ -26,50 +33,55 @@ ZoaACMLoader >> loadDocument: anUrl [
 	| document |
 	document := ZoaDocument new.
 	document link: anUrl.
+	document doi: (self idFor: anUrl).
 	self loadMetaFor: anUrl into: document.
 	document abstract: (self privateAbstractFor: anUrl).
-	self ensureDoiOn: document id: (self idFor: anUrl).
 	^ document
 ]
 
 { #category : #'as yet unclassified' }
 ZoaACMLoader >> loadMetaFor: anUrl into: document [
-	| stream var content |
-	stream := (ZnEasy get: anUrl) entity readStream.
-	[ stream upToAll: '<meta name="'.
-	stream atEnd ]
-		whileFalse: [ var := stream upToAll: '" content="'.
-			content := stream upToAll: '"'.
+	| metadata |
+	metadata := STONJSON
+		fromStream: (ZnEasy get: anUrl) entity readStream.
+	metadata := (metadata at: #items) first at: document doi.
+	metadata
+		keysAndValuesDo: [ :key :value | 
 			self
-				perform:
-					('set{1}:into:'
-						format:
-							{(''
-								join:
-									(('_'
-										split:
-											((var copyReplaceAll: 'citation' with: '')
-												copyReplaceAll: ':'
-												with: '')) collect: #capitalized))}) asSymbol
+				perform: ('set{1}:into:' format: {(self sanitizeSymbol: key)}) asSymbol
 				withArguments:
-					{content.
+					{value.
 					document} ]
 ]
 
 { #category : #'as yet unclassified' }
 ZoaACMLoader >> privateAbstractFor: anUrl [
 	| stream id |
+
 	id := self idFor: anUrl.
 	stream := (ZnEasy
-		get: ('https://dl.acm.org/tab_abstract.cfm?id={1}' format: {id}))
+		get: ('https://dl.acm.org/doi/{1}' format: {id}))
 		entity readStream.
+	stream upToAll: 'article__section article__abstract hlFld-Abstract'.
 	stream upToAll: '<p>'.
 	^ stream upToAll: '</p>'
 ]
 
 { #category : #setting }
-ZoaACMLoader >> setAbstractHtmlUrl: aString into: aZoaDocument [ 
-	" Nothing to do "
+ZoaACMLoader >> setAuthor: anArray into: aZoaDocument [
+	super
+		setAuthor: (anArray collect: [ :d | ' ' join: d values ])
+		into: aZoaDocument
+]
+
+{ #category : #'as yet unclassified' }
+ZoaACMLoader >> setCollectionTitle: aString into: aZoaDocument [
+	self setConference: aString into: aZoaDocument
+]
+
+{ #category : #'as yet unclassified' }
+ZoaACMLoader >> setContainerTitle: aString into: aZoaDocument [
+	self setTitle: aString into: aZoaDocument
 ]
 
 { #category : #setting }
@@ -82,6 +94,11 @@ ZoaACMLoader >> setFirstpage: aString into: aZoaDocument [
 					aString asNumber} ]
 ]
 
+{ #category : #'as yet unclassified' }
+ZoaACMLoader >> setKeyword: aString into: aZoaDocument [
+	aZoaDocument keywords: ($, split: aString)
+]
+
 { #category : #setting }
 ZoaACMLoader >> setLastpage: aString into: aZoaDocument [
 	page
@@ -90,6 +107,11 @@ ZoaACMLoader >> setLastpage: aString into: aZoaDocument [
 				pages:
 					{page.
 					aString asNumber} ]
+]
+
+{ #category : #'as yet unclassified' }
+ZoaACMLoader >> setNumber: aString into: aZoaDocument [
+	aZoaDocument number: aString
 ]
 
 { #category : #setting }

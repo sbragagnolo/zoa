@@ -1,7 +1,10 @@
+"
+Downloads from Arxiv
+"
 Class {
 	#name : #ZoaArxivLoader,
 	#superclass : #ZoaACMLoader,
-	#category : #Zoa
+	#category : #'Zoa-Loader'
 }
 
 { #category : #api }

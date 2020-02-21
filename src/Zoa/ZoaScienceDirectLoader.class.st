@@ -1,7 +1,10 @@
+"
+Downloads from Science direct
+"
 Class {
 	#name : #ZoaScienceDirectLoader,
 	#superclass : #ZoaLoader,
-	#category : #Zoa
+	#category : #'Zoa-Loader'
 }
 
 { #category : #api }

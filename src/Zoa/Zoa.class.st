@@ -7,7 +7,7 @@ Class {
 	#instVars : [
 		'root'
 	],
-	#category : #Zoa
+	#category : #'Zoa-API'
 }
 
 { #category : #'as yet unclassified' }
@@ -40,7 +40,7 @@ Zoa >> documents [
 
 { #category : #convenience }
 Zoa >> doiToUrl: aDoi [
-	| return |
+	| return url |
 	return := STONJSON
 		fromString:
 			(ZnEasy
@@ -49,7 +49,8 @@ Zoa >> doiToUrl: aDoi [
 	return size < 3
 		ifTrue: [ ^ self
 				error: 'Unable to find ' , aDoi , ' Ensure the code is welformed' ].
-	^ ((((return values at: 3) at: 1) at: #data) at: #value) asUrl
+	url := ((((return values at: 3) at: 1) at: #data) at: #value) asUrl.
+	^ ZoaLoader formatUrl: url forDoi: aDoi
 ]
 
 { #category : #find }

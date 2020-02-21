@@ -1,8 +1,18 @@
+"
+Loader is an abstract class that fetches a Zoa document
+"
 Class {
 	#name : #ZoaLoader,
 	#superclass : #Object,
-	#category : #Zoa
+	#category : #'Zoa-Loader'
 }
+
+{ #category : #'as yet unclassified' }
+ZoaLoader class >> formatUrl: aZnUrl forDoi: aDoi [
+	^ self = ZoaLoader
+		ifTrue: [ (self loaderFor: aZnUrl host) formatUrl: aZnUrl forDoi: aDoi ]
+		ifFalse: [ aZnUrl ]
+]
 
 { #category : #accessing }
 ZoaLoader class >> loaderFor: aString [
@@ -53,21 +63,34 @@ ZoaLoader >> loadDocument: anId [
 	 self subclassResponsibility 
 ]
 
+{ #category : #'as yet unclassified' }
+ZoaLoader >> sanitizeSymbol: var [
+
+	^ ''
+		join:
+			(([:c| c isSeparator or: [ { $. . $, . $- } includes: c  ] ]
+				split:
+					((var copyReplaceAll: 'citation' with: '')
+						copyReplaceAll: ':'
+						with: '')) collect: #capitalized)
+]
+
 { #category : #setting }
 ZoaLoader >> setAbstract: aString into: aZoaDocument [ 
 	aZoaDocument abstract: aString
 ]
 
+{ #category : #'as yet unclassified' }
+ZoaLoader >> setAccessed: aCollection into: aZoaDocument [ 
+	
+]
+
 { #category : #accessing }
 ZoaLoader >> setAuthor: aString into: aZoaDocument [
-	| extracted |
-	extracted := ('§' split: (aString copyReplaceAll: ' and ' with: '§'))
-		select: #isNotEmpty.
-	aZoaDocument
-		authors:
-			((aZoaDocument authors ifNil: [ OrderedCollection new ])
-				addAll: extracted;
-				yourself)
+	| authors |
+	authors := aZoaDocument authors ifNil: [ OrderedCollection new ].
+	aString do: [ :a | authors add: a ].
+	aZoaDocument authors: authors
 ]
 
 { #category : #accessing }
@@ -80,9 +103,19 @@ ZoaLoader >> setBooktitle: aString into: aZoaDocument [
 	aZoaDocument booktitle: aString.
 ]
 
+{ #category : #'as yet unclassified' }
+ZoaLoader >> setCallNumber: aString into: aZoaDocument [ 
+
+]
+
 { #category : #settings }
 ZoaLoader >> setConference: aString into: aZoaDocument [ 
 	aZoaDocument conference: aString 
+]
+
+{ #category : #'as yet unclassified' }
+ZoaLoader >> setDOI: aString into: aZoaDocument [ 
+	self setDoi: aString into: aZoaDocument
 ]
 
 { #category : #accessing }
@@ -95,10 +128,25 @@ ZoaLoader >> setDoi: aString into: aZoaDocument [
 	aZoaDocument doi: (aString copyReplaceAll: ',' with: '')
 ]
 
+{ #category : #'as yet unclassified' }
+ZoaLoader >> setEventPlace: aString into: aZoaDocument [ 
+
+]
+
+{ #category : #'as yet unclassified' }
+ZoaLoader >> setISBN: aString into: aZoaDocument [
+	aZoaDocument isbn: aString
+]
+
 { #category : #accessing }
 ZoaLoader >> setISSN: aString into: aZoaDocument [
 	(aString copyReplaceAll: ',' with: '')
 		ifNotEmpty: [ :v | aZoaDocument issn: aString ]
+]
+
+{ #category : #'as yet unclassified' }
+ZoaLoader >> setId: aString into: aZoaDocument [ 
+	self setDoi: aString into: aZoaDocument 
 ]
 
 { #category : #accessing }
@@ -109,6 +157,15 @@ ZoaLoader >> setIsbn: aString into: aZoaDocument [
 { #category : #accessing }
 ZoaLoader >> setIssn: aString into: aZoaDocument [ 
 	^ self setISSN: aString into: aZoaDocument 
+]
+
+{ #category : #'as yet unclassified' }
+ZoaLoader >> setIssued: aCollection into: aZoaDocument [
+	| date |
+	date := (aCollection at: 'date-parts') first.
+	self
+		setDate: (Date year: date first month: date second day: date third)
+		into: aZoaDocument
 ]
 
 { #category : #accessing }
@@ -146,9 +203,24 @@ ZoaLoader >> setNumber: aString into: aZoaDocument [
 		ifNotEmpty: [ :v | aZoaDocument number: v trimBoth asNumber ]
 ]
 
+{ #category : #'as yet unclassified' }
+ZoaLoader >> setNumberOfPages: aString into: aZoaDocument [ 
+
+]
+
 { #category : #setting }
 ZoaLoader >> setOnlineDate: aString into: aZoaDocument [ 
 	aZoaDocument date: aString asDate 
+]
+
+{ #category : #'as yet unclassified' }
+ZoaLoader >> setOriginalDate: aCollection into: aZoaDocument [ 
+	self setIssued: aCollection into: aZoaDocument 
+]
+
+{ #category : #'as yet unclassified' }
+ZoaLoader >> setPage: aString into: aZoaDocument [ 
+	self setPages: aString into: aZoaDocument 
 ]
 
 { #category : #accessing }
@@ -165,14 +237,24 @@ ZoaLoader >> setPublisher: aString into: aZoaDocument [
 	aZoaDocument publisher: aString
 ]
 
+{ #category : #'as yet unclassified' }
+ZoaLoader >> setPublisherPlace: aString into: aZoaDocument [ 
+	
+]
+
 { #category : #accessing }
 ZoaLoader >> setTitle: aString into: aZoaDocument [ 
 	aZoaDocument title: aString
 ]
 
-{ #category : #url }
-ZoaLoader >> setUrl: aString into: aZoaDocument [ 
-	
+{ #category : #'as yet unclassified' }
+ZoaLoader >> setType: aString into: aZoaDocument [ 
+	aZoaDocument type: aString
+]
+
+{ #category : #'as yet unclassified' }
+ZoaLoader >> setURL: aString into: aZoaDocument [
+	aZoaDocument link: aString asZnUrl
 ]
 
 { #category : #settings }

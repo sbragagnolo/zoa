@@ -16,9 +16,10 @@ Class {
 		'doi',
 		'keywords',
 		'data',
-		'cite'
+		'cite',
+		'type'
 	],
-	#category : #Zoa
+	#category : #'Zoa-Model'
 }
 
 { #category : #accessing }
@@ -52,6 +53,20 @@ ZoaDocument >> arxivId: aString [
 	data at: #arxiv put: aString
 ]
 
+{ #category : #'as yet unclassified' }
+ZoaDocument >> asGrafoscopioNode [
+	^ ZoaArticleNode new
+		document: self;
+		yourself
+]
+
+{ #category : #'as yet unclassified' }
+ZoaDocument >> asGrafoscopioNode2 [
+	^ ZoaArticleNode new
+		document: self;
+		yourself
+]
+
 { #category : #accessing }
 ZoaDocument >> authors [
 	^ authors
@@ -60,6 +75,15 @@ ZoaDocument >> authors [
 { #category : #accessing }
 ZoaDocument >> authors: anObject [
 	authors := anObject
+]
+
+{ #category : #nodes }
+ZoaDocument >> authorsNode [
+	^ GrafoscopioTextNode new
+		header: 'Authors';
+		body:
+			(authors first inject: ' ' into: [ :acc :each | acc , String crlf ]);
+		yourself
 ]
 
 { #category : #accessing }
@@ -92,6 +116,11 @@ ZoaDocument >> bibtex [
 				do: [ :v | self stream: v into: str ] ]
 ]
 
+{ #category : #'as yet unclassified' }
+ZoaDocument >> body [
+	self shouldBeImplemented.
+]
+
 { #category : #accessing }
 ZoaDocument >> booktitle: aString [ 
 	data at: #booktitle put: aString
@@ -107,9 +136,21 @@ ZoaDocument >> briefs: anObject [
 	briefs := anObject
 ]
 
-{ #category : #accessing }
+{ #category : #'as yet unclassified' }
+ZoaDocument >> children [
+	^ {  }
+]
+
+{ #category : #'as yet unclassified' }
+ZoaDocument >> citationNode [
+	^ GrafoscopioTextNode new
+		header: 'Cite';
+		body: (authors first first: 4) , (date year \\ 1000) asString
+]
+
+{ #category : #'as yet unclassified' }
 ZoaDocument >> cite [
-	^ cite ifNil: [ self hashCite ]
+	^ (authors first first: 4) , (date year \\ 1000) asString
 ]
 
 { #category : #accessing }
@@ -125,6 +166,13 @@ ZoaDocument >> conference [
 { #category : #accessing }
 ZoaDocument >> conference: aString [
 	data at: #conference put: aString
+]
+
+{ #category : #'as yet unclassified' }
+ZoaDocument >> dataSheetNode [
+	^ GrafoscopioTextNode new
+		header: 'Data sheet';
+		body: self bibtex
 ]
 
 { #category : #accessing }
@@ -149,8 +197,12 @@ ZoaDocument >> doi: aString [
 
 { #category : #accessing }
 ZoaDocument >> hashCite [
-	^ (authors first copyFrom: 1 to: 4)
-		, (date year asString copyFrom: 3 to: 4) , '-' , self hash asString
+	^ (authors first copyFrom: 1 to: 4) , (date year \\ 1000) asString
+]
+
+{ #category : #'as yet unclassified' }
+ZoaDocument >> header [
+	^ ''
 ]
 
 { #category : #accessing }
@@ -162,6 +214,11 @@ ZoaDocument >> initialize [
 { #category : #accessing }
 ZoaDocument >> isArxiv [
 	^ data includesKey: #arxiv
+]
+
+{ #category : #'as yet unclassified' }
+ZoaDocument >> isEmptyOrNil [
+	^ false
 ]
 
 { #category : #accessing }
@@ -304,6 +361,11 @@ ZoaDocument >> read [
 	^ pdf
 ]
 
+{ #category : #'as yet unclassified' }
+ZoaDocument >> specModelClass [
+	^ GrafoscopioTextModel 
+]
+
 { #category : #accessing }
 ZoaDocument >> stream: aVar into: str [
 	| val |
@@ -340,6 +402,18 @@ ZoaDocument >> title [
 { #category : #accessing }
 ZoaDocument >> title: aString [ 
 	title := aString
+]
+
+{ #category : #'as yet unclassified' }
+ZoaDocument >> todoNode: aTitle [
+	^ GrafoscopioTextNode new
+		header: aTitle;
+		body: '#TODO Should add something here'
+]
+
+{ #category : #accessing }
+ZoaDocument >> type: aString [ 
+	type := aString
 ]
 
 { #category : #accessing }
