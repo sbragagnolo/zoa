@@ -48,7 +48,7 @@ ZoaArticleNode >> buildPreorderCollection: aCollection [
 { #category : #'as yet unclassified' }
 ZoaArticleNode >> children [
 	^ children
-		ifNil: [ children := {(ZoaArticleViewer new
+		ifNil: [ children := {(ZoaArticleViewerNode new
 				parent: self;
 				yourself)} ]
 ]
