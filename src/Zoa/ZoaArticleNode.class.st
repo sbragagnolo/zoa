@@ -11,6 +11,13 @@ Class {
 	#category : #'Zoa-Grafoscopio'
 }
 
+{ #category : #'instance creation' }
+ZoaArticleNode class >> new [
+	^ super new
+		article;
+		yourself
+]
+
 { #category : #'as yet unclassified' }
 ZoaArticleNode >> article [
 	^ super content
@@ -104,7 +111,10 @@ ZoaArticleNode >> specModelClass [
 
 { #category : #accessing }
 ZoaArticleNode >> title [
-	^ self header size > 30
-		ifTrue: [ '[',self article cite,'] -', (self header readStream next: 22) , '...' ]
-		ifFalse: [ self header ]
+	| ht |
+	ht := self header.
+	^ (ht size > 30 and: [ (ht beginsWith: ' Invalid link') not ])
+		ifTrue: [ '[' , self article cite , '] -' , (self header readStream next: 22)
+				, '...' ]
+		ifFalse: [ ht ]
 ]

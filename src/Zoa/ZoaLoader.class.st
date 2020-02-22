@@ -97,8 +97,10 @@ ZoaLoader >> setAuthor: aString into: aZoaDocument [
 ]
 
 { #category : #accessing }
-ZoaLoader >> setAuthors: aString into: aZoaDocument [  
-	aZoaDocument authors:( (';' split: aString ) collect:#trimBoth)
+ZoaLoader >> setAuthors: aString into: aZoaDocument [
+	(aString isString not and: [ aString isCollection ])
+		ifTrue: [ aZoaDocument authors: aString ]
+		ifFalse: [ aZoaDocument authors: ((';' split: aString) collect: #trimBoth) ]
 ]
 
 { #category : #accessing }

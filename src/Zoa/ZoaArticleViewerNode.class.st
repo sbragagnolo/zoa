@@ -21,6 +21,11 @@ ZoaArticleViewerNode >> asTreeNodePresenter [
 	^ node
 ]
 
+{ #category : #'as yet unclassified' }
+ZoaArticleViewerNode >> children [
+	^ {  }
+]
+
 { #category : #accessing }
 ZoaArticleViewerNode >> content [
 	self shouldBeImplemented.
