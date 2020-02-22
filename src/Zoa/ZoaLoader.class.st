@@ -89,7 +89,10 @@ ZoaLoader >> setAccessed: aCollection into: aZoaDocument [
 ZoaLoader >> setAuthor: aString into: aZoaDocument [
 	| authors |
 	authors := aZoaDocument authors ifNil: [ OrderedCollection new ].
-	aString do: [ :a | authors add: a ].
+	aString isString
+		ifFalse: [ ^ self setAuthors: aString into: aZoaDocument ].
+		
+	authors add: aString.
 	aZoaDocument authors: authors
 ]
 

@@ -150,7 +150,7 @@ ZoaDocument >> citationNode [
 
 { #category : #'as yet unclassified' }
 ZoaDocument >> cite [
-	^ (authors first first: 4) , (date year \\ 1000) asString
+	^ (self firstAuthor first: 4) , (date year \\ 1000) asString
 ]
 
 { #category : #accessing }
@@ -193,6 +193,11 @@ ZoaDocument >> doi [
 { #category : #accessing }
 ZoaDocument >> doi: aString [ 
 	doi := aString 
+]
+
+{ #category : #'as yet unclassified' }
+ZoaDocument >> firstAuthor [
+	^ authors first
 ]
 
 { #category : #accessing }
