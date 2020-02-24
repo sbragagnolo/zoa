@@ -1,3 +1,6 @@
+"
+Author
+"
 Class {
 	#name : #ZoaAuthor,
 	#superclass : #Object,

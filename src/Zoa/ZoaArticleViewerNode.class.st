@@ -10,35 +10,30 @@ Class {
 	#category : #'Zoa-Grafoscopio'
 }
 
-{ #category : #accessing }
-ZoaArticleViewerNode >> asTreeNodePresenter [
-	| node | 
-	node := TreeNodePresenter new.
-	node
-		hasChildren: [ false ];
-		children: [ {}];
-		content: self.
-	^ node
-]
-
 { #category : #'as yet unclassified' }
 ZoaArticleViewerNode >> children [
 	^ {  }
 ]
 
 { #category : #accessing }
-ZoaArticleViewerNode >> content [
-	self shouldBeImplemented.
-]
-
-{ #category : #accessing }
 ZoaArticleViewerNode >> header [
-	self shouldBeImplemented.
+	^ 'viewer'
 ]
 
 { #category : #'as yet unclassified' }
-ZoaArticleViewerNode >> openIn: aGrafoscopioNewNotebook [ 
-	self shouldBeImplemented.
+ZoaArticleViewerNode >> header: aString [ 
+
+]
+
+{ #category : #'as yet unclassified' }
+ZoaArticleViewerNode >> openIn: aNotebook [
+	aNotebook header text: 'Viewer'.
+	aNotebook body: (aNotebook instantiate: ZoaArticleViewer).
+	aNotebook body article: parent article.
+	aNotebook body onArticleReloadClicked: [ 
+		parent reload. 
+		aNotebook body article: parent article.
+	]
 ]
 
 { #category : #accessing }
@@ -47,11 +42,11 @@ ZoaArticleViewerNode >> parent: aZoaArticleNode [
 ]
 
 { #category : #'as yet unclassified' }
-ZoaArticleViewerNode >> specModelClass [
-	self shouldBeImplemented.
+ZoaArticleViewerNode >> title [
+	^ 'Viewer'
 ]
 
 { #category : #'as yet unclassified' }
-ZoaArticleViewerNode >> title [
-	^ 'Viewer'
+ZoaArticleViewerNode >> updateEditionTimestamp [
+
 ]

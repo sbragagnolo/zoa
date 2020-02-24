@@ -96,7 +96,7 @@ ZoaACMLoader >> setFirstpage: aString into: aZoaDocument [
 
 { #category : #'as yet unclassified' }
 ZoaACMLoader >> setKeyword: aString into: aZoaDocument [
-	aZoaDocument keywords: ($, split: aString)
+	self setKeywords: aString into: aZoaDocument
 ]
 
 { #category : #setting }

@@ -33,6 +33,11 @@ ZoaDocument >> abstract: anObject [
 ]
 
 { #category : #accessing }
+ZoaDocument >> addBrief: aBrief [
+	briefs add: aBrief
+]
+
+{ #category : #accessing }
 ZoaDocument >> arrayKeywords [
 	^ self keywords asArray 
 ]
@@ -128,7 +133,7 @@ ZoaDocument >> booktitle: aString [
 
 { #category : #accessing }
 ZoaDocument >> briefs [
-	^ briefs
+	^ briefs ifNil: [ briefs := OrderedCollection new ]
 ]
 
 { #category : #accessing }
@@ -150,7 +155,7 @@ ZoaDocument >> citationNode [
 
 { #category : #'as yet unclassified' }
 ZoaDocument >> cite [
-	^ (self firstAuthor first: 4) , (date year \\ 1000) asString
+	^ (self firstAuthor lastname first: 4) , (date year \\ 1000) asString
 ]
 
 { #category : #accessing }
@@ -166,6 +171,11 @@ ZoaDocument >> conference [
 { #category : #accessing }
 ZoaDocument >> conference: aString [
 	data at: #conference put: aString
+]
+
+{ #category : #accessing }
+ZoaDocument >> data [
+	^ data
 ]
 
 { #category : #'as yet unclassified' }
@@ -213,7 +223,8 @@ ZoaDocument >> header [
 { #category : #accessing }
 ZoaDocument >> initialize [
 	super initialize.
-	data := Dictionary new
+	data := Dictionary new.
+	briefs := OrderedCollection new.
 ]
 
 { #category : #accessing }
@@ -366,9 +377,9 @@ ZoaDocument >> read [
 	^ pdf
 ]
 
-{ #category : #'as yet unclassified' }
+{ #category : #accessing }
 ZoaDocument >> specModelClass [
-	^ GrafoscopioTextModel 
+	^ GrafoscopioNewTextModel
 ]
 
 { #category : #accessing }
@@ -417,8 +428,8 @@ ZoaDocument >> todoNode: aTitle [
 ]
 
 { #category : #accessing }
-ZoaDocument >> type: aString [ 
-	type := aString
+ZoaDocument >> type: aString [
+	self data at: #EventType put: aString
 ]
 
 { #category : #accessing }

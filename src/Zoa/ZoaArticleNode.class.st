@@ -11,27 +11,9 @@ Class {
 	#category : #'Zoa-Grafoscopio'
 }
 
-{ #category : #'instance creation' }
-ZoaArticleNode class >> new [
-	^ super new
-		article;
-		yourself
-]
-
 { #category : #'as yet unclassified' }
 ZoaArticleNode >> article [
 	^ super content
-]
-
-{ #category : #'as yet unclassified' }
-ZoaArticleNode >> asTreeNodePresenter [
-	| node | 
-	node := TreeNodePresenter new.
-	node
-		hasChildren: [ self children isNotEmpty ];
-		children: [ self children collect: [ :subNode | subNode asTreeNodePresenter ] ];
-		content: self.
-	^ node
 ]
 
 { #category : #'as yet unclassified' }
@@ -76,7 +58,7 @@ ZoaArticleNode >> fetchContent: aUrlOrDoi [
 	zoa := Zoa new.
 	[ ^ (aUrlOrDoi beginsWith: 'http')
 		ifTrue: [ zoa saveUrl: aUrlOrDoi asUrl ]
-		ifFalse: [ zoa saveDoi: aUrlOrDoi ] ]
+		ifFalse: [ zoa findByDoi: aUrlOrDoi ] ]
 		on: Error
 		do: [ ^ nil ]
 ]
@@ -102,6 +84,11 @@ ZoaArticleNode >> header [
 { #category : #'as yet unclassified' }
 ZoaArticleNode >> isSelected [
 	^ false
+]
+
+{ #category : #accessing }
+ZoaArticleNode >> reload [
+	content := Zoa new findByDoi: content doi
 ]
 
 { #category : #accessing }

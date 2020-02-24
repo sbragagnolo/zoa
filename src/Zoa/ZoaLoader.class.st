@@ -88,19 +88,31 @@ ZoaLoader >> setAccessed: aCollection into: aZoaDocument [
 { #category : #accessing }
 ZoaLoader >> setAuthor: aString into: aZoaDocument [
 	| authors |
-	authors := aZoaDocument authors ifNil: [ OrderedCollection new ].
 	aString isString
 		ifFalse: [ ^ self setAuthors: aString into: aZoaDocument ].
-		
+	self halt.
+	authors := aZoaDocument authors ifNil: [ OrderedCollection new ].
 	authors add: aString.
 	aZoaDocument authors: authors
 ]
 
 { #category : #accessing }
-ZoaLoader >> setAuthors: aString into: aZoaDocument [
-	(aString isString not and: [ aString isCollection ])
-		ifTrue: [ aZoaDocument authors: aString ]
-		ifFalse: [ aZoaDocument authors: ((';' split: aString) collect: #trimBoth) ]
+ZoaLoader >> setAuthors: aCollectionOfAuthors into: aZoaDocument [
+	| zoaAuthors |
+	(aCollectionOfAuthors isString not
+		and: [ aCollectionOfAuthors isCollection ])
+		ifTrue: [ zoaAuthors := aCollectionOfAuthors
+				collect: [ :a | 
+					| pair |
+					pair := ' ' split: a.
+					ZoaAuthor new
+						lastname: pair first;
+						name: pair second;
+						yourself ].
+			aZoaDocument authors: zoaAuthors ]
+		ifFalse: [ self halt. 
+			aZoaDocument
+				authors: ((';' split: aCollectionOfAuthors) collect: #trimBoth) ]
 ]
 
 { #category : #accessing }
@@ -179,8 +191,14 @@ ZoaLoader >> setJournal: aString into: aZoaDocument [
 ]
 
 { #category : #keywords }
-ZoaLoader >> setKeywords: aString into: aZoaDocument [ 
-	aZoaDocument keywords: ((';' split: aString) collect: #trimBoth)
+ZoaLoader >> setKeywords: aString into: aZoaDocument [
+	aZoaDocument
+		keywords:
+			((([ :c | c = $; or: [ c = $, ] ] split: aString) collect: #trimBoth)
+				collect: [ :a | 
+					ZoaTag new
+						name: a;
+						yourself ])
 ]
 
 { #category : #'as yet unclassified' }
