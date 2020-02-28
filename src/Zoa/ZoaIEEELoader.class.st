@@ -15,7 +15,7 @@ ZoaIEEELoader class >> loads: aString [
 { #category : #'as yet unclassified' }
 ZoaIEEELoader >> loadDocument: anUrl [
 	| document bibtex segments id |
-	document := ZoaDocument new.
+	document := ZoaArticle new.
 	document link: anUrl.
 	segments := anUrl asUrl segments copy.
 	id := segments removeLast.

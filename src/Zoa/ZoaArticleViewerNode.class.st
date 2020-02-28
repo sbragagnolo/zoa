@@ -26,6 +26,11 @@ ZoaArticleViewerNode >> header: aString [
 ]
 
 { #category : #'as yet unclassified' }
+ZoaArticleViewerNode >> isLeaf [
+	^ true.
+]
+
+{ #category : #'as yet unclassified' }
 ZoaArticleViewerNode >> openIn: aNotebook [
 	aNotebook header text: 'Viewer'.
 	aNotebook body: (aNotebook instantiate: ZoaArticleViewer).

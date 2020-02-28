@@ -138,23 +138,26 @@ ZoaArticleViewer >> initializePrivateAnnouncements [
 ZoaArticleViewer >> initializeWidgets [
 	toolBar := self newToolBar.
 	toolBar := self newToolBar.
-	
 	toolBar
 		addItemLeft:
 			(SpToolBarButton new
 				icon: (Smalltalk ui icons iconNamed: #add);
 				action: [ self addBrief ] yourself).
-		toolBar
+	toolBar
 		addItemLeft:
 			(SpToolBarButton new
 				icon: (Smalltalk ui icons iconNamed: #refresh);
 				action: [ self reloadArticle ] yourself).
 	toolBar
+		addItemLeft:
+			(SpToolBarButton new
+				icon: (Smalltalk ui icons iconNamed: #open);
+				action: [ self openArticlePdf ] yourself).
+	toolBar
 		addItemRight:
 			(SpToolBarButton new
 				label: 'Save';
 				action: [ self saveArticle ] yourself).
-				
 	toolBar
 		addItemRight:
 			(SpToolBarButton new
@@ -172,6 +175,11 @@ ZoaArticleViewer >> initializeWidgets [
 { #category : #initialization }
 ZoaArticleViewer >> onArticleReloadClicked: aBlock [
 	onArticleReloadClicked := aBlock
+]
+
+{ #category : #initialization }
+ZoaArticleViewer >> openArticlePdf [
+	(#open command arguments: {article pdfUrl}) schedule.
 ]
 
 { #category : #initialization }

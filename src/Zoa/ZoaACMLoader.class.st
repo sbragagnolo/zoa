@@ -31,7 +31,7 @@ ZoaACMLoader >> idFor: anUrl [
 { #category : #'as yet unclassified' }
 ZoaACMLoader >> loadDocument: anUrl [
 	| document |
-	document := ZoaDocument new.
+	document := ZoaArticle new.
 	document link: anUrl.
 	document doi: (self idFor: anUrl).
 	self loadMetaFor: anUrl into: document.

@@ -2,7 +2,7 @@
 This entry represents a document (Article, whitepaper, etc)
 "
 Class {
-	#name : #ZoaDocument,
+	#name : #ZoaArticle,
 	#superclass : #Object,
 	#instVars : [
 		'link',
@@ -22,68 +22,79 @@ Class {
 	#category : #'Zoa-Model'
 }
 
+{ #category : #voyage }
+ZoaArticle class >> descriptionContainer [
+	<voyageContainer>
+	^ VOContainer new collectionName: 'ZoaArticle' yourself
+]
+
+{ #category : #voyage }
+ZoaArticle class >> isVoyageRoot [
+	^ true
+]
+
 { #category : #accessing }
-ZoaDocument >> abstract [
+ZoaArticle >> abstract [
 	^ abstract
 ]
 
 { #category : #accessing }
-ZoaDocument >> abstract: anObject [
+ZoaArticle >> abstract: anObject [
 	abstract := anObject
 ]
 
 { #category : #accessing }
-ZoaDocument >> addBrief: aBrief [
+ZoaArticle >> addBrief: aBrief [
 	briefs add: aBrief
 ]
 
 { #category : #accessing }
-ZoaDocument >> arrayKeywords [
+ZoaArticle >> arrayKeywords [
 	^ self keywords asArray 
 ]
 
 { #category : #accessing }
-ZoaDocument >> arrayTags [
+ZoaArticle >> arrayTags [
 	^ self tags asArray 
 ]
 
 { #category : #accessing }
-ZoaDocument >> arxivId [
+ZoaArticle >> arxivId [
 	^ data at:#arxiv
 ]
 
 { #category : #accessing }
-ZoaDocument >> arxivId: aString [ 
+ZoaArticle >> arxivId: aString [ 
 	doi := aString. 
 	data at: #arxiv put: aString
 ]
 
 { #category : #'as yet unclassified' }
-ZoaDocument >> asGrafoscopioNode [
+ZoaArticle >> asGrafoscopioNode [
 	^ ZoaArticleNode new
 		document: self;
 		yourself
 ]
 
 { #category : #'as yet unclassified' }
-ZoaDocument >> asGrafoscopioNode2 [
+ZoaArticle >> asGrafoscopioNode2 [
 	^ ZoaArticleNode new
 		document: self;
 		yourself
 ]
 
 { #category : #accessing }
-ZoaDocument >> authors [
+ZoaArticle >> authors [
 	^ authors
 ]
 
 { #category : #accessing }
-ZoaDocument >> authors: anObject [
+ZoaArticle >> authors: anObject [
 	authors := anObject
 ]
 
 { #category : #nodes }
-ZoaDocument >> authorsNode [
+ZoaArticle >> authorsNode [
 	^ GrafoscopioTextNode new
 		header: 'Authors';
 		body:
@@ -92,7 +103,7 @@ ZoaDocument >> authorsNode [
 ]
 
 { #category : #accessing }
-ZoaDocument >> bibtex [
+ZoaArticle >> bibtex [
 	^ String
 		streamContents: [ :str | 
 			str
@@ -122,226 +133,226 @@ ZoaDocument >> bibtex [
 ]
 
 { #category : #'as yet unclassified' }
-ZoaDocument >> body [
+ZoaArticle >> body [
 	self shouldBeImplemented.
 ]
 
 { #category : #accessing }
-ZoaDocument >> booktitle: aString [ 
+ZoaArticle >> booktitle: aString [ 
 	data at: #booktitle put: aString
 ]
 
 { #category : #accessing }
-ZoaDocument >> briefs [
+ZoaArticle >> briefs [
 	^ briefs ifNil: [ briefs := OrderedCollection new ]
 ]
 
 { #category : #accessing }
-ZoaDocument >> briefs: anObject [
+ZoaArticle >> briefs: anObject [
 	briefs := anObject
 ]
 
 { #category : #'as yet unclassified' }
-ZoaDocument >> children [
+ZoaArticle >> children [
 	^ {  }
 ]
 
 { #category : #'as yet unclassified' }
-ZoaDocument >> citationNode [
+ZoaArticle >> citationNode [
 	^ GrafoscopioTextNode new
 		header: 'Cite';
 		body: (authors first first: 4) , (date year \\ 1000) asString
 ]
 
 { #category : #'as yet unclassified' }
-ZoaDocument >> cite [
-	^ (self firstAuthor lastname first: 4) , (date year \\ 1000) asString
+ZoaArticle >> cite [
+	^ (self firstAuthor citeName) , (date year \\ 1000) asString
 ]
 
 { #category : #accessing }
-ZoaDocument >> cite: aCite [
+ZoaArticle >> cite: aCite [
 	^ cite := aCite
 ]
 
 { #category : #accessing }
-ZoaDocument >> conference [
+ZoaArticle >> conference [
 	^ data at: #conference ifAbsent: [  'Not a conference' ]
 ]
 
 { #category : #accessing }
-ZoaDocument >> conference: aString [
+ZoaArticle >> conference: aString [
 	data at: #conference put: aString
 ]
 
 { #category : #accessing }
-ZoaDocument >> data [
+ZoaArticle >> data [
 	^ data
 ]
 
 { #category : #'as yet unclassified' }
-ZoaDocument >> dataSheetNode [
+ZoaArticle >> dataSheetNode [
 	^ GrafoscopioTextNode new
 		header: 'Data sheet';
 		body: self bibtex
 ]
 
 { #category : #accessing }
-ZoaDocument >> date [
+ZoaArticle >> date [
 	^ date
 ]
 
 { #category : #accessing }
-ZoaDocument >> date: anObject [
+ZoaArticle >> date: anObject [
 	date := anObject
 ]
 
 { #category : #accessing }
-ZoaDocument >> doi [
+ZoaArticle >> doi [
 	^ doi
 ]
 
 { #category : #accessing }
-ZoaDocument >> doi: aString [ 
+ZoaArticle >> doi: aString [ 
 	doi := aString 
 ]
 
 { #category : #'as yet unclassified' }
-ZoaDocument >> firstAuthor [
+ZoaArticle >> firstAuthor [
 	^ authors first
 ]
 
 { #category : #accessing }
-ZoaDocument >> hashCite [
+ZoaArticle >> hashCite [
 	^ (authors first copyFrom: 1 to: 4) , (date year \\ 1000) asString
 ]
 
 { #category : #'as yet unclassified' }
-ZoaDocument >> header [
+ZoaArticle >> header [
 	^ ''
 ]
 
 { #category : #accessing }
-ZoaDocument >> initialize [
+ZoaArticle >> initialize [
 	super initialize.
 	data := Dictionary new.
 	briefs := OrderedCollection new.
 ]
 
 { #category : #accessing }
-ZoaDocument >> isArxiv [
+ZoaArticle >> isArxiv [
 	^ data includesKey: #arxiv
 ]
 
 { #category : #'as yet unclassified' }
-ZoaDocument >> isEmptyOrNil [
+ZoaArticle >> isEmptyOrNil [
 	^ false
 ]
 
 { #category : #accessing }
-ZoaDocument >> isbn [
+ZoaArticle >> isbn [
 	^ data at:#isbn
 ]
 
 { #category : #accessing }
-ZoaDocument >> isbn: aString [
+ZoaArticle >> isbn: aString [
 	data at: #isbn put: aString
 ]
 
 { #category : #accessing }
-ZoaDocument >> issn [
+ZoaArticle >> issn [
 	^ data at: #isnn ifAbsent: [ nil ]
 ]
 
 { #category : #accessing }
-ZoaDocument >> issn: aString [
+ZoaArticle >> issn: aString [
 	data at: #isnn put: aString
 ]
 
 { #category : #accessing }
-ZoaDocument >> journal [
+ZoaArticle >> journal [
 	^ data at: #journal
 ]
 
 { #category : #accessing }
-ZoaDocument >> journal: aString [ 
+ZoaArticle >> journal: aString [ 
 	data at: #journal put: aString
 ]
 
 { #category : #accessing }
-ZoaDocument >> keywords [
+ZoaArticle >> keywords [
 	^ keywords ifNil: [ ^ {} ]
 ]
 
 { #category : #accessing }
-ZoaDocument >> keywords: aCollection [
+ZoaArticle >> keywords: aCollection [
 	keywords := aCollection
 ]
 
 { #category : #accessing }
-ZoaDocument >> kind [
+ZoaArticle >> kind [
 	^ data at: #kind ifAbsent: [ 'UNKNOWN' ]
 ]
 
 { #category : #accessing }
-ZoaDocument >> kind: anObject [
+ZoaArticle >> kind: anObject [
 	data at: #kind put: anObject
 ]
 
 { #category : #accessing }
-ZoaDocument >> link [
+ZoaArticle >> link [
 	^ link
 ]
 
 { #category : #accessing }
-ZoaDocument >> link: anObject [
+ZoaArticle >> link: anObject [
 	link := anObject
 ]
 
 { #category : #acessing }
-ZoaDocument >> note: aString [
+ZoaArticle >> note: aString [
 	data at: #note put: aString
 ]
 
 { #category : #accessing }
-ZoaDocument >> number: anInteger [
+ZoaArticle >> number: anInteger [
 	data at: #number put: anInteger
 ]
 
 { #category : #accessing }
-ZoaDocument >> pages: aCollection [
+ZoaArticle >> pages: aCollection [
 	aCollection ifEmpty: [ ^ self ].
 	data at: #pages put: (aCollection min to: aCollection max)
 ]
 
 { #category : #accessing }
-ZoaDocument >> pdf [
+ZoaArticle >> pdf [
 	^ pdf
 ]
 
 { #category : #accessing }
-ZoaDocument >> pdf: anObject [
+ZoaArticle >> pdf: anObject [
 	pdf := anObject
 ]
 
 { #category : #accessing }
-ZoaDocument >> pdfContent [
+ZoaArticle >> pdfContent [
 	pdf
 		ifNil: [ ^ self error: 'Unavailable content. execute getPdf before' ].
 	^ pdf
 ]
 
 { #category : #accessing }
-ZoaDocument >> pdfUrl [
+ZoaArticle >> pdfUrl [
 	^ data at: #pdfUrl ifAbsent: [ nil ]
 ]
 
 { #category : #accessing }
-ZoaDocument >> pdfUrl: aZnUrl [
+ZoaArticle >> pdfUrl: aZnUrl [
 	data at: #pdfUrl put: aZnUrl
 ]
 
 { #category : #accessing }
-ZoaDocument >> printString [
+ZoaArticle >> printString [
 	^ String
 		streamContents: [ :str | 
 			str
@@ -361,29 +372,29 @@ ZoaDocument >> printString [
 ]
 
 { #category : #accessing }
-ZoaDocument >> publisher [
+ZoaArticle >> publisher [
 	^ data at: #publisher ifAbsent: [ 'Non publisher' ]
 ]
 
 { #category : #accessing }
-ZoaDocument >> publisher: aString [
+ZoaArticle >> publisher: aString [
 	data at: #publisher put: aString
 ]
 
 { #category : #accessing }
-ZoaDocument >> read [
+ZoaArticle >> read [
 	pdf
 		ifNil: [ self error: 'Unavailable content. execute getPdf before' ].
 	^ pdf
 ]
 
 { #category : #accessing }
-ZoaDocument >> specModelClass [
+ZoaArticle >> specModelClass [
 	^ GrafoscopioNewTextModel
 ]
 
 { #category : #accessing }
-ZoaDocument >> stream: aVar into: str [
+ZoaArticle >> stream: aVar into: str [
 	| val |
 	val := self instVarNamed: aVar.
 	val ifNil: [ ^ self ].
@@ -401,43 +412,43 @@ ZoaDocument >> stream: aVar into: str [
 ]
 
 { #category : #accessing }
-ZoaDocument >> tags [
+ZoaArticle >> tags [
 	^ tags ifNil: [ {} ]
 ]
 
 { #category : #accessing }
-ZoaDocument >> tags: anObject [
+ZoaArticle >> tags: anObject [
 	tags := anObject
 ]
 
 { #category : #accessing }
-ZoaDocument >> title [
+ZoaArticle >> title [
 	^ title
 ]
 
 { #category : #accessing }
-ZoaDocument >> title: aString [ 
+ZoaArticle >> title: aString [ 
 	title := aString
 ]
 
 { #category : #'as yet unclassified' }
-ZoaDocument >> todoNode: aTitle [
+ZoaArticle >> todoNode: aTitle [
 	^ GrafoscopioTextNode new
 		header: aTitle;
 		body: '#TODO Should add something here'
 ]
 
 { #category : #accessing }
-ZoaDocument >> type: aString [
+ZoaArticle >> type: aString [
 	self data at: #EventType put: aString
 ]
 
 { #category : #accessing }
-ZoaDocument >> volume [
+ZoaArticle >> volume [
 	^ data at: #volume
 ]
 
 { #category : #accessing }
-ZoaDocument >> volume: anInteger [
+ZoaArticle >> volume: anInteger [
 	data at: #volume put: anInteger
 ]

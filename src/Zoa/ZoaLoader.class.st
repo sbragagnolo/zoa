@@ -90,6 +90,9 @@ ZoaLoader >> setAuthor: aString into: aZoaDocument [
 	| authors |
 	aString isString
 		ifFalse: [ ^ self setAuthors: aString into: aZoaDocument ].
+	authors := 'and' split: aString.
+	authors size > 1
+		ifTrue: [ ^ self setAuthors: authors into: aZoaDocument ].
 	self halt.
 	authors := aZoaDocument authors ifNil: [ OrderedCollection new ].
 	authors add: aString.
@@ -104,13 +107,13 @@ ZoaLoader >> setAuthors: aCollectionOfAuthors into: aZoaDocument [
 		ifTrue: [ zoaAuthors := aCollectionOfAuthors
 				collect: [ :a | 
 					| pair |
-					pair := ' ' split: a.
+					pair := ' ' split: a trimBoth.
 					ZoaAuthor new
 						lastname: pair first;
 						name: pair second;
 						yourself ].
 			aZoaDocument authors: zoaAuthors ]
-		ifFalse: [ self halt. 
+		ifFalse: [ self halt.
 			aZoaDocument
 				authors: ((';' split: aCollectionOfAuthors) collect: #trimBoth) ]
 ]

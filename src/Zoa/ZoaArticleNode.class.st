@@ -11,9 +11,18 @@ Class {
 	#category : #'Zoa-Grafoscopio'
 }
 
+{ #category : #'instance creation' }
+ZoaArticleNode class >> nameForSelection [
+	^ 'New Article Node'
+]
+
 { #category : #'as yet unclassified' }
 ZoaArticleNode >> article [
-	^ super content
+	| article |
+	article := super content.
+	^ article isString
+		ifTrue: [ nil ]
+		ifFalse: [ article ]
 ]
 
 { #category : #'as yet unclassified' }
@@ -75,6 +84,11 @@ ZoaArticleNode >> getUrl [
 ]
 
 { #category : #'as yet unclassified' }
+ZoaArticleNode >> hasAncestorTaggedAs: aString [
+	^ parent hasAncestorTaggedAs: aString
+]
+
+{ #category : #'as yet unclassified' }
 ZoaArticleNode >> header [
 	^ self article 
 		ifNil: [ ' Invalid link {1}' format: { link }  ]
@@ -82,8 +96,22 @@ ZoaArticleNode >> header [
 ]
 
 { #category : #'as yet unclassified' }
+ZoaArticleNode >> isLeaf [
+	^ false.
+]
+
+{ #category : #'as yet unclassified' }
 ZoaArticleNode >> isSelected [
 	^ false
+]
+
+{ #category : #markdown }
+ZoaArticleNode >> markdownContent [
+	^ String
+		streamContents: [ :stream | 
+			self writeTitleAsMarkdown: stream.
+			self writeBodyAsMarkdown: stream.
+			self writeBriefsAsMarkDown: stream ]
 ]
 
 { #category : #accessing }
@@ -104,4 +132,36 @@ ZoaArticleNode >> title [
 		ifTrue: [ '[' , self article cite , '] -' , (self header readStream next: 22)
 				, '...' ]
 		ifFalse: [ ht ]
+]
+
+{ #category : #'as yet unclassified' }
+ZoaArticleNode >> writeBodyAsMarkdown: aWriteStream [ 
+	aWriteStream nextPutAll: self body asString withInternetLineEndings; crlf; crlf 
+]
+
+{ #category : #'as yet unclassified' }
+ZoaArticleNode >> writeBriefsAsMarkDown: aStream [
+	self article briefs
+		select: [ :b | b includeInText ]
+		thenDo: [ :b | 
+			self level + 1 timesRepeat: [ aStream nextPutAll: '#' ].
+			aStream nextPutAll: ' '.
+			aStream
+				nextPutAll: (b name copyReplaceTokens: #cr with: #lf);
+				crlf;
+				crlf.
+			aStream nextPutAll: b text ]
+]
+
+{ #category : #'as yet unclassified' }
+ZoaArticleNode >> writeTitleAsMarkdown: aStream [
+	"I export the header as markdown using the level inside the tree to determine hierarchy
+	and replacing all line endings to make them Internet friendly"
+
+	self level timesRepeat: [ aStream nextPutAll: '#' ].
+	aStream nextPutAll: ' '.
+	aStream
+		nextPutAll: (self article title copyReplaceTokens: #cr with: #lf);
+		crlf;
+		crlf
 ]

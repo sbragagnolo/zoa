@@ -437,7 +437,7 @@ ZoaCommandLine >> findWithFilters [
 	| filters |
 	filters := arguments namedParameters collect: #value.
 	^ filters
-		inject: Zoa new findAll
+		inject: Zoa new findAllArticles
 		into: [ :acc :each | self filter: acc with: each ]
 ]
 

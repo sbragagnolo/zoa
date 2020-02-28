@@ -15,6 +15,16 @@ Zoa class >> defaultFolder [
 	^ (FileLocator home / '.zoa') ensureCreateDirectory 
 ]
 
+{ #category : #accesing }
+Zoa >> articles [
+	^ (root / #database / #articles) ensureCreateDirectory
+]
+
+{ #category : #accesing }
+Zoa >> authors [
+	^ (root / #database / #authors) ensureCreateDirectory
+]
+
 { #category : #read }
 Zoa >> browse: aDocument [
 	| url |
@@ -33,11 +43,6 @@ Zoa >> browseDoi: aDoi [
 	^ self browse: (self findByDoi: aDoi)
 ]
 
-{ #category : #accesing }
-Zoa >> documents [
-	^ (root / #database) ensureCreateDirectory
-]
-
 { #category : #convenience }
 Zoa >> doiToUrl: aDoi [
 	| return url |
@@ -54,8 +59,13 @@ Zoa >> doiToUrl: aDoi [
 ]
 
 { #category : #find }
-Zoa >> findAll [
-	^ self findAllInDirectory: self documents
+Zoa >> findAllArticles [
+	^ self findAllInDirectory: self articles
+]
+
+{ #category : #find }
+Zoa >> findAllAuthors [
+	^ self findAllInDirectory: self authors
 ]
 
 { #category : #find }
@@ -71,43 +81,17 @@ Zoa >> findAllInDirectory: aDirectory [
 ]
 
 { #category : #find }
-Zoa >> findByAuthor: anAuthor [
-	^ self findByCollection: #authors value: anAuthor
-]
-
-{ #category : #find }
-Zoa >> findByCollection: anAccessor value: aValue [
-	^ self findAll
-		select: [ :doc | 
-			(doc perform: anAccessor)
-				anySatisfy: [ :v | 
-					(v includesSubstring: aValue caseSensitive: false)
-						or: [ (aValue includesSubstring: v caseSensitive: false)
-								or: [ (v alike: aValue) > aValue size ] ] ] ]
-]
-
-{ #category : #find }
 Zoa >> findByDoi: aDoi [
-	^ (self documents / aDoi , 'doi') exists
-		ifTrue: [ self localLoad: self documents / aDoi , 'doi' ]
-		ifFalse: [ (self documents / aDoi , 'arx') exists
-				ifTrue: [ self localLoad: self documents / aDoi , 'arx' ]
+	^ (self articles  / aDoi , 'doi') exists
+		ifTrue: [ self localLoad: self articles / aDoi , 'doi' ]
+		ifFalse: [ (self articles / aDoi , 'arx') exists
+				ifTrue: [ self localLoad: self articles / aDoi , 'arx' ]
 				ifFalse: [ self saveDoi: aDoi ] ]
-]
-
-{ #category : #find }
-Zoa >> findByKeyword: aKeyword [
-	^ self findByCollection: #keywords value: aKeyword
-]
-
-{ #category : #find }
-Zoa >> findByTag: aKeyword [
-	^ self findByCollection: #tags value: aKeyword
 ]
 
 { #category : #command }
 Zoa >> getPdf: doc [
-	| entity contents |
+	| entity  |
 	doc pdfUrl ifNil: [ ^ self error: 'No url available for this text' ].
 	doc pdf
 		ifNil: [ entity := (ZnEasy get: doc pdfUrl) entity.
@@ -128,12 +112,12 @@ Zoa >> getPdfByDoi: aString [
 { #category : #initialization }
 Zoa >> initialize [ 
 	super initialize.
-	root := Zoa defaultFolder. 
+	root := self class defaultFolder. 
 ]
 
 { #category : #list }
-Zoa >> listAll [
-	^ self findAll collect: #doi
+Zoa >> listAllArticles [
+	^ self findAllArticles collect: #doi
 ]
 
 { #category : #load }
@@ -148,7 +132,7 @@ Zoa >> loadDoi: aDoi [
 
 { #category : #load }
 Zoa >> localLoad: aFileReference [
-	^ (STONReader on: aFileReference readStream ) next
+	^ (STONReader on: aFileReference readStream) next
 ]
 
 { #category : #'as yet unclassified' }
@@ -194,7 +178,7 @@ Zoa >> readDoi: aDoi [
 Zoa >> save: doc [
 	(STONWriter
 		on:
-		(self documents / doc doi
+		(self articles / doc doi
 		,
 			(doc isArxiv
 				ifTrue: [ 'arx' ]

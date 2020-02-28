@@ -11,6 +11,22 @@ Class {
 	#category : #'Zoa-Model'
 }
 
+{ #category : #voyage }
+ZoaAuthor class >> descriptionContainer [
+	<voyageContainer>
+	^ VOContainer new collectionName: 'ZoaAuthor' yourself
+]
+
+{ #category : #voyage }
+ZoaAuthor class >> isVoyageRoot [
+	^ true
+]
+
+{ #category : #accessing }
+ZoaAuthor >> citeName [
+	^ self fullName readStream next: 10
+]
+
 { #category : #accessing }
 ZoaAuthor >> fullName [
 	^ lastname, ', ', name
