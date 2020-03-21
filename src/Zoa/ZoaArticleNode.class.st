@@ -66,8 +66,8 @@ ZoaArticleNode >> fetchContent: aUrlOrDoi [
 	| zoa |
 	zoa := Zoa new.
 	[ ^ (aUrlOrDoi beginsWith: 'http')
-		ifTrue: [ zoa saveUrl: aUrlOrDoi asUrl ]
-		ifFalse: [ zoa findByDoi: aUrlOrDoi ] ]
+		ifTrue: [ zoa loadAndSaveArticleUrl: aUrlOrDoi asUrl ]
+		ifFalse: [ zoa loadAndSaveArticleDoi: aUrlOrDoi ] ]
 		on: Error
 		do: [ ^ nil ]
 ]

@@ -85,37 +85,9 @@ ZoaLoader >> setAccessed: aCollection into: aZoaDocument [
 	
 ]
 
-{ #category : #accessing }
-ZoaLoader >> setAuthor: aString into: aZoaDocument [
-	| authors |
-	aString isString
-		ifFalse: [ ^ self setAuthors: aString into: aZoaDocument ].
-	authors := 'and' split: aString.
-	authors size > 1
-		ifTrue: [ ^ self setAuthors: authors into: aZoaDocument ].
-	self halt.
-	authors := aZoaDocument authors ifNil: [ OrderedCollection new ].
-	authors add: aString.
-	aZoaDocument authors: authors
-]
+{ #category : #'as yet unclassified' }
+ZoaLoader >> setAuthor: aCollection into: aZoaArticle [ 
 
-{ #category : #accessing }
-ZoaLoader >> setAuthors: aCollectionOfAuthors into: aZoaDocument [
-	| zoaAuthors |
-	(aCollectionOfAuthors isString not
-		and: [ aCollectionOfAuthors isCollection ])
-		ifTrue: [ zoaAuthors := aCollectionOfAuthors
-				collect: [ :a | 
-					| pair |
-					pair := ' ' split: a trimBoth.
-					ZoaAuthor new
-						lastname: pair first;
-						name: pair second;
-						yourself ].
-			aZoaDocument authors: zoaAuthors ]
-		ifFalse: [ self halt.
-			aZoaDocument
-				authors: ((';' split: aCollectionOfAuthors) collect: #trimBoth) ]
 ]
 
 { #category : #accessing }
@@ -180,9 +152,17 @@ ZoaLoader >> setIssn: aString into: aZoaDocument [
 ]
 
 { #category : #'as yet unclassified' }
+ZoaLoader >> setIssue: aString into: aZoaArticle [ 
+	aZoaArticle issue: aString 
+]
+
+{ #category : #'as yet unclassified' }
 ZoaLoader >> setIssued: aCollection into: aZoaDocument [
-	| date |
-	date := (aCollection at: 'date-parts') first.
+	| date  all |
+	
+	date := { 0 .1 .1}.
+	all := (aCollection at: 'date-parts') first.
+	all doWithIndex: [ :each : id  | date at: id put: each ].
 	self
 		setDate: (Date year: date first month: date second day: date third)
 		into: aZoaDocument
@@ -281,6 +261,11 @@ ZoaLoader >> setType: aString into: aZoaDocument [
 { #category : #'as yet unclassified' }
 ZoaLoader >> setURL: aString into: aZoaDocument [
 	aZoaDocument link: aString asZnUrl
+]
+
+{ #category : #'as yet unclassified' }
+ZoaLoader >> setUrl: aString into: aZoaArticle [ 
+	self setURL: aString into: aZoaArticle 
 ]
 
 { #category : #settings }

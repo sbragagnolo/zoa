@@ -6,7 +6,9 @@ Class {
 	#superclass : #Object,
 	#instVars : [
 		'name',
-		'lastname'
+		'lastname',
+		'acmId',
+		'articles'
 	],
 	#category : #'Zoa-Model'
 }
@@ -23,6 +25,26 @@ ZoaAuthor class >> isVoyageRoot [
 ]
 
 { #category : #accessing }
+ZoaAuthor >> acmId [
+	^ acmId
+]
+
+{ #category : #accessing }
+ZoaAuthor >> acmId: aString [ 
+	acmId := aString
+]
+
+{ #category : #add }
+ZoaAuthor >> addArticle: aZoaArticleAuthorReference [
+	^ self articles add: aZoaArticleAuthorReference
+]
+
+{ #category : #'as yet unclassified' }
+ZoaAuthor >> articles [
+	^ articles ifNil: [ articles := OrderedCollection new  ].
+]
+
+{ #category : #accessing }
 ZoaAuthor >> citeName [
 	^ self fullName readStream next: 10
 ]
@@ -30,6 +52,23 @@ ZoaAuthor >> citeName [
 { #category : #accessing }
 ZoaAuthor >> fullName [
 	^ lastname, ', ', name
+]
+
+{ #category : #accessing }
+ZoaAuthor >> initialize [ 
+	super initialize. 
+	articles := OrderedCollection new
+]
+
+{ #category : #accessing }
+ZoaAuthor >> isLike: anOther [
+	acmId = anOther acmId 
+		ifTrue: [ ^ true ].
+	(lastname = anOther lastname and: [ name = anOther name ])
+		ifTrue: [ self halt ].
+		
+		"Should add orcid "
+	^ false
 ]
 
 { #category : #accessing }
@@ -43,6 +82,22 @@ ZoaAuthor >> lastname: aName [
 ]
 
 { #category : #accessing }
+ZoaAuthor >> mergeWith: anOtherAuthor [
+	| merged |
+	self = anOtherAuthor ifTrue: [ ^ self ].
+	
+	
+	self halt.
+	self assert: self acmId isNotNil.
+	self assert: self acmId = anOtherAuthor acmId.
+	self class allSlots
+		do: [ :s | 
+			| val |
+			val := s read: anOtherAuthor.
+			val ifNotNil: [ s write: val to: self ] ]
+]
+
+{ #category : #accessing }
 ZoaAuthor >> name [
 	^ name
 ]
@@ -50,4 +105,12 @@ ZoaAuthor >> name [
 { #category : #accessing }
 ZoaAuthor >> name: aName [
 	name := aName.
+]
+
+{ #category : #accessing }
+ZoaAuthor >> printOn: aStream [
+	aStream
+		nextPutAll: lastname;
+		nextPutAll: ', ';
+		nextPutAll: name
 ]

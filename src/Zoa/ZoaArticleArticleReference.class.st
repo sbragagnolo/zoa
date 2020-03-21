@@ -13,7 +13,7 @@ Class {
 { #category : #voyage }
 ZoaArticleArticleReference class >> descriptionContainer [
 	<voyageContainer>
-	^ VOContainer new collectionName: 'ZoaReference' yourself
+	^ VOContainer new collectionName: 'ZoaArticleArticleReference' yourself
 ]
 
 { #category : #voyage }
@@ -27,6 +27,13 @@ ZoaArticleArticleReference >> from: anArticle [
 ]
 
 { #category : #accessing }
+ZoaArticleArticleReference >> printOn: aStream [
+	aStream
+		nextPutAll: 'REF:';
+		nextPutAll: text
+]
+
+{ #category : #accessing }
 ZoaArticleArticleReference >> reference: aString [
 	reference := aString
 ]
@@ -34,6 +41,17 @@ ZoaArticleArticleReference >> reference: aString [
 { #category : #accessing }
 ZoaArticleArticleReference >> text: aString [ 
 	text := aString
+]
+
+{ #category : #accessing }
+ZoaArticleArticleReference >> to [
+	| zoa | 
+	zoa := Zoa new. 
+	^ to ifNil: [ 
+		to := zoa loadAndSaveArticleDoi: reference.
+		zoa saveArticle: from.
+		to
+	 ]
 ]
 
 { #category : #accessing }

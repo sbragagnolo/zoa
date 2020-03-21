@@ -5,7 +5,8 @@ Class {
 	#name : #Zoa,
 	#superclass : #Object,
 	#instVars : [
-		'root'
+		'root',
+		'repository'
 	],
 	#category : #'Zoa-API'
 }
@@ -51,42 +52,50 @@ Zoa >> doiToUrl: aDoi [
 			(ZnEasy
 				get: ('https://doi.org/api/handles/{1}?type=URL' format: {aDoi}) asUrl)
 				entity contents.
-	return size < 3
-		ifTrue: [ ^ self
-				error: 'Unable to find ' , aDoi , ' Ensure the code is welformed' ].
-	url := ((((return values at: 3) at: 1) at: #data) at: #value) asUrl.
-	^ ZoaLoader formatUrl: url forDoi: aDoi
+	url := return size < 3
+		ifTrue: [ (ZnEasy get: ('https://dl.acm.org/doi/{1}' format: {aDoi})) status = 200
+				ifTrue: [ 'https://dl.acm.org/doi/{1}' format: {aDoi} ]
+				ifFalse: [ ^ self
+						error: 'Unable to find ' , aDoi , ' Ensure the code is welformed' ] ]
+		ifFalse: [ ((((return values at: 3) at: 1) at: #data) at: #value) ].
+	^ ZoaLoader formatUrl: url asUrl forDoi: aDoi
 ]
 
 { #category : #find }
 Zoa >> findAllArticles [
-	^ self findAllInDirectory: self articles
+	^ self repository selectAll: ZoaArticle
 ]
 
 { #category : #find }
 Zoa >> findAllAuthors [
-	^ self findAllInDirectory: self authors
+	^ self repository selectAll: ZoaAuthor
 ]
 
 { #category : #find }
-Zoa >> findAllInDirectory: aDirectory [
-	| subdirectories |
-	subdirectories := aDirectory entries
-		select: #isDirectory
-		thenCollect: [ :f | self findAllInDirectory: f asFileReference ].
-	^ (aDirectory entries
-		select: #isFile
-		thenCollect: [ :f | self localLoad: f asFileReference ])
-		, (subdirectories flatCollect: #yourself)
+Zoa >> findAuthorAcmId: anId [
+	^ self findAllAuthors detect: [ :a | a acmId = anId ] ifNone: [ nil ]
+]
+
+{ #category : #find }
+Zoa >> findAuthorByExampleOrStore: anAuthor [
+	self assert: anAuthor acmId isNotNil.
+	^ (self findAuthorLike: anAuthor)
+		ifNil: [ self saveAuthor: anAuthor. anAuthor ]
+		
+]
+
+{ #category : #find }
+Zoa >> findAuthorLike: anOtherAuthor [
+	^ self findAllAuthors
+		detect: [ :a | a isLike: anOtherAuthor ]
+		ifNone: [ nil ]
 ]
 
 { #category : #find }
 Zoa >> findByDoi: aDoi [
-	^ (self articles  / aDoi , 'doi') exists
-		ifTrue: [ self localLoad: self articles / aDoi , 'doi' ]
-		ifFalse: [ (self articles / aDoi , 'arx') exists
-				ifTrue: [ self localLoad: self articles / aDoi , 'arx' ]
-				ifFalse: [ self saveDoi: aDoi ] ]
+	^ self repository
+		selectOne: ZoaArticle
+		where: [ :q | (q fieldNamed: 'doi') = aDoi ]
 ]
 
 { #category : #command }
@@ -123,6 +132,20 @@ Zoa >> listAllArticles [
 { #category : #load }
 Zoa >> load: anUrl [
 	^ (ZoaLoader loaderFor: anUrl host) new loadDocument: anUrl
+]
+
+{ #category : #save }
+Zoa >> loadAndSaveArticleDoi: aDoi [
+	^ (self findByDoi: aDoi)
+		ifNil: [ self loadAndSaveArticleUrl: (self doiToUrl: aDoi) ]
+]
+
+{ #category : #save }
+Zoa >> loadAndSaveArticleUrl: aZnUrl [
+	| doc |
+	doc := self load: aZnUrl.
+	self saveArticle: doc.
+	^ doc 
 ]
 
 { #category : #load }
@@ -174,30 +197,26 @@ Zoa >> readDoi: aDoi [
 	^ self read: (self findByDoi: aDoi)
 ]
 
-{ #category : #save }
-Zoa >> save: doc [
-	(STONWriter
-		on:
-		(self articles / doc doi
-		,
-			(doc isArxiv
-				ifTrue: [ 'arx' ]
-				ifFalse: [ 'doi' ])) ensureCreateFile writeStream)
-		nextPut: doc;
-		close
+{ #category : #read }
+Zoa >> repository [
+	^ repository
+		ifNil:
+			[ repository := VOMongoRepository host: 'localhost' database: 'zoa' ]
 ]
 
 { #category : #save }
-Zoa >> saveDoi: aDoi [
-	^ self saveUrl: (self doiToUrl: aDoi)
+Zoa >> saveArticle: doc [
+	self assert: doc doi isNotNil.
+	self repository
+		save:
+			((self findByDoi: doc doi)
+				ifNotNil: [ :a | a mergeWith: doc ]
+				ifNil: [ doc ])
 ]
 
-{ #category : #save }
-Zoa >> saveUrl: aZnUrl [
-	| doc |
-	doc := self load: aZnUrl.
-	self save: doc.
-	^ doc 
+{ #category : #'as yet unclassified' }
+Zoa >> saveAuthor: aZoaAuthor [
+	self repository save: aZoaAuthor
 ]
 
 { #category : #read }

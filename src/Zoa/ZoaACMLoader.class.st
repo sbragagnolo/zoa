@@ -12,46 +12,49 @@ Class {
 
 { #category : #api }
 ZoaACMLoader class >> formatUrl: aZnUrl forDoi: aDoi [
-	^ ('https://dl.acm.org/action/exportCiteProcCitation?dois={1}&targetFile=custom-bibtex&format=bibTex'
-		format: {aDoi urlEncoded}) asZnUrl
+	^ ('https://dl.acm.org/doi/{1}' format: {aDoi}) asUrl
 ]
 
 { #category : #api }
 ZoaACMLoader class >> loads: aString [
-	^ aString = 'dl.acm.org'
+	^ aString = 'dl.acm.org' or: [ aString = 'portal.acm.org' ]
 ]
 
 { #category : #'as yet unclassified' }
 ZoaACMLoader >> idFor: anUrl [
 	| id |
-	id := anUrl query at: 'id' ifAbsent: [ anUrl query at: 'dois' ].
+	id := '/' join: (anUrl segments last: 2).
 	^ id
 ]
 
 { #category : #'as yet unclassified' }
 ZoaACMLoader >> loadDocument: anUrl [
-	| document |
-	document := ZoaArticle new.
-	document link: anUrl.
-	document doi: (self idFor: anUrl).
-	self loadMetaFor: anUrl into: document.
-	document abstract: (self privateAbstractFor: anUrl).
-	^ document
+	| article html visitor |
+	article := ZoaArticle new.
+	article link: anUrl.
+	article doi: (self idFor: anUrl). 
+	html := (ZnEasy get: anUrl) entity contents parseHTML .
+	visitor := ZoaACMVisitor new .
+	visitor article: article. 
+	html acceptNodeVisitor: visitor.
+	
+	self loadMetaFor: anUrl into: article.
+	
+	^ article
 ]
 
 { #category : #'as yet unclassified' }
 ZoaACMLoader >> loadMetaFor: anUrl into: document [
-	| metadata |
+	| metadata exportUrl |
+	exportUrl:=  ('https://dl.acm.org/action/exportCiteProcCitation?dois={1}&targetFile=custom-bibtex&format=bibTex'
+		format: {self idFor: anUrl}) asZnUrl.
+	
 	metadata := STONJSON
-		fromStream: (ZnEasy get: anUrl) entity readStream.
+		fromStream: (ZnEasy get: exportUrl) entity readStream.
 	metadata := (metadata at: #items) first at: document doi.
-	metadata
-		keysAndValuesDo: [ :key :value | 
-			self
-				perform: ('set{1}:into:' format: {(self sanitizeSymbol: key)}) asSymbol
-				withArguments:
-					{value.
-					document} ]
+	metadata 	keysAndValuesDo: [ :key :value | 
+		self perform: ('set{1}:into:' format: {(self sanitizeSymbol: key)}) asSymbol
+				withArguments: {value . document} ]
 ]
 
 { #category : #'as yet unclassified' }

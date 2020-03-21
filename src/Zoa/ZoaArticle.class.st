@@ -9,7 +9,6 @@ Class {
 		'briefs',
 		'tags',
 		'pdf',
-		'authors',
 		'date',
 		'abstract',
 		'title',
@@ -17,7 +16,9 @@ Class {
 		'keywords',
 		'data',
 		'cite',
-		'type'
+		'type',
+		'references',
+		'authorsReference'
 	],
 	#category : #'Zoa-Model'
 }
@@ -34,6 +35,12 @@ ZoaArticle class >> isVoyageRoot [
 ]
 
 { #category : #accessing }
+ZoaArticle >> = anOtherArticle [
+	^ self species = anOtherArticle species
+		and: [ doi = anOtherArticle doi ]
+]
+
+{ #category : #accessing }
 ZoaArticle >> abstract [
 	^ abstract
 ]
@@ -43,9 +50,21 @@ ZoaArticle >> abstract: anObject [
 	abstract := anObject
 ]
 
+{ #category : #'as yet unclassified' }
+ZoaArticle >> addAuthorReference: aZoaArticleAuthorReference [ 
+	authorsReference add: aZoaArticleAuthorReference.
+	aZoaArticleAuthorReference article: self
+]
+
 { #category : #accessing }
 ZoaArticle >> addBrief: aBrief [
 	briefs add: aBrief
+]
+
+{ #category : #reference }
+ZoaArticle >> addReference: aZoaArticleArticleReference [ 
+	references add: aZoaArticleArticleReference.
+	aZoaArticleArticleReference from: self.
 ]
 
 { #category : #accessing }
@@ -69,37 +88,14 @@ ZoaArticle >> arxivId: aString [
 	data at: #arxiv put: aString
 ]
 
-{ #category : #'as yet unclassified' }
-ZoaArticle >> asGrafoscopioNode [
-	^ ZoaArticleNode new
-		document: self;
-		yourself
-]
-
-{ #category : #'as yet unclassified' }
-ZoaArticle >> asGrafoscopioNode2 [
-	^ ZoaArticleNode new
-		document: self;
-		yourself
-]
-
 { #category : #accessing }
 ZoaArticle >> authors [
-	^ authors
+	^ authorsReference collect: [ : a | a author ]
 ]
 
 { #category : #accessing }
 ZoaArticle >> authors: anObject [
-	authors := anObject
-]
-
-{ #category : #nodes }
-ZoaArticle >> authorsNode [
-	^ GrafoscopioTextNode new
-		header: 'Authors';
-		body:
-			(authors first inject: ' ' into: [ :acc :each | acc , String crlf ]);
-		yourself
+	authorsReference := anObject
 ]
 
 { #category : #accessing }
@@ -158,13 +154,6 @@ ZoaArticle >> children [
 ]
 
 { #category : #'as yet unclassified' }
-ZoaArticle >> citationNode [
-	^ GrafoscopioTextNode new
-		header: 'Cite';
-		body: (authors first first: 4) , (date year \\ 1000) asString
-]
-
-{ #category : #'as yet unclassified' }
 ZoaArticle >> cite [
 	^ (self firstAuthor citeName) , (date year \\ 1000) asString
 ]
@@ -189,13 +178,6 @@ ZoaArticle >> data [
 	^ data
 ]
 
-{ #category : #'as yet unclassified' }
-ZoaArticle >> dataSheetNode [
-	^ GrafoscopioTextNode new
-		header: 'Data sheet';
-		body: self bibtex
-]
-
 { #category : #accessing }
 ZoaArticle >> date [
 	^ date
@@ -218,12 +200,17 @@ ZoaArticle >> doi: aString [
 
 { #category : #'as yet unclassified' }
 ZoaArticle >> firstAuthor [
-	^ authors first
+	^ authorsReference first
+]
+
+{ #category : #accessing }
+ZoaArticle >> hash [
+	^ doi hash
 ]
 
 { #category : #accessing }
 ZoaArticle >> hashCite [
-	^ (authors first copyFrom: 1 to: 4) , (date year \\ 1000) asString
+	^ (authorsReference first copyFrom: 1 to: 4) , (date year \\ 1000) asString
 ]
 
 { #category : #'as yet unclassified' }
@@ -236,6 +223,8 @@ ZoaArticle >> initialize [
 	super initialize.
 	data := Dictionary new.
 	briefs := OrderedCollection new.
+	authorsReference := OrderedCollection new.
+	references := OrderedCollection new.
 ]
 
 { #category : #accessing }
@@ -266,6 +255,11 @@ ZoaArticle >> issn [
 { #category : #accessing }
 ZoaArticle >> issn: aString [
 	data at: #isnn put: aString
+]
+
+{ #category : #'as yet unclassified' }
+ZoaArticle >> issue: aString [ 
+	^ data at: #issue put: aString 
 ]
 
 { #category : #accessing }
@@ -306,6 +300,12 @@ ZoaArticle >> link [
 { #category : #accessing }
 ZoaArticle >> link: anObject [
 	link := anObject
+]
+
+{ #category : #'as yet unclassified' }
+ZoaArticle >> mergeWith: aZoaArticle [ 
+	self = aZoaArticle ifTrue: [ ^ self ].
+	self halt. 
 ]
 
 { #category : #acessing }

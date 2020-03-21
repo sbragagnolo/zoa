@@ -48,3 +48,8 @@ ZoaTag >> name [
 ZoaTag >> name: aName [
 	name := aName
 ]
+
+{ #category : #accessing }
+ZoaTag >> printOn: aStream [
+	aStream nextPutAll:'Tag('; nextPutAll: name; nextPutAll:')'.
+]
