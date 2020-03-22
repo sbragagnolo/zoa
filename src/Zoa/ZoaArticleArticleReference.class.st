@@ -33,6 +33,11 @@ ZoaArticleArticleReference >> printOn: aStream [
 		nextPutAll: text
 ]
 
+{ #category : #'as yet unclassified' }
+ZoaArticleArticleReference >> reference [
+	^ reference
+]
+
 { #category : #accessing }
 ZoaArticleArticleReference >> reference: aString [
 	reference := aString

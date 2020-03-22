@@ -79,7 +79,7 @@ ZoaACMVisitor >> createReferenceFromElement: anElement [
 							stream upToEnd ]
 						ifFalse: [ (href beginsWith: 'http://scholar.google.com/')
 								ifTrue: [ href ]
-								ifFalse: [ self error: 'Unexpected case ' ] ] ]).
+								ifFalse: [ self error: 'Unexpected case' ] ] ]).
 	^ ref
 ]
 
@@ -161,7 +161,7 @@ ZoaACMVisitor >> resolveAuthorReferenceFor: anElement [
 
 { #category : #visiting }
 ZoaACMVisitor >> setAbstractUsing: anElement [
-	self assert: (anElement nodes second name = 'p' or: [anElement nodes second nodes first nodes first name ='p']) .
+	self assert: (anElement nodes second name = 'p' or: [anElement nodes second nodes first nodes first name = 'p']) .
 	anElement nodes second name = 'p' ifTrue: [
 		document abstract: anElement nodes second nodes first string
 	] ifFalse: [
