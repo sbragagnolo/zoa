@@ -53,6 +53,7 @@ ZoaArticleArticleReference >> to [
 	| zoa | 
 	zoa := Zoa new. 
 	^ to ifNil: [ 
+		(reference includesSubstring: 'scholar.google') ifTrue: [ ^ self error: ' Google scholar references not solved yet ' ].
 		to := zoa loadAndSaveArticleDoi: reference.
 		zoa saveArticle: from.
 		to

@@ -14,27 +14,16 @@ Class {
 { #category : #visiting }
 ZoaACMVisitor >> addAuthor: anElement [
 	| author name lastname profile affiliation articleRef |
-	name := ' '
-		split:
-			(anElement nodes first nodes first nodes detect: [ :e | e isElement ])
-				nodes first nodes first nodes second string trimBoth.
+	
+	name := ' ' split: (self detectStringElement: (self detectNode: anElement class: 'loa__author-name') first) first trimBoth.
 	lastname := name last.
 	name := ' ' join: name allButLast.
-	affiliation := ((anElement nodes second nodes
-		detect: [ :e | 
-			e isElement
-				and: [ (e attributeAt: 'class') includesSubstring: 'info__body' ] ])
-		nodes detect: [ :e | e isElement and: [ e name = 'p' ] ])
-		ifNil: [ 'non known affiliation ' ]
-		ifNotNil: [ :el | el nodes first string trimBoth ].
-	profile := ((anElement nodes second nodes
-		detect: [ :e | 
-			e isElement
-				and: [ (e attributeAt: 'class') includesSubstring: 'info__body' ] ])
-		nodes detect: [ :e | e isElement and: [ e name = 'a' ] ])
-		attributeAt: 'href'.
-	self assert: (profile beginsWith: '/profile/').
-	profile := profile copyReplaceAll: '/profile/' with: ''.
+	
+	
+	affiliation := 	(self detectStringElement: (self detectNode: anElement class: 'info__body') first) ifEmpty: [ 'not known affiliation' ]  ifNotEmpty: [  : a | a first  ].
+	profile := (self hrefsFor: (self detectNode: anElement class: 'info__body') first) ifEmpty: [  self error: 'iuhm, not profile?' ] 
+	ifNotEmpty: [ : refs  | refs detect: [ : r | {'/profile/' . '/author/'  } anySatisfy: [ : valid | r beginsWith: valid ]]. ].
+	profile := (profile copyReplaceAll: '/profile/' with: '') copyReplaceAll: '/author/' with: ''.
 	author := ZoaAuthor new.
 	author name: name.
 	author lastname: lastname.
@@ -64,23 +53,57 @@ ZoaACMVisitor >> article: aZoaArticle [
 ZoaACMVisitor >> createReferenceFromElement: anElement [
 	| ref href |
 	ref := ZoaArticleArticleReference new.
-	ref text: anElement nodes first nodes first string.
-	href := ((anElement nodes first nodes allButFirst select:#isElement) detect: [ :a | 
-					a nodes first ifNotNil: [ :n | n isElement and: [n includesAttribute: 'href'] ]
-									  ifNil: [ false ] ]) nodes first attributeAt: 'href'.
-	ref
-		reference:
-			((href beginsWith: 'https://dl.acm.org/doi/')
-				ifTrue: [ href copyReplaceAll: 'https://dl.acm.org/doi/' with: '' ]
-				ifFalse: [ (href beginsWith: '/servlet/linkout?')
-						ifTrue: [ | stream |
-							stream := href readStream.
-							stream upToAll: '&key='.
-							stream upToEnd ]
-						ifFalse: [ (href beginsWith: 'http://scholar.google.com/')
-								ifTrue: [ href ]
-								ifFalse: [ self error: 'Unexpected case' ] ] ]).
+	ref text: 
+	((self detectStringElement: anElement) asSortedCollection: [ : a : b | a size > b size ]  ) first. 
+
+	href := (self hrefsFor: anElement) select:[ : s | s beginsWith: s .].
+	
+	ref reference: (
+		href detect: [ :d | self hasDoi: d   ] ifFound:[ : h |  self extractUrlFromHref: h ]   ifNone:[
+				href detect: [ :d | self isGoogleScholar: d   ] ifNone: [ self error: 'Unexpected case'  ]
+		]).
+	
 	^ ref
+]
+
+{ #category : #'as yet unclassified' }
+ZoaACMVisitor >> detectNode: aXMLElement class: aString [ 
+	| vis | 
+	vis := ZoaClassDetectorVisitor new.
+	vis search: aString. 
+	aXMLElement acceptNodeVisitor: vis.
+	^ vis refs
+]
+
+{ #category : #'as yet unclassified' }
+ZoaACMVisitor >> detectStringElement: aNode [
+	| vis |
+	vis := ZoaStringDetectVisitor new.
+	aNode acceptNodeVisitor:vis .
+	^ vis strings collect: [ : s | s trimBoth] thenReject: [  : s | s isEmpty ]
+]
+
+{ #category : #'as yet unclassified' }
+ZoaACMVisitor >> extractUrlFromHref: aString [
+	| upToAll |
+	upToAll := (aString includesSubstring: '/doi/') ifTrue: [ '/doi/' ] ifFalse:[ '&key=' ].
+	^ aString readStream
+		upToAll: upToAll;
+		upToEnd
+]
+
+{ #category : #'as yet unclassified' }
+ZoaACMVisitor >> hasDoi: aString [
+	^ {'/servlet/linkout?' . '/doi/'}
+		anySatisfy: [ :a | aString includesSubstring: a ]
+]
+
+{ #category : #visiting }
+ZoaACMVisitor >> hrefsFor: anElement [
+	| visitor |
+	visitor := ZoaHrefExtractVisitor new.
+	anElement acceptNodeVisitor: visitor.
+	^ visitor hrefs
 ]
 
 { #category : #visiting }
@@ -125,6 +148,11 @@ ZoaACMVisitor >> isAbstract: anElement then: aBlockClosure [
 		ifTrue: [ aBlockClosure value ]
 ]
 
+{ #category : #'as yet unclassified' }
+ZoaACMVisitor >> isGoogleScholar: aString [
+	^ aString includesSubstring: 'http://scholar.google.com/'
+]
+
 { #category : #visiting }
 ZoaACMVisitor >> resolveAuthorReferenceFor: anElement [
 	| author name lastname profile affiliation articleRef |
@@ -161,12 +189,8 @@ ZoaACMVisitor >> resolveAuthorReferenceFor: anElement [
 
 { #category : #visiting }
 ZoaACMVisitor >> setAbstractUsing: anElement [
-	self assert: (anElement nodes second name = 'p' or: [anElement nodes second nodes first nodes first name = 'p']) .
-	anElement nodes second name = 'p' ifTrue: [
-		document abstract: anElement nodes second nodes first string
-	] ifFalse: [
-	   anElement nodes second nodes first nodes first nodes first string 
-	]
+	document abstract:  (' ' join: (self detectStringElement: anElement ) ).
+	
 ]
 
 { #category : #visiting }
