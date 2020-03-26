@@ -37,7 +37,7 @@ ZoaArticleViewer class >> defaultSpec [
 ZoaArticleViewer class >> example [
 	<example>
 	self new
-		article: (Zoa new findByDoi: '10.1145/3139903.3139909');
+		article: (Zoa new loadAndSaveArticleDoi: '10.1145/3139903.3139909');
 		openWithSpec
 ]
 
@@ -195,8 +195,9 @@ ZoaArticleViewer >> saveArticle [
 
 { #category : #initialization }
 ZoaArticleViewer >> updateArticle [
-	tags items: self currentTags.
-	authors items: self currentAuthors.
-	data items: article data associations.
-	view items: self currentBriefs
+	article
+		ifNotNil: [ tags items: self currentTags.
+			authors items: self currentAuthors.
+			data items: article data associations.
+			view items: self currentBriefs ]
 ]

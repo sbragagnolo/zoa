@@ -3,7 +3,7 @@ Article node .Is a grafoscopio node for documents
 "
 Class {
 	#name : #ZoaArticleNode,
-	#superclass : #GrafoscopioUrlCachedNode,
+	#superclass : #GrafoscopioUrlNode,
 	#instVars : [
 		'document',
 		'children'

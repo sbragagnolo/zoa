@@ -200,7 +200,7 @@ ZoaArticle >> doi: aString [
 
 { #category : #'as yet unclassified' }
 ZoaArticle >> firstAuthor [
-	^ authorsReference first
+	^ authorsReference first author
 ]
 
 { #category : #accessing }
@@ -390,7 +390,7 @@ ZoaArticle >> read [
 
 { #category : #accessing }
 ZoaArticle >> specModelClass [
-	^ GrafoscopioNewTextModel
+	^ GrafoscopioNewTextInputModel new 
 ]
 
 { #category : #accessing }
