@@ -30,6 +30,11 @@ ZoaTagsWidget >> addTag [
 ]
 
 { #category : #initialization }
+ZoaTagsWidget >> initialize [
+	super initialize.
+]
+
+{ #category : #initialization }
 ZoaTagsWidget >> initializePrivateAnnouncements [
 	super initializePrivateAnnouncements.
 	self property: #tags whenChangedDo: [ self updateTags ]
