@@ -16,7 +16,7 @@ BaselineOfZoa >> baseline: spec [
 						repository: 'github://pharo-contributions/XML-XMLParserHTML/src' ].
 			spec
 				baseline: 'TaskItShell'
-				with: [ spec repository: 'github://sbragagnolo/TaskIt/src' ].
+				with: [ spec repository: 'github://pharo-contributions/taskit-shell/src' ].
 			spec
 				baseline: 'Clap'
 				with: [ spec repository: 'github://sbragagnolo/clap-st/src' ].
