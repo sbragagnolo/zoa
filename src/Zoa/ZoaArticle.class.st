@@ -63,7 +63,6 @@ ZoaArticle >> addBrief: aBrief [
 { #category : #reference }
 ZoaArticle >> addReference: aZoaArticleArticleReference [ 
 	references add: aZoaArticleArticleReference.
-	aZoaArticleArticleReference from: self.
 ]
 
 { #category : #accessing }
@@ -159,7 +158,7 @@ ZoaArticle >> children [
 
 { #category : #'as yet unclassified' }
 ZoaArticle >> cite [
-	^ (self firstAuthorCiteName) , (date year \\ 1000) asString
+	^ (self firstAuthorCiteName) , (self date year \\ 1000) asString
 ]
 
 { #category : #accessing }
@@ -194,7 +193,7 @@ ZoaArticle >> data [
 
 { #category : #accessing }
 ZoaArticle >> date [
-	^ date
+	^ date ifNil: [ DateAndTime new  ]
 ]
 
 { #category : #accessing }
@@ -381,7 +380,7 @@ ZoaArticle >> microdownBrief [
 		  str
 			  nextPutAll: '##Keywords';
 			  cr.
-		  str nextPutAll: (';' join: (keywords collect: [ :k | k name ])).
+		  str nextPutAll: (';' join: (self keywords collect: [ :k | k name ])).
 
 		  self briefs do: [ :b | 
 			  b includeInText ifTrue: [
@@ -403,7 +402,7 @@ ZoaArticle >> microdownBrief [
 			  cr.
 		  str nextPutAll: '###This article is cited by'; cr.
 		  self citedBy do: [ :r | 
-			  str
+			  str nextPutAll: ' ';
 				  nextPutAll: (r referenceEntryInRelationWith: self);
 				  cr ].
 		  str nextPutAll: '###This article Cites'; cr.
@@ -421,7 +420,7 @@ ZoaArticle >> microdownBrief [
 			  str
 				  nextPutAll: a key asString;
 				  nextPutAll: ' ';
-				  nextPutAll: a value asString ] ]
+				  nextPutAll: a value asString ; cr ] ]
 ]
 
 { #category : #acessing }
@@ -520,7 +519,7 @@ ZoaArticle >> tags: anObject [
 
 { #category : #accessing }
 ZoaArticle >> title [
-	^ title
+	^ title ifNil: [ 'Unknown title!' ]
 ]
 
 { #category : #accessing }

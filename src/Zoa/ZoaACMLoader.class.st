@@ -29,32 +29,55 @@ ZoaACMLoader >> idFor: anUrl [
 
 { #category : #'as yet unclassified' }
 ZoaACMLoader >> loadDocument: anUrl [
+
 	| article html visitor |
 	article := ZoaArticle new.
 	article link: anUrl.
-	article doi: (self idFor: anUrl). 
-	html := (ZnEasy get: anUrl) entity contents parseHTML .
-	visitor := ZoaACMVisitor new .
-	visitor article: article. 
+	article doi: (self idFor: anUrl).
+	html := (ZnEasy get: anUrl) entity contents parseHTML.
+	visitor := ZoaACMVisitor new.
+	visitor article: article.
+
 	html acceptNodeVisitor: visitor.
-	
+	self loadReferencedBy: anUrl into: article.
 	self loadMetaFor: anUrl into: article.
-	
+
+
 	^ article
 ]
 
 { #category : #'as yet unclassified' }
 ZoaACMLoader >> loadMetaFor: anUrl into: document [
-	| metadata exportUrl |
-	exportUrl:=  ('https://dl.acm.org/action/exportCiteProcCitation?dois={1}&targetFile=custom-bibtex&format=bibTex'
-		format: {self idFor: anUrl}) asZnUrl.
+
+	| metadata exportUrl entity |
+	exportUrl := ('https://dl.acm.org/action/exportCiteProcCitation?dois={1}&targetFile=custom-bibtex&format=bibTex' 
+		              format: { (self idFor: anUrl) }) asZnUrl.
+	entity := (ZnEasy get: exportUrl) entity.
+	entity ifNotNil: [ 
+		metadata := STONJSON fromStream: entity readStream.
+		metadata := (metadata at: #items) first at: document doi.
+		metadata keysAndValuesDo: [ :key :value | 
+			self
+				perform:
+				('set{1}:into:' format: { (self sanitizeSymbol: key) }) asSymbol
+				withArguments: { 
+						value.
+						document } ] ]
+]
+
+{ #category : #'as yet unclassified' }
+ZoaACMLoader >> loadReferencedBy: anUrl into: article [
+
+	| exportUrl html visitor |
+	exportUrl := ('https://dl.acm.org/action/ajaxShowCitedBy?ajax=true&doi={1}' 
+		              format: { (self idFor: anUrl) }) asZnUrl.
+	html := (ZnEasy get: exportUrl) entity contents parseHTML .
+
+	visitor := ZoaACMReferencedByVisitor new .
+	visitor article: article. 
 	
-	metadata := STONJSON
-		fromStream: (ZnEasy get: exportUrl) entity readStream.
-	metadata := (metadata at: #items) first at: document doi.
-	metadata 	keysAndValuesDo: [ :key :value | 
-		self perform: ('set{1}:into:' format: {(self sanitizeSymbol: key)}) asSymbol
-				withArguments: {value . document} ]
+	html acceptNodeVisitor: visitor.
+
 ]
 
 { #category : #'as yet unclassified' }

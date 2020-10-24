@@ -3,7 +3,7 @@ Downloads from Arxiv
 "
 Class {
 	#name : #ZoaArxivLoader,
-	#superclass : #ZoaACMLoader,
+	#superclass : #ZoaLoader,
 	#category : #'Zoa-Loader'
 }
 

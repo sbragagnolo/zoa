@@ -245,6 +245,18 @@ Zoa >> load: anUrl [
 	^ (ZoaLoader loaderFor: anUrl host) new loadDocument: anUrl
 ]
 
+{ #category : #public }
+Zoa >> loadAndSaveArticle: anEntry [
+
+	^ ({ 'ieeexplore.ieee.org'. 'scholar.google.com'. 'dl.acm.org'.
+	   'researchgate.net'. 'academia.edu'. 'linkinghub.elsevier.com'.
+	   'portal.acm.org'. 'arxiv.org'. 'sciencedirect.com'.
+	   'link.springer.com' } anySatisfy: [ :s | 
+		   (anEntry indexOfSubCollection: s) > 0 ])
+		  ifTrue: [ self loadAndSaveArticleUrl: anEntry asZnUrl]
+		  ifFalse: [ self loadAndSaveArticleDoi: anEntry ]
+]
+
 { #category : #save }
 Zoa >> loadAndSaveArticleDoi: aDoi [
 	^ (self findByDoi: aDoi)

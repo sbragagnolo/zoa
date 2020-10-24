@@ -49,7 +49,13 @@ ZoaArticleArticleReference >> cites: aZoaArticle [
 
 { #category : #accessing }
 ZoaArticleArticleReference >> from [
-	^ from
+	^ from ifNil: [ 
+		from := Zoa current loadAndSaveArticle: reference.
+		to references remove: self .
+		to references add: self. 
+		Zoa current saveArticle: to.
+		from 
+	 ]
 ]
 
 { #category : #accessing }
@@ -59,7 +65,7 @@ ZoaArticleArticleReference >> from: anArticle [
 
 { #category : #'as yet unclassified' }
 ZoaArticleArticleReference >> hasResolvedReference [ 
-	^ to isNotNil
+	^ to isNotNil and:[ from isNotNil ].
 ]
 
 { #category : #'as yet unclassified' }
@@ -118,15 +124,24 @@ ZoaArticleArticleReference >> referenceEntryInRelationWith: anArticle [
 ]
 
 { #category : #accessing }
+ZoaArticleArticleReference >> sanitize [
+
+	(reference beginsWith: 'http') ifTrue: [ 
+		| content stream |
+		stream := reference readStream.
+		content := stream upToAll: 'http'.
+		reference := 'http' , content , (stream upToAll: 'http') ]
+]
+
+{ #category : #accessing }
 ZoaArticleArticleReference >> text: aString [ 
 	text := aString
 ]
 
 { #category : #accessing }
 ZoaArticleArticleReference >> to [
-
 	^ to ifNil: [ 
-		to := Zoa current loadAndSaveArticleDoi: reference.
+		to := Zoa current loadAndSaveArticle: reference.
 		from references remove: self .
 		from references add: self. 
 		Zoa current saveArticle: from.

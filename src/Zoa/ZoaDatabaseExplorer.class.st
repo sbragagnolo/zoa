@@ -32,7 +32,7 @@ ZoaDatabaseExplorer class >> defaultSpec [
 { #category : #specs }
 ZoaDatabaseExplorer class >> example [
 
-	self new openWithSpec
+	self new openWithSpec  title: 'Zoa'
 ]
 
 { #category : #initialization }

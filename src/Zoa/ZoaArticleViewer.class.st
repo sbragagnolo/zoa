@@ -217,15 +217,18 @@ ZoaArticleViewer >> initializeWidgets [
 { #category : #add }
 ZoaArticleViewer >> load: item [
 	item to.
+	item from. 
 	owner updateViewers 
 ]
 
 { #category : #add }
 ZoaArticleViewer >> loadOrRead: item [
-[
+"["
 	item hasResolvedReference
 		ifTrue: [ owner readPdf: (item oppositeArticleTo: article ) ]
-		ifFalse: [ self load: item ]] on: Error do: [ :e | self inform: e messageText  ]
+		ifFalse: [ self load: item ]
+		
+		"] on: Error do: [ :e | self inform: e messageText  ]"
 ]
 
 { #category : #initialization }

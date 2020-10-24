@@ -16,6 +16,7 @@ ZoaIEEELoader class >> loads: aString [
 ZoaIEEELoader >> loadDocument: anUrl [
 	| document bibtex segments id |
 	document := ZoaArticle new.
+	self halt. 
 	document link: anUrl.
 	segments := anUrl asUrl segments copy.
 	id := segments removeLast.
