@@ -215,14 +215,19 @@ ZoaArticle >> doi: aString [
 { #category : #accessing }
 ZoaArticle >> fileBasename [
 
-	^( self doi copyReplaceAll: '\' with: '-') copyReplaceAll: '/' with: '-'
+	self doi ifEmpty: [ 
+		^ date year asString , '-' ,( self firstAuthorCiteName copyReplaceAll: ' ' with: '_') , '-'
+		  , ((title copyReplaceAll: ' ' with: '-') readStream next: 20) ].
+	^ (self doi copyReplaceAll: '\' with: '-')
+		  copyReplaceAll: '/'
+		  with: '-'
 ]
 
 { #category : #'as yet unclassified' }
 ZoaArticle >> firstAuthorCiteName [
 
 	^ authorsReference
-		  ifEmpty: [ 'None Author found' ]
+		  ifEmpty: [ 'UnknownAuthor' ]
 		  ifNotEmpty: [ authorsReference first author citeName ]
 ]
 

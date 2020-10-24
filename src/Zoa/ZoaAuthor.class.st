@@ -53,7 +53,7 @@ ZoaAuthor >> articles [
 
 { #category : #accessing }
 ZoaAuthor >> citeName [
-	^ self fullName readStream next: 10
+	^( self lastname readStream next: 10) 
 ]
 
 { #category : #accessing }
