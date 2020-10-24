@@ -8,7 +8,8 @@ Class {
 		'query',
 		'articles',
 		'authors',
-		'keywords'
+		'keywords',
+		'queryModel'
 	],
 	#category : #'Zoa-UI'
 }
@@ -19,11 +20,12 @@ ZoaDatabaseExplorer class >> defaultSpec [
 		add: #toolbar height: self toolbarHeight;
 		add:
 			(SpPanedLayout newHorizontal
+				position: 20 percent;
 				add: #listables;
 				add: #preview;
 				yourself);
 		
-		add: #query height: 100;
+		add: #query height: 200;
 		yourself
 ]
 
@@ -53,6 +55,17 @@ ZoaDatabaseExplorer >> contextMenuForArticle [
 						  name: 'Read!';
 						  action: [ self readPdf: articles selectedItem ] ] ];
 		  yourself
+]
+
+{ #category : #initialization }
+ZoaDatabaseExplorer >> defaultQueryText [
+	^ '
+	"Selecting articles sets the widget articles to a specific query result "
+	self select: (self zoa findAllArticles select: [ :a | a cites size between: 5 and: 20  ]).
+	
+	"Reset does set the articles to be fully fetch on updates"
+	self reset.
+	'
 ]
 
 { #category : #initialization }
@@ -101,6 +114,7 @@ ZoaDatabaseExplorer >> initializePresenters [
 ZoaDatabaseExplorer >> initializeWidgets [
 
 	super initializeWidgets.
+	queryModel := ZoaQueryModel new. 
 	toolbar := self newToolbar.
 	toolbar addItemLeft: (self newToolbarButton
 			 icon: (Smalltalk ui icons iconNamed: #add);
@@ -114,7 +128,11 @@ ZoaDatabaseExplorer >> initializeWidgets [
 	toolbar addItemLeft: (self newToolbarButton
 			 icon: (Smalltalk ui icons iconNamed: #remove);
 			 action: [ self removeAll ] yourself).
-	query := self newText.
+	query := self newCode.
+	query text: self defaultQueryText.
+	queryModel owner: self. 
+	query beForObject:  queryModel.
+	
 	listables := self newNotebook.
 	articles := self newArticleView.
 	authors := self newAuthorsView.
@@ -123,7 +141,8 @@ ZoaDatabaseExplorer >> initializeWidgets [
 	"spec script: [ :view | view addShape: RSBox new. value := value + 1 ]."
 	listables
 		addPage: (self newNotebookPageWith: articles and: 'Articles');
-		addPage: (self newNotebookPageWith: authors and: 'Authors')
+		addPage: (self newNotebookPageWith: authors and: 'Authors').
+	
 	";
 		addPage: (self newNotebookPageWith: keywords and: 'Keywords')"
 ]
@@ -136,18 +155,20 @@ ZoaDatabaseExplorer >> newArticleView [
 
 	table
 		sortingBlock: [ :a :b | a title < b title ];
-		addColumn: (SpStringTableColumn
-				 title: 'Date'
-				 evaluated: [ :item | item date year asString]);
-		addColumn: (SpStringTableColumn
-				 title: 'Author'
-				 evaluated: [ :item | 
-					 item firstAuthorName]);
+		addColumn: ((SpStringTableColumn
+				 title: 'Date' evaluated: [ :item | item date year asString ])
+				 width: 50;
+				 yourself);
+		addColumn: ((SpStringTableColumn
+				 title: 'Author' evaluated: [ :item | item firstAuthorName ])
+				 width: 100;
+				 yourself);
 		addColumn:
-			(SpStringTableColumn
-				 title: 'Title'
-				 evaluated: [ :item | item title ]);
-		whenSelectionChangedDo:[ : selection | self selectArticle: selection ]; 
+		(SpStringTableColumn
+			 title: 'Title'
+			 evaluated: [ :item | item title ]);
+		whenSelectionChangedDo: [ :selection | 
+		self selectArticle: selection ];
 		beResizable.
 	^ table
 ]
@@ -209,6 +230,6 @@ aSelection selectedItem ifNotNil: [: val|  preview article: val ]
 
 { #category : #'as yet unclassified' }
 ZoaDatabaseExplorer >> updateViewers [
-	articles items: Zoa current findAllArticles .
+	articles items: queryModel articles.
 	authors items:( Zoa current findAllAuthors select:[: a | a articles isNotEmpty] )
 ]

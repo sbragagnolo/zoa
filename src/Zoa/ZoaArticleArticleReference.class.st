@@ -38,12 +38,13 @@ ZoaArticleArticleReference >> arrayKeywords [
 ZoaArticleArticleReference >> citedBy: anArticle [
 
 	^ from = anArticle
-		  ifTrue: [ true ]
-		  ifFalse: [ 
-			  anArticle = to
-				  ifTrue: [ false ]
-				  ifFalse: [ 
-				  self error: 'The article is not related with this reference ' ] ]
+	
+]
+
+{ #category : #'as yet unclassified' }
+ZoaArticleArticleReference >> cites: aZoaArticle [
+
+	^ to = aZoaArticle
 ]
 
 { #category : #accessing }

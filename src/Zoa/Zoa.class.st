@@ -30,8 +30,8 @@ Zoa >> allIncomingReferencesTo: anArticle [
 
 	| allArticles |
 	allArticles := self findAllArticles.
-	^ (allArticles flatCollect: [ :a | a references ]) reject: [ :ref | 
-		  ref citedBy: anArticle ]
+	^ (allArticles flatCollect: [ :a | a references ]) select: [ :ref | 
+		  ref cites: anArticle ]
 ]
 
 { #category : #public }

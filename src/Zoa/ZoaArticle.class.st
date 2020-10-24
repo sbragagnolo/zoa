@@ -365,9 +365,9 @@ ZoaArticle >> microdownBrief [
 
 		  authorsReference do: [ :ar | 
 			  str
-				  nextPutAll: ar fullName;
+				  nextPutAll: ar author fullName;
 				  nextPutAll: '. ID: ';
-				  nextPutAll: ar acmId;
+				  nextPutAll: ar author acmId;
 				  cr ].
 
 		  self abstract ifNotNil: [ 
@@ -409,7 +409,8 @@ ZoaArticle >> microdownBrief [
 		  str nextPutAll: '###This article Cites'; cr.
 		  self cites do: [ :r | 
 			  str
-				  nextPutAll: (r referenceEntryInRelationWith: self);
+				  nextPutAll: ' ';
+				  nextPutAll: (r referenceEntryInRelationWith: self) ;
 				  cr ].
 
 		  str

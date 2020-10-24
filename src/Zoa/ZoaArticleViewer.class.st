@@ -177,23 +177,30 @@ ZoaArticleViewer >> initializeWidgets [
 		        addColumn: (SpStringTableColumn evaluated: #value);
 		        yourself.
 	references := self newTable
-		              addColumn: (SpImageTableColumn
-				               title: ''
-				               evaluated: [ :item | self directionIcon: item ]);
+		              addColumn: ((SpImageTableColumn
+				                title: ''
+				                evaluated: [ :item | self directionIcon: item ])
+				               width: 15;
+				               yourself);
+				addColumn: ((SpLinkTableColumn
+				                title: 'Load'
+				                evaluated: [ :item | 
+					                item hasResolvedReference
+						                ifTrue: [ 'READ' ]
+						                ifFalse: [ 'LOAD' ] ]
+				                action: [ :item | self loadOrRead: item ])
+				               width: 20;
+				               yourself);
 		              addColumn: (SpStringTableColumn
 				               title: 'Reference'
 				               evaluated: [ :item | 
-					               item referenceEntryInRelationWith: article ]);
-		              addColumn: (SpLinkTableColumn
-				               title: 'Load'
-				               evaluated: [ :item | 
-					               item hasResolvedReference
-						               ifTrue: [ 'READ' ]
-						               ifFalse: [ 'LOAD' ] ]
-				               action: [ :item | self loadOrRead: item ]);
+				               item referenceEntryInRelationWith: article ]);
+		              
 		              beResizable;
 		              yourself.
-	tabs addPage: (self newNotebookPageWith: authors and: 'Authors').
+
+	tabs addPage:
+		(self newNotebookPageWith: [ references ] and: 'References').
 	tabs addPage: (self
 			 newNotebookPageWith: [ 
 				 self newStackedComponentWith: { 
@@ -201,8 +208,8 @@ ZoaArticleViewer >> initializeWidgets [
 						 data.
 						 tags } ]
 			 and: 'Metadata').
-	tabs addPage:
-		(self newNotebookPageWith: [ references ] and: 'References')
+	tabs addPage: (self newNotebookPageWith: authors and: 'Authors')
+
 	"	newSubPresenter owner: self.
 	layout add: newSubPresenter"
 ]
