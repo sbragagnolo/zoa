@@ -48,5 +48,5 @@ ZoaArticleAuthorReference >> author: aZoaAuthor [
 { #category : #'as yet unclassified' }
 ZoaArticleAuthorReference >> printOn: aStream [
 	author printOn: aStream.
-	aStream nextPutAll: affiliation
+	affiliation printOn: aStream
 ]

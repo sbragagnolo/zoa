@@ -155,6 +155,11 @@ Zoa >> findAllAuthors [
 	^ self repository selectAll: ZoaAuthor
 ]
 
+{ #category : #'as yet unclassified' }
+Zoa >> findAllTags [
+	^ self repository selectAll: ZoaTag 
+]
+
 { #category : #find }
 Zoa >> findAuthorAcmId: anId [
 	^ self findAllAuthors detect: [ :a | a acmId = anId ] ifNone: [ nil ]
@@ -163,7 +168,7 @@ Zoa >> findAuthorAcmId: anId [
 { #category : #find }
 Zoa >> findAuthorByExampleOrStore: anAuthor [
 
-	self assert: anAuthor acmId isNotNil.
+	
 	^ (self findAuthorLike: anAuthor) ifNil: [ anAuthor ]
 ]
 

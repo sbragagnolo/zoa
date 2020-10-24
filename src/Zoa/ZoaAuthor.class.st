@@ -8,7 +8,8 @@ Class {
 		'name',
 		'lastname',
 		'acmId',
-		'articles'
+		'articles',
+		'ids'
 	],
 	#category : #'Zoa-Model'
 }
@@ -33,12 +34,12 @@ ZoaAuthor >> = anOtherArticle [
 
 { #category : #accessing }
 ZoaAuthor >> acmId [
-	^ acmId
+	^ ids at:#ACM ifAbsent: [  nil ]
 ]
 
 { #category : #accessing }
 ZoaAuthor >> acmId: aString [ 
-	acmId := aString
+	ids at: #ACM put: aString 
 ]
 
 { #category : #add }
@@ -68,19 +69,41 @@ ZoaAuthor >> hash [
 ]
 
 { #category : #accessing }
+ZoaAuthor >> ids [
+
+	^ ids ifNil: [ 
+		  ids := Dictionary new.
+		  acmId ifNotNil: [ self acmId: acmId ].
+		  ids ]
+]
+
+{ #category : #accessing }
+ZoaAuthor >> ieee [
+	^ ids at:#IEEE ifAbsent: [  nil ]
+]
+
+{ #category : #accessing }
+ZoaAuthor >> ieeeId: aString [ 
+	ids at: #IEEE put: aString 
+]
+
+{ #category : #accessing }
 ZoaAuthor >> initialize [ 
 	super initialize. 
-	articles := OrderedCollection new
+	articles := OrderedCollection new.
+	ids := Dictionary new. 
 ]
 
 { #category : #accessing }
 ZoaAuthor >> isLike: anOther [
-	acmId = anOther acmId 
-		ifTrue: [ ^ true ].
-	(lastname = anOther lastname and: [ name = anOther name ])
-		ifTrue: [ self halt ].
-		
-		"Should add orcid "
+
+	self ids keysAndValuesDo: [ :k :v | 
+		((anOther ids includesKey: k) and: [ (anOther ids at: k) = v ]) 
+			ifTrue: [ ^ true ] ].
+	(lastname = anOther lastname and: [ name = anOther name ]) ifTrue: [ 
+		^ true ].
+
+	"Should add orcid "
 	^ false
 ]
 
@@ -121,11 +144,34 @@ ZoaAuthor >> name: aName [
 ]
 
 { #category : #accessing }
+ZoaAuthor >> orcId [
+
+	^ ids at: #ORCID ifAbsent: [ nil ]
+]
+
+{ #category : #accessing }
+ZoaAuthor >> orcId: aString [ 
+	ids at: #ORCID put: aString 
+]
+
+{ #category : #accessing }
 ZoaAuthor >> printOn: aStream [
 	aStream
 		nextPutAll: lastname;
 		nextPutAll: ', ';
 		nextPutAll: name
+]
+
+{ #category : #'as yet unclassified' }
+ZoaAuthor >> scienceDirectId: aString [
+
+	ids at: #SCIENCEDIRECT put: aString
+]
+
+{ #category : #'as yet unclassified' }
+ZoaAuthor >> springerId: anInteger [
+
+	ids at: #SPRINGER put: anInteger asString
 ]
 
 { #category : #add }

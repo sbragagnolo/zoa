@@ -63,6 +63,11 @@ ZoaLoader >> loadDocument: anId [
 	 self subclassResponsibility 
 ]
 
+{ #category : #settings }
+ZoaLoader >> loadUsingResearchGateReferencesTo: anArticle [
+	self halt. 
+]
+
 { #category : #'as yet unclassified' }
 ZoaLoader >> sanitizeSymbol: var [
 
@@ -83,11 +88,6 @@ ZoaLoader >> setAbstract: aString into: aZoaDocument [
 { #category : #'as yet unclassified' }
 ZoaLoader >> setAccessed: aCollection into: aZoaDocument [ 
 	
-]
-
-{ #category : #'as yet unclassified' }
-ZoaLoader >> setAuthor: aCollection into: aZoaArticle [ 
-
 ]
 
 { #category : #accessing }
@@ -173,15 +173,36 @@ ZoaLoader >> setJournal: aString into: aZoaDocument [
 	aZoaDocument journal: aString
 ]
 
+{ #category : #'as yet unclassified' }
+ZoaLoader >> setJsonData: aDictionary into: aZoaArticle [
+
+	aDictionary keysAndValuesDo: [ :k :v | 
+		| selector |
+		v ifNotNil: [
+		selector := ('set{1}:into:' format: { k capitalized }) asSymbol.
+		(self respondsTo: selector)
+			ifTrue: [ 
+				self perform: selector withArguments: { 
+						v.
+						aZoaArticle } ]
+			ifFalse: [ aZoaArticle data at: k put: v ]] ]
+]
+
 { #category : #keywords }
-ZoaLoader >> setKeywords: aString into: aZoaDocument [
-	aZoaDocument
-		keywords:
-			((([ :c | c = $; or: [ c = $, ] ] split: aString) collect: #trimBoth)
-				collect: [ :a | 
-					ZoaTag new
-						name: a;
-						yourself ])
+ZoaLoader >> setKeywords: anArrayOfkeywords into: anArticle [
+
+	| existing keywords |
+	existing := Zoa current findAllTags.
+	keywords := anArrayOfkeywords collect: [ :k | 
+		            existing
+			            detect: [ :a | a name sameAs: k ]
+			            ifFound: [ :a | a ]
+			            ifNone: [ 
+				            ZoaTag new
+					            name: k;
+					            yourself ] ].
+	keywords do: [ :k | k addArticle: anArticle ].
+	anArticle keywords: keywords
 ]
 
 { #category : #'as yet unclassified' }
@@ -216,7 +237,7 @@ ZoaLoader >> setNumberOfPages: aString into: aZoaDocument [
 
 { #category : #setting }
 ZoaLoader >> setOnlineDate: aString into: aZoaDocument [ 
-	aZoaDocument date: aString asDate 
+	aZoaDocument date: (aString ifEmpty: [nil ] ifNotEmpty: [ aString asDate ])
 ]
 
 { #category : #'as yet unclassified' }

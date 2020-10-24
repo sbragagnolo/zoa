@@ -20,6 +20,7 @@ ZoaResearchGateLoader >> idFor: anUrl [
 { #category : #'as yet unclassified' }
 ZoaResearchGateLoader >> loadDocument: anUrl [
 	| document bibtex |
+	self halt.
 	document := ZoaArticle new.
 	document link: anUrl.
 	bibtex := (ZnEasy

@@ -338,9 +338,17 @@ ZoaArticle >> link: anObject [
 ]
 
 { #category : #'as yet unclassified' }
-ZoaArticle >> mergeWith: aZoaArticle [ 
+ZoaArticle >> mergeWith: aZoaArticle [
+
 	self = aZoaArticle ifTrue: [ ^ self ].
-	self halt. 
+	title ifNil: [ title := aZoaArticle title ].
+	self references ifEmpty: [ 
+		aZoaArticle references do: [ :r | 
+			r from: self.
+			self addReference: r ].
+		aZoaArticle references removeAll ].
+	date ifNil: [ date := aZoaArticle date  ]. 
+	 self halt
 ]
 
 { #category : #reference }
@@ -355,7 +363,6 @@ ZoaArticle >> microdownBrief [
 			  nextPutAll: '##Citing';
 			  cr;
 			  nextPutAll: self cite;
-
 			  cr.
 		  str
 			  cr;
@@ -363,11 +370,15 @@ ZoaArticle >> microdownBrief [
 			  cr.
 
 		  authorsReference do: [ :ar | 
-			  str
-				  nextPutAll: ar author fullName;
-				  nextPutAll: '. ID: ';
-				  nextPutAll: ar author acmId;
-				  cr ].
+			  str nextPutAll: ar author fullName.
+			  ar author ids keysAndValuesDo: [ :k :v | 
+				  str
+					  nextPutAll: k;
+					  nextPutAll: ': ';
+					  nextPutAll: v asString;
+					  cr ].
+
+			  str cr ].
 
 		  self abstract ifNotNil: [ 
 			  str
@@ -380,36 +391,42 @@ ZoaArticle >> microdownBrief [
 		  str
 			  nextPutAll: '##Keywords';
 			  cr.
-		  str nextPutAll: (';' join: (self keywords collect: [ :k | k name ])).
+		  str nextPutAll:
+			  (';' join: (self keywords collect: [ :k | k name ])).
 
 		  self briefs do: [ :b | 
-			  b includeInText ifTrue: [
-			  str
-				  nextPutAll: '##';
-				  nextPutAll: b name;
-				  cr;
-				  nextPutAll: b text;
-				  cr.
-				  
-				b tags ifNotEmpty: [
-				  str nextPutAll: '###Tags';
-				  nextPutAll: (';' join: (b tags collect: [ :k | k name ]));cr.].
-				
-				 ].].
+			  b includeInText ifTrue: [ 
+				  str
+					  nextPutAll: '##';
+					  nextPutAll: b name;
+					  cr;
+					  nextPutAll: b text;
+					  cr.
+
+				  b tags ifNotEmpty: [ 
+					  str
+						  nextPutAll: '###Tags';
+						  nextPutAll: (';' join: (b tags collect: [ :k | k name ]));
+						  cr ] ] ].
 		  str
 			  cr;
 			  nextPutAll: '##References';
 			  cr.
-		  str nextPutAll: '###This article is cited by'; cr.
+		  str
+			  nextPutAll: '###This article is cited by';
+			  cr.
 		  self citedBy do: [ :r | 
-			  str nextPutAll: ' ';
+			  str
+				  nextPutAll: ' ';
 				  nextPutAll: (r referenceEntryInRelationWith: self);
 				  cr ].
-		  str nextPutAll: '###This article Cites'; cr.
+		  str
+			  nextPutAll: '###This article Cites';
+			  cr.
 		  self cites do: [ :r | 
 			  str
 				  nextPutAll: ' ';
-				  nextPutAll: (r referenceEntryInRelationWith: self) ;
+				  nextPutAll: (r referenceEntryInRelationWith: self);
 				  cr ].
 
 		  str
@@ -420,7 +437,8 @@ ZoaArticle >> microdownBrief [
 			  str
 				  nextPutAll: a key asString;
 				  nextPutAll: ' ';
-				  nextPutAll: a value asString ; cr ] ]
+				  nextPutAll: a value asString;
+				  cr ] ]
 ]
 
 { #category : #acessing }

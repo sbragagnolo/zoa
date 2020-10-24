@@ -225,7 +225,7 @@ ZoaArticleViewer >> load: item [
 ZoaArticleViewer >> loadOrRead: item [
 "["
 	item hasResolvedReference
-		ifTrue: [ owner readPdf: (item oppositeArticleTo: article ) ]
+		ifTrue: [ [owner readPdf: (item oppositeArticleTo: article )] on: Error do: [ :e | self inform: e messageText ]. ]
 		ifFalse: [ self load: item ]
 		
 		"] on: Error do: [ :e | self inform: e messageText  ]"

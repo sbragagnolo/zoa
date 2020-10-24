@@ -53,6 +53,7 @@ ZoaArticleArticleReference >> from [
 		from := Zoa current loadAndSaveArticle: reference.
 		to references remove: self .
 		to references add: self. 
+		Zoa current saveArticle: from.
 		Zoa current saveArticle: to.
 		from 
 	 ]
@@ -145,6 +146,7 @@ ZoaArticleArticleReference >> to [
 		from references remove: self .
 		from references add: self. 
 		Zoa current saveArticle: from.
+		Zoa current saveArticle: to.
 		to
 	 ]
 ]

@@ -95,9 +95,7 @@ ZoaACMLoader >> privateAbstractFor: anUrl [
 
 { #category : #setting }
 ZoaACMLoader >> setAuthor: anArray into: aZoaDocument [
-	super
-		setAuthor: (anArray collect: [ :d | ' ' join: d values ])
-		into: aZoaDocument
+
 ]
 
 { #category : #initialization }
@@ -133,6 +131,13 @@ ZoaACMLoader >> setFirstpage: aString into: aZoaDocument [
 { #category : #'as yet unclassified' }
 ZoaACMLoader >> setKeyword: aString into: aZoaDocument [
 	self setKeywords: aString into: aZoaDocument
+]
+
+{ #category : #'as yet unclassified' }
+ZoaACMLoader >> setKeywords: aString into: anArticle [
+	| keys | 
+	keys := (([ :c | c = $; or: [ c = $, ] ] split: aString) collect: #trimBoth).
+	super setKeywords: keys into: anArticle
 ]
 
 { #category : #setting }

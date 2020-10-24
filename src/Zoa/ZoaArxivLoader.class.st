@@ -12,6 +12,11 @@ ZoaArxivLoader class >> loads: aString [
 	^ aString = 'arxiv.org'
 ]
 
+{ #category : #accessing }
+ZoaArxivLoader >> loadDocument: aDocument [
+	self halt.
+]
+
 { #category : #'as yet unclassified' }
 ZoaArxivLoader >> privateAbstractFor: anUrl [
 	| contents stream |
