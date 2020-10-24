@@ -26,6 +26,11 @@ ZoaArticleAuthorReference >> affiliation: aString [
 ]
 
 { #category : #accessing }
+ZoaArticleAuthorReference >> arrayKeywords [
+	^ article arrayKeywords 
+]
+
+{ #category : #accessing }
 ZoaArticleAuthorReference >> article: aZoaArticle [ 
 	article := aZoaArticle
 ]

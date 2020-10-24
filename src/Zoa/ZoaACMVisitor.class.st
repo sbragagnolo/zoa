@@ -29,7 +29,8 @@ ZoaACMVisitor >> addAuthor: anElement [
 	author lastname: lastname.
 	author acmId: profile.
 	(document authors noneSatisfy: [ :a | a isLike: author ])
-		ifTrue: [ author := zoa findAuthorByExampleOrStore: author.
+		ifTrue: [  
+			author := zoa findAuthorByExampleOrStore: author.
 			articleRef := ZoaArticleAuthorReference new.
 			articleRef affiliation: affiliation.
 			articleRef author: author.

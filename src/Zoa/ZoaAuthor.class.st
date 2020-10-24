@@ -25,6 +25,13 @@ ZoaAuthor class >> isVoyageRoot [
 ]
 
 { #category : #accessing }
+ZoaAuthor >> = anOtherArticle [
+
+	^ self species = anOtherArticle species and: [ 
+		  self uniqueId = anOtherArticle uniqueId ]
+]
+
+{ #category : #accessing }
 ZoaAuthor >> acmId [
 	^ acmId
 ]
@@ -52,6 +59,12 @@ ZoaAuthor >> citeName [
 { #category : #accessing }
 ZoaAuthor >> fullName [
 	^ lastname, ', ', name
+]
+
+{ #category : #accessing }
+ZoaAuthor >> hash [
+
+	^ self uniqueId hash
 ]
 
 { #category : #accessing }
@@ -113,4 +126,13 @@ ZoaAuthor >> printOn: aStream [
 		nextPutAll: lastname;
 		nextPutAll: ', ';
 		nextPutAll: name
+]
+
+{ #category : #add }
+ZoaAuthor >> uniqueId [
+
+	^ '{1}:{2}:{3}' format: { 
+			  acmId asString.
+			  lastname asString.
+			  name asString }
 ]

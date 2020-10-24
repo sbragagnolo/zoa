@@ -77,6 +77,11 @@ ZoaACMLoader >> setAuthor: anArray into: aZoaDocument [
 		into: aZoaDocument
 ]
 
+{ #category : #initialization }
+ZoaACMLoader >> setCollectionNumber: aString into: aZoaArticle [ 
+
+]
+
 { #category : #'as yet unclassified' }
 ZoaACMLoader >> setCollectionTitle: aString into: aZoaDocument [
 	self setConference: aString into: aZoaDocument
@@ -85,6 +90,11 @@ ZoaACMLoader >> setCollectionTitle: aString into: aZoaDocument [
 { #category : #'as yet unclassified' }
 ZoaACMLoader >> setContainerTitle: aString into: aZoaDocument [
 	self setTitle: aString into: aZoaDocument
+]
+
+{ #category : #initialization }
+ZoaACMLoader >> setEdition: aString into: aZoaArticle [ 
+
 ]
 
 { #category : #setting }
@@ -120,4 +130,9 @@ ZoaACMLoader >> setNumber: aString into: aZoaDocument [
 { #category : #setting }
 ZoaACMLoader >> setPdfUrl: aString into: aZoaDocument [
 	^ aZoaDocument pdfUrl: aString asUrl
+]
+
+{ #category : #initialization }
+ZoaACMLoader >> setSource: aString into: aZoaArticle [ 
+
 ]
