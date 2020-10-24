@@ -8,12 +8,48 @@ Class {
 		'root',
 		'repository'
 	],
+	#classInstVars : [
+		'zoa'
+	],
 	#category : #'Zoa-API'
 }
+
+{ #category : #accessing }
+Zoa class >> current [
+
+	^ zoa ifNil: [ zoa := self new ]
+]
 
 { #category : #'as yet unclassified' }
 Zoa class >> defaultFolder [
 	^ (FileLocator home / '.zoa') ensureCreateDirectory 
+]
+
+{ #category : #public }
+Zoa >> allIncomingReferencesTo: anArticle [
+
+	| allArticles |
+	allArticles := self findAllArticles.
+	^ (allArticles flatCollect: [ :a | a references ]) select: [ :ref | 
+		  ref cites: anArticle ]
+]
+
+{ #category : #public }
+Zoa >> allOutgoingReferencesFrom: anArticle [
+
+	| allArticles |
+	allArticles := self findAllArticles.
+	^ (allArticles flatCollect: [ :a | a references ]) select: [ :ref | 
+		  ref citedBy: anArticle ]
+]
+
+{ #category : #public }
+Zoa >> allReferencesRelatedWith: anArticle [
+
+	| allArticles |
+	allArticles := self findAllArticles.
+	^ (allArticles flatCollect: [ :a | a references ]) select: [ :ref | 
+		  ref isRelatedWith: anArticle ]
 ]
 
 { #category : #accesing }
@@ -44,6 +80,12 @@ Zoa >> browseDoi: aDoi [
 	^ self browse: (self findByDoi: aDoi)
 ]
 
+{ #category : #public }
+Zoa >> delete: aZoaArticle [
+
+	self repository remove: aZoaArticle
+]
+
 { #category : #convenience }
 Zoa >> doiToUrl: aDoi [
 	| return url |
@@ -62,13 +104,60 @@ Zoa >> doiToUrl: aDoi [
 ]
 
 { #category : #find }
+Zoa >> dropDatabase [
+	
+	self repository dropDatabase.
+	repository := nil
+]
+
+{ #category : #find }
+Zoa >> emptyDatabase [
+	self repository removeAll: ZoaArticle.
+	self repository removeAll: ZoaArticleArticleReference .
+	self repository removeAll: ZoaArticleAuthorReference .
+	self repository removeAll: ZoaAuthor.
+]
+
+{ #category : #save }
+Zoa >> exportArticle: anArticle to: aFolder [
+
+	| export pdf brief |
+	export := aFolder / anArticle fileBasename.
+	pdf := self pdfFileFor: anArticle ifNotYetResolved: [ nil ].
+	pdf ifNotNil: [ pdf copyTo: export ].
+	brief := (export / 'brief.md')
+		         ensureCreateFile;
+		         writeStream.
+
+	brief nextPutAll: anArticle microdownBrief.
+	brief
+		flush;
+		close
+]
+
+{ #category : #find }
+Zoa >> findAllArticleReferences [
+	^ self repository selectAll: ZoaArticleArticleReference 
+]
+
+{ #category : #find }
 Zoa >> findAllArticles [
 	^ self repository selectAll: ZoaArticle
 ]
 
 { #category : #find }
+Zoa >> findAllAuthorReferences [
+	^ self repository selectAll: ZoaArticleAuthorReference 
+]
+
+{ #category : #find }
 Zoa >> findAllAuthors [
 	^ self repository selectAll: ZoaAuthor
+]
+
+{ #category : #'as yet unclassified' }
+Zoa >> findAllTags [
+	^ self repository selectAll: ZoaTag 
 ]
 
 { #category : #find }
@@ -78,10 +167,9 @@ Zoa >> findAuthorAcmId: anId [
 
 { #category : #find }
 Zoa >> findAuthorByExampleOrStore: anAuthor [
-	self assert: anAuthor acmId isNotNil.
-	^ (self findAuthorLike: anAuthor)
-		ifNil: [ self saveAuthor: anAuthor. anAuthor ]
-		
+
+	
+	^ (self findAuthorLike: anAuthor) ifNil: [ anAuthor ]
 ]
 
 { #category : #find }
@@ -100,15 +188,31 @@ Zoa >> findByDoi: aDoi [
 
 { #category : #command }
 Zoa >> getPdf: doc [
-	| entity  |
-	doc pdfUrl ifNil: [ ^ self error: 'No url available for this text' ].
-	doc pdf
-		ifNil: [ entity := (ZnEasy get: doc pdfUrl) entity.
-			entity contentType sub = 'html'
-				ifTrue: [ doc pdf: (self manageRedirect: entity contents) ].
-			entity contentType sub = 'pdf'
-				ifTrue: [ doc pdf: entity contents ].
-			self save: doc ]
+
+	| entity binary url ref |
+	url := self privateGetUrlFor: doc.
+	[ 
+	entity := (ZnEasy get: url asZnUrl) entity.
+	entity contentType sub = 'html' ifTrue: [ 
+		binary := self manageRedirect: entity contents ].
+	entity contentType sub = 'pdf' ifFalse: [ 
+		doc pdfUrl: nil.
+		self error: 'The url is either wrong or no longer valid' ].
+	binary := entity bytes ]
+		on: Error
+		do: [ :e | 
+			doc pdfUrl: nil.
+			self error: 'The url is either wrong or no longer valid' ].
+	ref := self articles / doc fileBasename , 'pdf'.
+	ref
+		ensureDelete;
+		ensureCreateFile.
+	ref binaryWriteStream
+		nextPutAll: binary;
+		flush;
+		close.
+	self saveArticle: doc.
+	^ self articles / doc fileBasename , 'pdf'
 ]
 
 { #category : #command }
@@ -116,6 +220,18 @@ Zoa >> getPdfByDoi: aString [
 	| doc |
 	doc := self findByDoi: aString.
 	self getPdf: doc
+]
+
+{ #category : #read }
+Zoa >> importAllReferencesRelatedWith: anArticle [
+
+	anArticle references do: [ :r | 
+		| to |
+		[ 
+		to := r to.
+		self saveArticle: to ]
+			on: Error
+			do: [ :e | r to: nil ] ]
 ]
 
 { #category : #initialization }
@@ -132,6 +248,18 @@ Zoa >> listAllArticles [
 { #category : #load }
 Zoa >> load: anUrl [
 	^ (ZoaLoader loaderFor: anUrl host) new loadDocument: anUrl
+]
+
+{ #category : #public }
+Zoa >> loadAndSaveArticle: anEntry [
+
+	^ ({ 'ieeexplore.ieee.org'. 'scholar.google.com'. 'dl.acm.org'.
+	   'researchgate.net'. 'academia.edu'. 'linkinghub.elsevier.com'.
+	   'portal.acm.org'. 'arxiv.org'. 'sciencedirect.com'.
+	   'link.springer.com' } anySatisfy: [ :s | 
+		   (anEntry indexOfSubCollection: s) > 0 ])
+		  ifTrue: [ self loadAndSaveArticleUrl: anEntry asZnUrl]
+		  ifFalse: [ self loadAndSaveArticleDoi: anEntry ]
 ]
 
 { #category : #save }
@@ -178,18 +306,30 @@ Zoa >> manageRedirect: aString [
 ]
 
 { #category : #read }
-Zoa >> read: aDocument [
-	(#/ asFileReference / #tmp / aDocument hash asString , 'pdf') exists
-		ifTrue:
-			[ (#/ asFileReference / #tmp / aDocument hash asString , 'pdf') delete ].
-	(#/ asFileReference / #tmp / aDocument hash asString , 'pdf')
-		ensureCreateFile binaryWriteStream nextPutAll: aDocument pdfContent.
-	^ ([ :spec | 
-	spec
-		command: 'open';
-		argument: (#/ asFileReference / #tmp / aDocument hash asString , 'pdf') fullName ]
-		asOSTask future: TKTNewProcessTaskRunner new)
-		waitForCompletion: 2 seconds 
+Zoa >> pdfFileFor: doc [
+
+	^ self pdfFileFor: doc ifNotYetResolved: [ self getPdf: doc ]
+]
+
+{ #category : #read }
+Zoa >> pdfFileFor: doc ifNotYetResolved: aBlock [
+
+	^ (self articles / doc fileBasename , 'pdf') exists
+		  ifTrue: [ self articles / doc fileBasename , 'pdf' ]
+		  ifFalse: [ aBlock cull:doc.  ]
+]
+
+{ #category : #command }
+Zoa >> privateGetUrlFor: doc [
+
+	doc pdfUrl ifNil: [ 
+		doc pdfUrl: (UIManager default
+				 request: 'Could you please give an url for the pdf?'
+				 initialAnswer: doc doi
+				 title: 'Loading PDF') ].
+	doc pdfUrl ifNil: [ self error: 'Cannot download pdf ' ].
+	
+	^ doc pdfUrl
 ]
 
 { #category : #read }
@@ -199,19 +339,26 @@ Zoa >> readDoi: aDoi [
 
 { #category : #read }
 Zoa >> repository [
-	^ repository
-		ifNil:
-			[ repository := VOMongoRepository host: 'localhost' database: 'zoa' ]
+
+	^ repository ifNil: [ 
+		  repository := VOMongoRepository host: 'localhost' database: 'zoa' ]
 ]
 
 { #category : #save }
 Zoa >> saveArticle: doc [
+
 	self assert: doc doi isNotNil.
-	self repository
-		save:
-			((self findByDoi: doc doi)
-				ifNotNil: [ :a | a mergeWith: doc ]
-				ifNil: [ doc ])
+	self findAllArticles
+		detect: [ :a | 
+			a doi = doc doi or: [ 
+				a title = doc title and: [ 
+					a firstAuthorCiteName = doc firstAuthorCiteName ] ] ]
+		ifFound: [ :a | 
+			a mergeWith: doc.
+			self repository save: a ]
+		ifNone: [ self repository save: doc ].
+
+
 ]
 
 { #category : #'as yet unclassified' }

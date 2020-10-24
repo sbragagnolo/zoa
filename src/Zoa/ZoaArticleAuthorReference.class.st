@@ -26,6 +26,11 @@ ZoaArticleAuthorReference >> affiliation: aString [
 ]
 
 { #category : #accessing }
+ZoaArticleAuthorReference >> arrayKeywords [
+	^ article arrayKeywords 
+]
+
+{ #category : #accessing }
 ZoaArticleAuthorReference >> article: aZoaArticle [ 
 	article := aZoaArticle
 ]
@@ -43,5 +48,5 @@ ZoaArticleAuthorReference >> author: aZoaAuthor [
 { #category : #'as yet unclassified' }
 ZoaArticleAuthorReference >> printOn: aStream [
 	author printOn: aStream.
-	aStream nextPutAll: affiliation
+	affiliation printOn: aStream
 ]

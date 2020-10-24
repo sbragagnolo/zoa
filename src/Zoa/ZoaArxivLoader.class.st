@@ -3,13 +3,18 @@ Downloads from Arxiv
 "
 Class {
 	#name : #ZoaArxivLoader,
-	#superclass : #ZoaACMLoader,
+	#superclass : #ZoaLoader,
 	#category : #'Zoa-Loader'
 }
 
 { #category : #api }
 ZoaArxivLoader class >> loads: aString [
 	^ aString = 'arxiv.org'
+]
+
+{ #category : #accessing }
+ZoaArxivLoader >> loadDocument: aDocument [
+	self halt.
 ]
 
 { #category : #'as yet unclassified' }

@@ -29,32 +29,55 @@ ZoaACMLoader >> idFor: anUrl [
 
 { #category : #'as yet unclassified' }
 ZoaACMLoader >> loadDocument: anUrl [
+
 	| article html visitor |
 	article := ZoaArticle new.
 	article link: anUrl.
-	article doi: (self idFor: anUrl). 
-	html := (ZnEasy get: anUrl) entity contents parseHTML .
-	visitor := ZoaACMVisitor new .
-	visitor article: article. 
+	article doi: (self idFor: anUrl).
+	html := (ZnEasy get: anUrl) entity contents parseHTML.
+	visitor := ZoaACMVisitor new.
+	visitor article: article.
+
 	html acceptNodeVisitor: visitor.
-	
+	self loadReferencedBy: anUrl into: article.
 	self loadMetaFor: anUrl into: article.
-	
+
+
 	^ article
 ]
 
 { #category : #'as yet unclassified' }
 ZoaACMLoader >> loadMetaFor: anUrl into: document [
-	| metadata exportUrl |
-	exportUrl:=  ('https://dl.acm.org/action/exportCiteProcCitation?dois={1}&targetFile=custom-bibtex&format=bibTex'
-		format: {self idFor: anUrl}) asZnUrl.
+
+	| metadata exportUrl entity |
+	exportUrl := ('https://dl.acm.org/action/exportCiteProcCitation?dois={1}&targetFile=custom-bibtex&format=bibTex' 
+		              format: { (self idFor: anUrl) }) asZnUrl.
+	entity := (ZnEasy get: exportUrl) entity.
+	entity ifNotNil: [ 
+		metadata := STONJSON fromStream: entity readStream.
+		metadata := (metadata at: #items) first at: document doi.
+		metadata keysAndValuesDo: [ :key :value | 
+			self
+				perform:
+				('set{1}:into:' format: { (self sanitizeSymbol: key) }) asSymbol
+				withArguments: { 
+						value.
+						document } ] ]
+]
+
+{ #category : #'as yet unclassified' }
+ZoaACMLoader >> loadReferencedBy: anUrl into: article [
+
+	| exportUrl html visitor |
+	exportUrl := ('https://dl.acm.org/action/ajaxShowCitedBy?ajax=true&doi={1}' 
+		              format: { (self idFor: anUrl) }) asZnUrl.
+	html := (ZnEasy get: exportUrl) entity contents parseHTML .
+
+	visitor := ZoaACMReferencedByVisitor new .
+	visitor article: article. 
 	
-	metadata := STONJSON
-		fromStream: (ZnEasy get: exportUrl) entity readStream.
-	metadata := (metadata at: #items) first at: document doi.
-	metadata 	keysAndValuesDo: [ :key :value | 
-		self perform: ('set{1}:into:' format: {(self sanitizeSymbol: key)}) asSymbol
-				withArguments: {value . document} ]
+	html acceptNodeVisitor: visitor.
+
 ]
 
 { #category : #'as yet unclassified' }
@@ -72,9 +95,12 @@ ZoaACMLoader >> privateAbstractFor: anUrl [
 
 { #category : #setting }
 ZoaACMLoader >> setAuthor: anArray into: aZoaDocument [
-	super
-		setAuthor: (anArray collect: [ :d | ' ' join: d values ])
-		into: aZoaDocument
+
+]
+
+{ #category : #initialization }
+ZoaACMLoader >> setCollectionNumber: aString into: aZoaArticle [ 
+
 ]
 
 { #category : #'as yet unclassified' }
@@ -85,6 +111,11 @@ ZoaACMLoader >> setCollectionTitle: aString into: aZoaDocument [
 { #category : #'as yet unclassified' }
 ZoaACMLoader >> setContainerTitle: aString into: aZoaDocument [
 	self setTitle: aString into: aZoaDocument
+]
+
+{ #category : #initialization }
+ZoaACMLoader >> setEdition: aString into: aZoaArticle [ 
+
 ]
 
 { #category : #setting }
@@ -100,6 +131,13 @@ ZoaACMLoader >> setFirstpage: aString into: aZoaDocument [
 { #category : #'as yet unclassified' }
 ZoaACMLoader >> setKeyword: aString into: aZoaDocument [
 	self setKeywords: aString into: aZoaDocument
+]
+
+{ #category : #'as yet unclassified' }
+ZoaACMLoader >> setKeywords: aString into: anArticle [
+	| keys | 
+	keys := (([ :c | c = $; or: [ c = $, ] ] split: aString) collect: #trimBoth).
+	super setKeywords: keys into: anArticle
 ]
 
 { #category : #setting }
@@ -120,4 +158,9 @@ ZoaACMLoader >> setNumber: aString into: aZoaDocument [
 { #category : #setting }
 ZoaACMLoader >> setPdfUrl: aString into: aZoaDocument [
 	^ aZoaDocument pdfUrl: aString asUrl
+]
+
+{ #category : #initialization }
+ZoaACMLoader >> setSource: aString into: aZoaArticle [ 
+
 ]

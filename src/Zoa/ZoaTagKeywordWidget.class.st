@@ -16,8 +16,8 @@ ZoaTagKeywordWidget class >> defaultSpec [
 		add:
 			(SpBoxLayout newHorizontal
 				add: #nameLabel width: 150;
-				add: #openOnlineProfile width: 30;
-				add: #otherArticles width: 30;
+			"	add: #openOnlineProfile width: 30;
+				add: #otherArticles width: 30;"
 				yourself)
 			height: 30;
 		yourself
@@ -50,10 +50,10 @@ ZoaTagKeywordWidget >> initializePrivateAnnouncements [
 ZoaTagKeywordWidget >> initializeWidgets [
 	nameLabel := self newLabel.
 	openOnlineProfile := self newButton
-		icon: MendaIcons new tagAddIcon;
+		icon: (self iconNamed:#add ) ;
 		yourself.
 	otherArticles := self newButton
-		icon: MendaIcons new tagAddIcon;
+		icon:(self iconNamed:#add ) ;
 		yourself
 ]
 

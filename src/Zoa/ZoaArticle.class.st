@@ -8,7 +8,6 @@ Class {
 		'link',
 		'briefs',
 		'tags',
-		'pdf',
 		'date',
 		'abstract',
 		'title',
@@ -64,7 +63,11 @@ ZoaArticle >> addBrief: aBrief [
 { #category : #reference }
 ZoaArticle >> addReference: aZoaArticleArticleReference [ 
 	references add: aZoaArticleArticleReference.
-	aZoaArticleArticleReference from: self.
+]
+
+{ #category : #accessing }
+ZoaArticle >> allReferences [ 
+	^ Zoa current allReferencesRelatedWith: self
 ]
 
 { #category : #accessing }
@@ -155,12 +158,22 @@ ZoaArticle >> children [
 
 { #category : #'as yet unclassified' }
 ZoaArticle >> cite [
-	^ (self firstAuthor citeName) , (date year \\ 1000) asString
+	^ (self firstAuthorCiteName) , (self date year \\ 1000) asString
 ]
 
 { #category : #accessing }
 ZoaArticle >> cite: aCite [
 	^ cite := aCite
+]
+
+{ #category : #accessing }
+ZoaArticle >> citedBy [ 
+	^ Zoa current allIncomingReferencesTo: self  
+]
+
+{ #category : #accessing }
+ZoaArticle >> cites [ 
+	^ Zoa current allOutgoingReferencesFrom: self 
 ]
 
 { #category : #accessing }
@@ -180,7 +193,7 @@ ZoaArticle >> data [
 
 { #category : #accessing }
 ZoaArticle >> date [
-	^ date
+	^ date ifNil: [ DateAndTime new  ]
 ]
 
 { #category : #accessing }
@@ -198,9 +211,31 @@ ZoaArticle >> doi: aString [
 	doi := aString 
 ]
 
+{ #category : #accessing }
+ZoaArticle >> fileBasename [
+
+	self doi ifEmpty: [ 
+		^ date year asString , '-' ,( self firstAuthorCiteName copyReplaceAll: ' ' with: '_') , '-'
+		  , ((title copyReplaceAll: ' ' with: '-') readStream next: 20) ].
+	^ (self doi copyReplaceAll: '\' with: '-')
+		  copyReplaceAll: '/'
+		  with: '-'
+]
+
 { #category : #'as yet unclassified' }
-ZoaArticle >> firstAuthor [
-	^ authorsReference first author
+ZoaArticle >> firstAuthorCiteName [
+
+	^ authorsReference
+		  ifEmpty: [ 'UnknownAuthor' ]
+		  ifNotEmpty: [ authorsReference first author citeName ]
+]
+
+{ #category : #'as yet unclassified' }
+ZoaArticle >> firstAuthorName [
+
+	^ authorsReference
+		  ifEmpty: [ 'None Author found' ]
+		  ifNotEmpty: [ authorsReference first author fullName ]
 ]
 
 { #category : #accessing }
@@ -303,9 +338,107 @@ ZoaArticle >> link: anObject [
 ]
 
 { #category : #'as yet unclassified' }
-ZoaArticle >> mergeWith: aZoaArticle [ 
+ZoaArticle >> mergeWith: aZoaArticle [
+
 	self = aZoaArticle ifTrue: [ ^ self ].
-	self halt. 
+	title ifNil: [ title := aZoaArticle title ].
+	self references ifEmpty: [ 
+		aZoaArticle references do: [ :r | 
+			r from: self.
+			self addReference: r ].
+		aZoaArticle references removeAll ].
+	date ifNil: [ date := aZoaArticle date  ]. 
+	 self halt
+]
+
+{ #category : #reference }
+ZoaArticle >> microdownBrief [
+
+	^ String streamContents: [ :str | 
+		  str
+			  nextPutAll: '#';
+			  nextPutAll: self title;
+			  cr.
+		  str
+			  nextPutAll: '##Citing';
+			  cr;
+			  nextPutAll: self cite;
+			  cr.
+		  str
+			  cr;
+			  nextPutAll: '##Authors';
+			  cr.
+
+		  authorsReference do: [ :ar | 
+			  str nextPutAll: ar author fullName.
+			  ar author ids keysAndValuesDo: [ :k :v | 
+				  str
+					  nextPutAll: k;
+					  nextPutAll: ': ';
+					  nextPutAll: v asString;
+					  cr ].
+
+			  str cr ].
+
+		  self abstract ifNotNil: [ 
+			  str
+				  cr;
+				  nextPutAll: '##Abstract';
+				  cr;
+				  nextPutAll: self abstract;
+				  cr ].
+
+		  str
+			  nextPutAll: '##Keywords';
+			  cr.
+		  str nextPutAll:
+			  (';' join: (self keywords collect: [ :k | k name ])).
+
+		  self briefs do: [ :b | 
+			  b includeInText ifTrue: [ 
+				  str
+					  nextPutAll: '##';
+					  nextPutAll: b name;
+					  cr;
+					  nextPutAll: b text;
+					  cr.
+
+				  b tags ifNotEmpty: [ 
+					  str
+						  nextPutAll: '###Tags';
+						  nextPutAll: (';' join: (b tags collect: [ :k | k name ]));
+						  cr ] ] ].
+		  str
+			  cr;
+			  nextPutAll: '##References';
+			  cr.
+		  str
+			  nextPutAll: '###This article is cited by';
+			  cr.
+		  self citedBy do: [ :r | 
+			  str
+				  nextPutAll: ' ';
+				  nextPutAll: (r referenceEntryInRelationWith: self);
+				  cr ].
+		  str
+			  nextPutAll: '###This article Cites';
+			  cr.
+		  self cites do: [ :r | 
+			  str
+				  nextPutAll: ' ';
+				  nextPutAll: (r referenceEntryInRelationWith: self);
+				  cr ].
+
+		  str
+			  cr;
+			  nextPutAll: '##Article Metadata';
+			  cr.
+		  data associationsDo: [ :a | 
+			  str
+				  nextPutAll: a key asString;
+				  nextPutAll: ' ';
+				  nextPutAll: a value asString;
+				  cr ] ]
 ]
 
 { #category : #acessing }
@@ -325,20 +458,8 @@ ZoaArticle >> pages: aCollection [
 ]
 
 { #category : #accessing }
-ZoaArticle >> pdf [
-	^ pdf
-]
-
-{ #category : #accessing }
-ZoaArticle >> pdf: anObject [
-	pdf := anObject
-]
-
-{ #category : #accessing }
-ZoaArticle >> pdfContent [
-	pdf
-		ifNil: [ ^ self error: 'Unavailable content. execute getPdf before' ].
-	^ pdf
+ZoaArticle >> pdfFile [
+	^ Zoa current pdfFileFor: self 
 ]
 
 { #category : #accessing }
@@ -382,15 +503,8 @@ ZoaArticle >> publisher: aString [
 ]
 
 { #category : #accessing }
-ZoaArticle >> read [
-	pdf
-		ifNil: [ self error: 'Unavailable content. execute getPdf before' ].
-	^ pdf
-]
-
-{ #category : #accessing }
-ZoaArticle >> specModelClass [
-	^ GrafoscopioNewTextInputModel new 
+ZoaArticle >> references [
+	^ references
 ]
 
 { #category : #accessing }
@@ -423,19 +537,12 @@ ZoaArticle >> tags: anObject [
 
 { #category : #accessing }
 ZoaArticle >> title [
-	^ title
+	^ title ifNil: [ 'Unknown title!' ]
 ]
 
 { #category : #accessing }
 ZoaArticle >> title: aString [ 
 	title := aString
-]
-
-{ #category : #'as yet unclassified' }
-ZoaArticle >> todoNode: aTitle [
-	^ GrafoscopioTextNode new
-		header: aTitle;
-		body: '#TODO Should add something here'
 ]
 
 { #category : #accessing }

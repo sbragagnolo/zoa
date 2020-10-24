@@ -29,7 +29,8 @@ ZoaACMVisitor >> addAuthor: anElement [
 	author lastname: lastname.
 	author acmId: profile.
 	(document authors noneSatisfy: [ :a | a isLike: author ])
-		ifTrue: [ author := zoa findAuthorByExampleOrStore: author.
+		ifTrue: [  
+			author := zoa findAuthorByExampleOrStore: author.
 			articleRef := ZoaArticleAuthorReference new.
 			articleRef affiliation: affiliation.
 			articleRef author: author.
@@ -60,9 +61,9 @@ ZoaACMVisitor >> createReferenceFromElement: anElement [
 	
 	ref reference: (
 		href detect: [ :d | self hasDoi: d   ] ifFound:[ : h |  self extractUrlFromHref: h ]   ifNone:[
-				href detect: [ :d | self isGoogleScholar: d   ] ifNone: [ self error: 'Unexpected case'  ]
+				href detect: [ :d | self isUrlToResearchEngine:  d   ] ifNone: [ self error: 'Unexpected case'  ]
 		]).
-	
+	ref from: document. 
 	^ ref
 ]
 
@@ -85,16 +86,21 @@ ZoaACMVisitor >> detectStringElement: aNode [
 
 { #category : #'as yet unclassified' }
 ZoaACMVisitor >> extractUrlFromHref: aString [
+
 	| upToAll |
-	upToAll := (aString includesSubstring: '/doi/') ifTrue: [ '/doi/' ] ifFalse:[ '&key=' ].
+	upToAll := '&key='.
+	(aString includesSubstring: 'doi.org/') ifTrue: [ 
+		upToAll := 'doi.org/' ].
+	(aString includesSubstring: '/doi/') ifTrue: [ upToAll := '/doi/' ].
+	(aString includesSubstring: 'doi=')ifTrue: [ upToAll :=  'doi=' ].
 	^ aString readStream
-		upToAll: upToAll;
-		upToEnd
+		  upToAll: upToAll;
+		  upToEnd
 ]
 
 { #category : #'as yet unclassified' }
 ZoaACMVisitor >> hasDoi: aString [
-	^ {'/servlet/linkout?' . '/doi/'}
+	^ {'/servlet/linkout?' . '/doi/' . 'doi.org' . 'doi=' }
 		anySatisfy: [ :a | aString includesSubstring: a ]
 ]
 
@@ -148,9 +154,19 @@ ZoaACMVisitor >> isAbstract: anElement then: aBlockClosure [
 		ifTrue: [ aBlockClosure value ]
 ]
 
-{ #category : #'as yet unclassified' }
-ZoaACMVisitor >> isGoogleScholar: aString [
-	^ aString includesSubstring: 'http://scholar.google.com/'
+{ #category : #testing }
+ZoaACMVisitor >> isUrlToResearchEngine: aString [
+
+	^ { 'http' } anySatisfy: [ :s | 
+		  (aString indexOfSubCollection: s) > 0 ]
+]
+
+{ #category : #visiting }
+ZoaACMVisitor >> processElement: anElement [
+
+	self isAbstract: anElement then: [ self setAbstractUsing: anElement ].
+	self ifIsAReference: anElement then: [ self addReference: anElement ].
+	self ifIsAnAuthor: anElement then: [ self addAuthor: anElement ]
 ]
 
 { #category : #visiting }
@@ -195,8 +211,8 @@ ZoaACMVisitor >> setAbstractUsing: anElement [
 
 { #category : #visiting }
 ZoaACMVisitor >> visitElement: anElement [
+	self processElement: anElement. 
 	super visitElement: anElement.
-	self isAbstract: anElement then: [ self setAbstractUsing: anElement ].
-	self ifIsAReference: anElement then: [ self addReference: anElement ].
-	self ifIsAnAuthor: anElement then: [ self addAuthor: anElement ]
+
+
 ]

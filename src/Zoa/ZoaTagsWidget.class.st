@@ -45,14 +45,14 @@ ZoaTagsWidget >> initializeWidgets [
 	table := self newTable
 		addColumn: (SpStringTableColumn evaluated: #name);
 		yourself.
-	bar := self newToolBar.
+	bar := self newToolbar.
 	bar
 		addItemLeft:
-			(SpToolBarButton new
+			(self newToolbarButton 
 				icon: (Smalltalk ui icons iconNamed: #add);
 				action: [ self addTag ] yourself);
 		addItemLeft:
-			(SpToolBarButton new
+			(self newToolbarButton 
 				icon: (Smalltalk ui icons iconNamed: #changeRemove);
 				action: [ self removeTag ] yourself)
 ]

@@ -19,8 +19,8 @@ ZoaAuthorWidget class >> defaultSpec [
 		add:
 			(SpBoxLayout newHorizontal
 				add: #nameLabel width: 150;
-				add: #openOnlineProfile width: 30;
-				add: #otherArticles width: 30;
+				"add: #openOnlineProfile width: 30;
+				add: #otherArticles width: 30;"
 				yourself)
 			height: 30;
 		yourself
@@ -43,11 +43,6 @@ ZoaAuthorWidget >> author: anAuthor [
 	author := anAuthor
 ]
 
-{ #category : #initialization }
-ZoaAuthorWidget >> initialize [
-	super initialize.
-]
-
 { #category : #accessing }
 ZoaAuthorWidget >> initializePrivateAnnouncements [
 	super initializePrivateAnnouncements.
@@ -57,12 +52,7 @@ ZoaAuthorWidget >> initializePrivateAnnouncements [
 { #category : #initialization }
 ZoaAuthorWidget >> initializeWidgets [
 	nameLabel := self newLabel.
-	openOnlineProfile := self newButton
-		icon: MendaIcons new tagAddIcon;
-		yourself.
-	otherArticles := self newButton
-		icon: MendaIcons new tagAddIcon;
-		yourself
+	
 ]
 
 { #category : #accessing }

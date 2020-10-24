@@ -67,22 +67,22 @@ ZoaBriefWidget >> initializePrivateAnnouncements [
 { #category : #initialization }
 ZoaBriefWidget >> initializeWidgets [
 	nameLabel := self newLabel.
-	toolBar := self newToolBar.
+	toolBar := self newToolbar.
 	toolBar
 		addItemLeft:
-			(SpToolBarButton new
+			(self newToolbarButton 
 				icon: (Smalltalk ui icons iconNamed: #smallSave);
 				action: [ self saveBrief ] yourself).
 	toolBar
 		addItemLeft:
-			(SpToolBarButton new
+			(self newToolbarButton 
 				icon: (Smalltalk ui icons iconNamed: #smallDelete);
 				action: [ self deleteBrief ] yourself).
 	includeInText := self newButton.
 	includeInText action: [ self toggleIncludeText ].
 
 	text := self newText.
-	text whenTextIsAcceptedDo: [ self saveBrief ].
+	text whenEditableChangedDo: [ self saveBrief ].
 	tags := self instantiate: ZoaTagsWidget.
 	actions := self newActionBar.
 	actions add: includeInText
