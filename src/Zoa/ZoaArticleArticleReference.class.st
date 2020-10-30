@@ -28,6 +28,16 @@ ZoaArticleArticleReference >> = aZoaRef [
 		  reference = aZoaRef reference ]
 ]
 
+{ #category : #accessing }
+ZoaArticleArticleReference >> allReferences [
+
+	^ from ifNil: [ { to } ] ifNotNil: [ 
+		  to ifNil: [ { from } ] ifNotNil: [ 
+			  { 
+				  from.
+				  to } ] ]
+]
+
 { #category : #'as yet unclassified' }
 ZoaArticleArticleReference >> arrayKeywords [
 

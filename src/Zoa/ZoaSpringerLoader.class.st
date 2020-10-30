@@ -24,6 +24,7 @@ ZoaSpringerLoader >> loadDocument: anUrl [
 	article := ZoaArticle new.
 	article link: anUrl.
 	article doi: (self idFor: anUrl).
+	article publisher: #SPRINGER. 
 	html := (ZnEasy get: anUrl) entity contents parseHTML.
 	visitor := ZoaSpringerVisitor new.
 	visitor article: article.

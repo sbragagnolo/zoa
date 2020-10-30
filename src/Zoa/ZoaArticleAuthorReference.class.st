@@ -21,6 +21,12 @@ ZoaArticleAuthorReference class >> isVoyageRoot [
 ]
 
 { #category : #accessing }
+ZoaArticleAuthorReference >> affiliation [
+
+	^ affiliation
+]
+
+{ #category : #accessing }
 ZoaArticleAuthorReference >> affiliation: aString [ 
 	affiliation := aString
 ]
@@ -28,6 +34,11 @@ ZoaArticleAuthorReference >> affiliation: aString [
 { #category : #accessing }
 ZoaArticleAuthorReference >> arrayKeywords [
 	^ article arrayKeywords 
+]
+
+{ #category : #accessing }
+ZoaArticleAuthorReference >> article [
+	^ article
 ]
 
 { #category : #accessing }

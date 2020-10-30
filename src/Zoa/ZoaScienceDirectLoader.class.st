@@ -20,7 +20,7 @@ ZoaScienceDirectLoader >> loadDocument: anUrl [
 	document link: anUrl.
 	segments := anUrl asUrl segments copy.
 	id := segments removeLast.
-	
+	document publisher: #SCIENCEDIRECT. 
 	[ (id allButFirst copyReplaceAll:'X'with: '') isAllDigits ] whileFalse: [ 
 		id := segments removeLast ].
 	bibtex := (ZnEasy get:

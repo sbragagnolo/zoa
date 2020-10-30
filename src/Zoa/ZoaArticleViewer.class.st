@@ -17,7 +17,8 @@ Class {
 		'#tabs',
 		'#references',
 		'#allArticles',
-		'#abstract'
+		'#abstract',
+		'#htmlRefs'
 	],
 	#category : #'Zoa-UI'
 }
@@ -167,6 +168,7 @@ ZoaArticleViewer >> initializeWidgets [
 	view := self instantiate: SpComponentListPresenter.
 	viewTabs := self newNotebook.
 	preview := self newText.
+	htmlRefs  := self newText.
 	viewTabs addPage:
 		(self newNotebookPageWith: view and: 'Briefs Editor').
 	viewTabs addPage:

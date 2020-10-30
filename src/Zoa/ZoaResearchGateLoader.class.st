@@ -23,6 +23,7 @@ ZoaResearchGateLoader >> loadDocument: anUrl [
 	self halt.
 	document := ZoaArticle new.
 	document link: anUrl.
+	document publisher:'Unknown(RESEARCH-GATE)'.
 	bibtex := (ZnEasy
 		get:
 			('https://www.researchgate.net/lite.publication.PublicationDownloadCitationModal.downloadCitation.html?fileType=BibTeX&citation=citation-abstract&publicationUid={1}'

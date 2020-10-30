@@ -17,7 +17,8 @@ Class {
 		'cite',
 		'type',
 		'references',
-		'authorsReference'
+		'authorsReference',
+		'publisher'
 	],
 	#category : #'Zoa-Model'
 }
@@ -63,6 +64,12 @@ ZoaArticle >> addBrief: aBrief [
 { #category : #reference }
 ZoaArticle >> addReference: aZoaArticleArticleReference [ 
 	references add: aZoaArticleArticleReference.
+]
+
+{ #category : #accessing }
+ZoaArticle >> affiliations [
+
+	^ authorsReference flatCollect: [ :a | a affiliation ]
 ]
 
 { #category : #accessing }
@@ -442,6 +449,11 @@ ZoaArticle >> microdownBrief [
 ]
 
 { #category : #acessing }
+ZoaArticle >> name [
+	^ self title
+]
+
+{ #category : #acessing }
 ZoaArticle >> note: aString [
 	data at: #note put: aString
 ]
@@ -494,12 +506,12 @@ ZoaArticle >> printString [
 
 { #category : #accessing }
 ZoaArticle >> publisher [
-	^ data at: #publisher ifAbsent: [ 'Non publisher' ]
+	^ publisher ifNil: [ 'UNKNOWN' ]
 ]
 
 { #category : #accessing }
-ZoaArticle >> publisher: aString [
-	data at: #publisher put: aString
+ZoaArticle >> publisher: aPublisherSymbol [
+	publisher := aPublisherSymbol 
 ]
 
 { #category : #accessing }

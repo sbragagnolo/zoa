@@ -50,6 +50,7 @@ ZoaDatabaseExplorer >> contextMenuForArticle [
 					  anItem
 						  name: 'Import All References';
 						  action: [ self importReferences: articles selectedItem ] ];
+					
 					 addItem: [ :anItem | 
 					  anItem
 						  name: 'Read!';
@@ -66,6 +67,11 @@ ZoaDatabaseExplorer >> defaultQueryText [
 	"Reset does set the articles to be fully fetch on updates"
 	self reset.
 	'
+]
+
+{ #category : #'as yet unclassified' }
+ZoaDatabaseExplorer >> focusOn: aZoaArticle [ 
+	articles selectItems: { aZoaArticle  }
 ]
 
 { #category : #initialization }

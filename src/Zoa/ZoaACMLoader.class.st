@@ -32,6 +32,7 @@ ZoaACMLoader >> loadDocument: anUrl [
 
 	| article html visitor |
 	article := ZoaArticle new.
+	article publisher:#ACM.
 	article link: anUrl.
 	article doi: (self idFor: anUrl).
 	html := (ZnEasy get: anUrl) entity contents parseHTML.

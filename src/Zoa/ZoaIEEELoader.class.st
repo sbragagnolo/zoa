@@ -19,6 +19,7 @@ ZoaIEEELoader >> loadDocument: anUrl [
 	document := ZoaArticle new.
 	document link: anUrl.
 	segments := anUrl asUrl segments copy.
+	document publisher:#IEEE.
 	id := segments removeLast.
 	[ id isAllDigits ] whileFalse: [ id := segments removeLast ].
 
@@ -30,7 +31,7 @@ ZoaIEEELoader >> loadDocument: anUrl [
 		setJsonData:
 		(self loadJsonFromIEEEStream: entity contents readStream)
 		into: document.
-	self halt.
+
 	"Load references "
 	^ document
 ]
@@ -49,6 +50,7 @@ ZoaIEEELoader >> loadJsonFromIEEEStream: stream [
 		finished := true ]
 			on: STONReaderError
 			do: [ :e | 
+				self halt. 
 				stream atEnd ifTrue: [ self error: 'cannot parse :( ' ].
 				stream position: stream position - 1 ] ].
 	^ json
@@ -60,7 +62,7 @@ ZoaIEEELoader >> setAuthors: anArray into: anArticle [
 	anArray do: [ : authorEntry | 
 		| author articleRef affiliation |
  		author := ZoaAuthor new.		
-		author name: ((authorEntry at: 'firstName') ifEmpty: [ authorEntry at: 'name' ]).
+		author name: ((authorEntry at: 'firstName' ifAbsent: '') ifEmpty: [ authorEntry at: 'name' ]).
 		author lastname:  ((authorEntry at: 'lastName') ifEmpty: [ authorEntry at: 'name' ]).
 		author ieeeId: (authorEntry at:#id ifAbsent: ['UNKNOWN TS', DateAndTime now asUnixTime asString ] ).
 		affiliation := (authorEntry at:#affiliation ifAbsent: [{}]).

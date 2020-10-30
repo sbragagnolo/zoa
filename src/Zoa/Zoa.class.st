@@ -137,7 +137,7 @@ Zoa >> exportArticle: anArticle to: aFolder [
 
 { #category : #find }
 Zoa >> findAllArticleReferences [
-	^ self repository selectAll: ZoaArticleArticleReference 
+	^ (self repository findAllArticleReferences flatCollect: [ :a | a allReferences ]) asSet.
 ]
 
 { #category : #find }
@@ -153,6 +153,11 @@ Zoa >> findAllAuthorReferences [
 { #category : #find }
 Zoa >> findAllAuthors [
 	^ self repository selectAll: ZoaAuthor
+]
+
+{ #category : #'as yet unclassified' }
+Zoa >> findAllReviews [
+	^ self repository selectAll: ZoaReview
 ]
 
 { #category : #'as yet unclassified' }
@@ -364,6 +369,11 @@ Zoa >> saveArticle: doc [
 { #category : #'as yet unclassified' }
 Zoa >> saveAuthor: aZoaAuthor [
 	self repository save: aZoaAuthor
+]
+
+{ #category : #save }
+Zoa >> saveReview: aReview [
+	self repository save: aReview 
 ]
 
 { #category : #read }
