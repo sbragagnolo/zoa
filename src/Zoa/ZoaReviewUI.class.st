@@ -29,7 +29,24 @@ ZoaReviewUI class >> defaultSpec [
 ZoaReviewUI class >> open [
 
 	<example>
-	self new openWithSpec title: 'Review'
+	| new |
+	new := self new.
+	new openWithSpec title: 'Review'.
+	^ new
+]
+
+{ #category : #specs }
+ZoaReviewUI class >> worldMenuOn: aBuilder [
+
+	<worldMenu>
+	(aBuilder item: #Zoa ) order: 1. 
+	(aBuilder item: #'Reviewer')
+		parent: #Zoa;
+		action: [ self open openReview  ];
+		order: 10;
+		help: 'System browser to browse and edit code.';
+		iconName: #checkBoxOff.
+		
 ]
 
 { #category : #adding }

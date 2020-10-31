@@ -35,6 +35,19 @@ ZoaDatabaseExplorer class >> example [
 	self new openWithSpec  title: 'Zoa'
 ]
 
+{ #category : #specs }
+ZoaDatabaseExplorer class >> worldMenuOn: aBuilder [
+
+	<worldMenu>
+	(aBuilder item: #'DB Explorer')
+		parent: #Zoa;
+		action: [ self new openWithSpec title: 'Zoa' ];
+		order: 0;
+		help: 'System browser to browse and edit code.';
+		iconName: #databaseAdd.
+		
+]
+
 { #category : #initialization }
 ZoaDatabaseExplorer >> contextMenuForArticle [
 
@@ -50,7 +63,10 @@ ZoaDatabaseExplorer >> contextMenuForArticle [
 					  anItem
 						  name: 'Import All References';
 						  action: [ self importReferences: articles selectedItem ] ];
-					
+					addItem: [ :anItem | 
+					  anItem
+						  name: 'Load references and citations from HTML';
+						  action: [ self importCitationsAndReferences: articles selectedItem ] ];
 					 addItem: [ :anItem | 
 					  anItem
 						  name: 'Read!';
@@ -100,6 +116,20 @@ ZoaDatabaseExplorer >> importArticleUrl [
 	self updateViewers.
 
 	
+]
+
+{ #category : #initialization }
+ZoaDatabaseExplorer >> importCitationsAndReferences: anArticle [
+
+	| html visitor text |
+	text := self newText.
+	(text
+		 autoAccept: true;
+		 yourself) openDialogWithSpec okAction: [ 
+		html := text text asString parseHTML.
+		visitor := ZoaIEEEVisitor new.
+		visitor article: anArticle.
+		html acceptNodeVisitor: visitor ]
 ]
 
 { #category : #initialization }
