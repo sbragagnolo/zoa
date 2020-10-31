@@ -4,7 +4,7 @@ Class {
 	#instVars : [
 		'hrefs'
 	],
-	#category : #'Zoa-Loader'
+	#category : #'Zoa-HTMLAnalysis'
 }
 
 { #category : #visiting }

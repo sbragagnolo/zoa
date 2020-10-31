@@ -12,6 +12,11 @@ ZoaIEEELoader class >> loads: aString [
 	^ aString = 'ieeexplore.ieee.org'
 ]
 
+{ #category : #api }
+ZoaIEEELoader class >> publisher [
+	^ #IEEE
+]
+
 { #category : #'as yet unclassified' }
 ZoaIEEELoader >> loadDocument: anUrl [
 
@@ -45,40 +50,38 @@ ZoaIEEELoader >> loadJsonFromIEEEStream: stream [
 	finished := false.
 	[ finished ] whileFalse: [ 
 		contents := contents , (stream upToAll: ';').
+		[ contents last = $} or: [ stream atEnd ] ] whileFalse: [ 
+			contents := contents , (stream upToAll: ';') ].
 		[ 
 		json := STONJSON fromString: contents.
 		finished := true ]
 			on: STONReaderError
-			do: [ :e | 
-				self halt. 
-				stream atEnd ifTrue: [ self error: 'cannot parse :( ' ].
-				stream position: stream position - 1 ] ].
+			do: [ :e | stream atEnd ifTrue: [ self error: 'cannot parse :( ' ] ] ].
 	^ json
 ]
 
 { #category : #'as yet unclassified' }
 ZoaIEEELoader >> setAuthors: anArray into: anArticle [
-	
-	anArray do: [ : authorEntry | 
-		| author articleRef affiliation |
- 		author := ZoaAuthor new.		
-		author name: ((authorEntry at: 'firstName' ifAbsent: '') ifEmpty: [ authorEntry at: 'name' ]).
-		author lastname:  ((authorEntry at: 'lastName') ifEmpty: [ authorEntry at: 'name' ]).
-		author ieeeId: (authorEntry at:#id ifAbsent: ['UNKNOWN TS', DateAndTime now asUnixTime asString ] ).
-		affiliation := (authorEntry at:#affiliation ifAbsent: [{}]).
-		
-	(anArticle authors noneSatisfy: [ :a | a isLike: author ])
-		ifTrue: [  
-			author := Zoa current findAuthorByExampleOrStore: author.
-			articleRef := ZoaArticleAuthorReference new.
-			articleRef affiliation: affiliation.
-			articleRef author: author.
-			author addArticle: articleRef.
-			anArticle addAuthorReference: articleRef ]
-	 ].
 
-	
-	
+	| lastname firstname userId affiliations |
+	anArray do: [ :authorEntry | 
+		| affiliation |
+		firstname := (authorEntry at: 'firstName' ifAbsent: '') ifEmpty: [ 
+			             authorEntry at: 'name' ].
+		lastname := (authorEntry at: 'lastName') ifEmpty: [ 
+			            authorEntry at: 'name' ].
+		userId := authorEntry
+			          at: #id
+			          ifPresent: [ :id | ZoaAuthorID ieee: id ]
+			          ifAbsent: [ ZoaAuthorID unknown: firstname , lastname ].
+		affiliation := authorEntry at: #affiliation ifAbsent: [ {  } ].
+
+		self
+			addTo: anArticle
+			authorFirstNamed: firstname
+			lastName: lastname
+			id: userId
+			affiliations: affiliations ]
 ]
 
 { #category : #'as yet unclassified' }

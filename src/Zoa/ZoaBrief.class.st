@@ -1,3 +1,6 @@
+"
+I represent some kind of Brief. A brief is resume or comment on some aspect of an article or a review. 
+"
 Class {
 	#name : #ZoaBrief,
 	#superclass : #Object,

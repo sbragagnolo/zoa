@@ -14,6 +14,11 @@ ZoaElSevierLoader class >> loads: aString [
 	^ aString = 'linkinghub.elsevier.com'
 ]
 
+{ #category : #api }
+ZoaElSevierLoader class >> publisher [
+	^ #ElSevier
+]
+
 { #category : #'as yet unclassified' }
 ZoaElSevierLoader >> loadDocument: anId [
 	self error: ' This loader only works as proxy of science direct'

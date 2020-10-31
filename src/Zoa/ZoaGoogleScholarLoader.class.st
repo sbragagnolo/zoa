@@ -9,6 +9,11 @@ ZoaGoogleScholarLoader class >> loads: aString [
 	^ aString = 'scholar.google.com'
 ]
 
+{ #category : #api }
+ZoaGoogleScholarLoader class >> publisher [
+	^ self error: 'Google scholar is not publisher'
+]
+
 { #category : #'as yet unclassified' }
 ZoaGoogleScholarLoader >> loadDocument: aZnUrl [
 

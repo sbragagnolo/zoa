@@ -5,36 +5,24 @@ Class {
 }
 
 { #category : #visiting }
-ZoaACMReferencedByVisitor >> addReference: anElement [
-
-	self assert: anElement nodes first name = 'span'.
-
-	(self createReferenceToElement: anElement) ifNotNil: [ :ref | 
-		document addReference: ref ]
-]
-
-{ #category : #visiting }
 ZoaACMReferencedByVisitor >> createReferenceToElement: anElement [
 
-	| ref href texts |
-	ref := ZoaArticleArticleReference new.
+	| text reference texts |
+	self assert: anElement nodes first name = 'span'.
 
-	texts := ((self detectStringElement: anElement) asSortedCollection: [ 
-		          :a 
-		          :b | a size > b size ]).
+	texts := (self detectStringElement: anElement) asSortedCollection: [ 
+		         :a 
+		         :b | a size > b size ].
 	texts ifEmpty: [ ^ nil ].
-	ref text: texts first.
-	href := (self hrefsFor: anElement) select: [ :s | s beginsWith: s ].
+	text := texts first.
+	
 
-	ref reference: (href
-			 detect: [ :d | self hasDoi: d ]
-			 ifFound: [ :h | self extractUrlFromHref: h ]
-			 ifNone: [ 
-				 href
-					 detect: [ :d | self isUrlToResearchEngine: d ]
-					 ifNone: [ self error: 'Unexpected case' ] ]).
-	ref to: document.
-	^ ref
+	reference := self detectHrefToArticle: anElement. 
+	self
+		addReference: reference
+		text: text
+		from: nil
+		to: article
 ]
 
 { #category : #visiting }
@@ -46,5 +34,5 @@ ZoaACMReferencedByVisitor >> isAReference: anElement [
 
 { #category : #visiting }
 ZoaACMReferencedByVisitor >> processElement:  anElement [
-	self ifIsAReference: anElement then: [  self addReference: anElement ].
+	self ifIsAReference: anElement then: [  self createReferenceToElement: anElement ].
 ]

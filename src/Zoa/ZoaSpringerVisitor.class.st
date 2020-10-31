@@ -1,45 +1,8 @@
 Class {
 	#name : #ZoaSpringerVisitor,
-	#superclass : #XMLNodeVisitor,
-	#instVars : [
-		'article',
-		'loader'
-	],
+	#superclass : #ZoaHTMLVisitor,
 	#category : #'Zoa-Loader'
 }
-
-{ #category : #accessing }
-ZoaSpringerVisitor >> article: aZoaArticle [ 
-	article := aZoaArticle
-]
-
-{ #category : #'as yet unclassified' }
-ZoaSpringerVisitor >> extractUrlFromHref: aString [
-
-	| upToAll |
-	upToAll := '&key='.
-	(aString includesSubstring: 'doi.org/') ifTrue: [ 
-		upToAll := 'doi.org/' ].
-	(aString includesSubstring: '/doi/') ifTrue: [ upToAll := '/doi/' ].
-	(aString includesSubstring: 'doi=')ifTrue: [ upToAll :=  'doi=' ].
-	^ aString readStream
-		  upToAll: upToAll;
-		  upToEnd
-]
-
-{ #category : #testing }
-ZoaSpringerVisitor >> hasDoi: aString [
-	^ {'/servlet/linkout?' . '/doi/' . 'doi.org' . 'doi=' }
-		anySatisfy: [ :a | aString includesSubstring: a ]
-]
-
-{ #category : #visiting }
-ZoaSpringerVisitor >> hrefsFor: anElement [
-	| visitor |
-	visitor := ZoaHrefExtractVisitor new.
-	anElement acceptNodeVisitor: visitor.
-	^ visitor hrefs
-]
 
 { #category : #visiting }
 ZoaSpringerVisitor >> isAbstract: anElement [
@@ -86,19 +49,6 @@ ZoaSpringerVisitor >> isTitle: anElement [
 	^ (anElement name = 'h1') and: [( anElement attributeAt:'class' ifAbsent: '') includesSubstring: 'ChapterTitle' ]
 ]
 
-{ #category : #testing }
-ZoaSpringerVisitor >> isUrlToResearchEngine: aString [
-
-	^ { 'http' } anySatisfy: [ :s | 
-		  (aString indexOfSubCollection: s) > 0 ]
-]
-
-{ #category : #visiting }
-ZoaSpringerVisitor >> loader: aLoader [
-
-	loader := aLoader
-]
-
 { #category : #visiting }
 ZoaSpringerVisitor >> processAbstract: anElement [
 
@@ -110,11 +60,13 @@ ZoaSpringerVisitor >> processAbstract: anElement [
 { #category : #visiting }
 ZoaSpringerVisitor >> processContributorArea: anElement [
 
-	| authors affiliations articleRef |
+	| affiliations |
 	affiliations := Dictionary new.
-	authors := OrderedCollection new.
+
 	self assert: anElement nodes first name = 'ul'.
 	self assert: anElement nodes second name = 'ol'.
+
+
 	anElement nodes second nodes do: [ :n | 
 		self assert:
 			((n nodes first attributeAt: 'class' ifAbsent: '') 
@@ -125,29 +77,22 @@ ZoaSpringerVisitor >> processContributorArea: anElement [
 			at: (n nodes first nodes first asString readStream upTo: $.)
 			put: n nodes second nodes first nodes first asString ].
 	anElement nodes first nodes do: [ :node | 
-		| author name affiliation |
-		author := ZoaAuthor new.
-
-		name := ' ' split: node nodes first nodes first asString.
-		name size = 1 ifTrue: [ 
-			name := (Character value: 160) asString split:
-				        node nodes first nodes first asString ].
-		author name: name first.
-		author lastname: name second.
+		| name affiliation firstname lastname id |
+		name := self splitName: node nodes first nodes first asString.
+		firstname := name first.
+		lastname := name second.
 		affiliation := affiliations
 			               at:
 			               node nodes second nodes first nodes first asString
 			               ifAbsent: [ self halt ].
-		author springerId: node nodes first nodes first asString hash.
-
-
-		(article authors noneSatisfy: [ :a | a isLike: author ]) ifTrue: [ 
-			author := Zoa current findAuthorByExampleOrStore: author.
-			articleRef := ZoaArticleAuthorReference new.
-			articleRef affiliation: affiliation.
-			articleRef author: author.
-			author addArticle: articleRef.
-			article addAuthorReference: articleRef ] ]
+		id := ZoaAuthorID springer:
+			      node nodes first nodes first asString hash.
+		loader
+			addTo: article
+			authorFirstNamed: firstname
+			lastName: lastname
+			id: id
+			affiliations: { affiliation } ]
 ]
 
 { #category : #'as yet unclassified' }
@@ -168,23 +113,17 @@ ZoaSpringerVisitor >> processKeywords: anElement [
 
 { #category : #visiting }
 ZoaSpringerVisitor >> processReference: anElement [
-	| ref href |
-	ref := ZoaArticleArticleReference new.
 
-	self assert: anElement nodes first isStringNode .
+	| reference text |
+	self assert: anElement nodes first isStringNode.
 
-	ref text: anElement nodes first  asString .
-	
-	href := (self hrefsFor: anElement) select:[ : s | s beginsWith: s .].
-	
-	ref reference: (
-		href detect: [ :d | self hasDoi: d   ] ifFound:[ : h |  self extractUrlFromHref: h ]   ifNone:[
-				href detect: [ :d | self isUrlToResearchEngine:  d   ] ifNone: [ self error: 'Unexpected case'  ]
-		]).
-	
-	ref from: article. 
-	article addReference: ref. 
-	^ ref
+	text := anElement nodes first asString.
+	reference := self detectHrefToArticle: anElement.
+	^ self
+		  addReference: reference
+		  text: text
+		  from: article
+		  to: nil
 ]
 
 { #category : #visiting }
@@ -193,6 +132,15 @@ ZoaSpringerVisitor >> processTitle: anElement [
 	self assert: anElement nodes first isStringNode.
 
 	article title: anElement nodes first asString
+]
+
+{ #category : #visiting }
+ZoaSpringerVisitor >> splitName: aString [
+	| name |
+	name := ' ' split: aString.
+	^ name size = 1
+		  ifTrue: [ (Character value: 160) asString split: aString ]
+		  ifFalse: [ name ]
 ]
 
 { #category : #visiting }

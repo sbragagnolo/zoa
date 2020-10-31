@@ -1,3 +1,7 @@
+"
+I represent a systematic review of literature. 
+I am related with a set of articles .
+"
 Class {
 	#name : #ZoaReview,
 	#superclass : #Object,
@@ -28,7 +32,7 @@ ZoaReview >> addArticle: anArticle [
 ZoaReview >> affiliations [
 
 	^ (articles flatCollect: [ :a | a article affiliations ]) asSet
-		  asOrderedCollection
+		  asOrderedCollection collect: [ :a | a isString ifTrue: [ a ] ifFalse:[ a first] ]
 ]
 
 { #category : #accessing }

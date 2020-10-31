@@ -12,6 +12,11 @@ ZoaResearchGateLoader class >> loads: aString [
 	^ (aString indexOfSubCollection: 'researchgate.net') > 0
 ]
 
+{ #category : #api }
+ZoaResearchGateLoader class >> publisher [
+	^ self error: 'ResearchGate is Not publisher'
+]
+
 { #category : #'as yet unclassified' }
 ZoaResearchGateLoader >> idFor: anUrl [
 	^ ('_' split: anUrl segments last) first

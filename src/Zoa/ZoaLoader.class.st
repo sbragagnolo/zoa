@@ -23,6 +23,34 @@ ZoaLoader class >> loaderFor: aString [
 	^ loaders first
 ]
 
+{ #category : #accessing }
+ZoaLoader class >> publisher [
+
+	^ self subclassResponsibility
+]
+
+{ #category : #settings }
+ZoaLoader >> addTo: anArticle authorFirstNamed: firstname lastName: lastname id: userId affiliations: affiliations [
+
+	| author articleRef |
+	author := ZoaAuthor new.
+	author name: firstname.
+	author lastname: lastname.
+	author addId: userId.
+	author := Zoa current findAuthorByExampleOrStore: author.
+
+	^ anArticle authors
+		detect: [ :a | a isLike: author ]
+		ifFound: [ :ref | affiliations do: [ :a | ref addAffiliation: a ]. ref ]
+		ifNone: [ 
+			articleRef := ZoaArticleAuthorReference new.
+			articleRef affiliation: affiliations.
+			articleRef author: author.
+			author addArticle: articleRef.
+			anArticle addAuthorReference: articleRef.
+			articleRef ]
+]
+
 { #category : #'as yet unclassified' }
 ZoaLoader >> ensureDoiOn: aDocument id: anId [
 	aDocument doi
@@ -87,7 +115,7 @@ ZoaLoader >> setAbstract: aString into: aZoaDocument [
 
 { #category : #'as yet unclassified' }
 ZoaLoader >> setAccessed: aCollection into: aZoaDocument [ 
-	
+	self halt.
 ]
 
 { #category : #accessing }
@@ -96,8 +124,9 @@ ZoaLoader >> setBooktitle: aString into: aZoaDocument [
 ]
 
 { #category : #'as yet unclassified' }
-ZoaLoader >> setCallNumber: aString into: aZoaDocument [ 
+ZoaLoader >> setCallNumber: aString into: aZoaDocument [
 
+	self halt
 ]
 
 { #category : #settings }
@@ -122,7 +151,7 @@ ZoaLoader >> setDoi: aString into: aZoaDocument [
 
 { #category : #'as yet unclassified' }
 ZoaLoader >> setEventPlace: aString into: aZoaDocument [ 
-
+	self halt. 
 ]
 
 { #category : #'as yet unclassified' }
@@ -232,7 +261,7 @@ ZoaLoader >> setNumber: aString into: aZoaDocument [
 
 { #category : #'as yet unclassified' }
 ZoaLoader >> setNumberOfPages: aString into: aZoaDocument [ 
-
+	self halt. 
 ]
 
 { #category : #setting }
@@ -266,7 +295,7 @@ ZoaLoader >> setPublisher: aString into: aZoaDocument [
 
 { #category : #'as yet unclassified' }
 ZoaLoader >> setPublisherPlace: aString into: aZoaDocument [ 
-	
+	self halt. 
 ]
 
 { #category : #accessing }

@@ -1,3 +1,9 @@
+"
+I represent a reference from article to an article. 
+
+In from we find the source of a paper reference. 
+In to we find a paper citation
+"
 Class {
 	#name : #ZoaArticleArticleReference,
 	#superclass : #Object,

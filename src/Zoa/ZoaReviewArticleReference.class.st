@@ -1,3 +1,7 @@
+"
+I represent a link from a review to an article. 
+Through me we define if an article is to be included or not. If it is not to be included, i include a reason and a reason codification.
+"
 Class {
 	#name : #ZoaReviewArticleReference,
 	#superclass : #Object,
@@ -70,7 +74,7 @@ ZoaReviewArticleReference >> reason: aString [
 
 { #category : #accessing }
 ZoaReviewArticleReference >> tags [
-	^ article tags
+	^ article keywords 
 ]
 
 { #category : #accessing }

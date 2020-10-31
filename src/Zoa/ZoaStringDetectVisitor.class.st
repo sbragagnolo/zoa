@@ -4,7 +4,7 @@ Class {
 	#instVars : [
 		'strings'
 	],
-	#category : #'Zoa-Loader'
+	#category : #'Zoa-HTMLAnalysis'
 }
 
 { #category : #initialization }

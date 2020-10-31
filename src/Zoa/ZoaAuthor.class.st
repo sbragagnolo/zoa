@@ -48,6 +48,11 @@ ZoaAuthor >> addArticle: aZoaArticleAuthorReference [
 ]
 
 { #category : #'as yet unclassified' }
+ZoaAuthor >> addId: anId [
+	ids at: anId authority put: anId
+]
+
+{ #category : #'as yet unclassified' }
 ZoaAuthor >> articles [
 	^ articles ifNil: [ articles := OrderedCollection new  ].
 ]

@@ -29,6 +29,11 @@ ZoaTag >> addArticle: anArticle [
 ]
 
 { #category : #accessing }
+ZoaTag >> articles [
+	^ articles
+]
+
+{ #category : #accessing }
 ZoaTag >> articles: acollectionOfArticles [
 	articles := acollectionOfArticles asSet
 ]

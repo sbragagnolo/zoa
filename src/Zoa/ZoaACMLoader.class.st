@@ -3,7 +3,7 @@ Downloads from ACM
 "
 Class {
 	#name : #ZoaACMLoader,
-	#superclass : #ZoaLoader,
+	#superclass : #ZoaVisitorLoader,
 	#instVars : [
 		'page'
 	],
@@ -20,6 +20,11 @@ ZoaACMLoader class >> loads: aString [
 	^ aString = 'dl.acm.org' or: [ aString = 'portal.acm.org' ]
 ]
 
+{ #category : #api }
+ZoaACMLoader class >> publisher [
+	^ #ACM
+]
+
 { #category : #'as yet unclassified' }
 ZoaACMLoader >> idFor: anUrl [
 	| id |
@@ -30,16 +35,8 @@ ZoaACMLoader >> idFor: anUrl [
 { #category : #'as yet unclassified' }
 ZoaACMLoader >> loadDocument: anUrl [
 
-	| article html visitor |
-	article := ZoaArticle new.
-	article publisher:#ACM.
-	article link: anUrl.
-	article doi: (self idFor: anUrl).
-	html := (ZnEasy get: anUrl) entity contents parseHTML.
-	visitor := ZoaACMVisitor new.
-	visitor article: article.
-
-	html acceptNodeVisitor: visitor.
+	| article |
+	article := super loadDocument: anUrl.
 	self loadReferencedBy: anUrl into: article.
 	self loadMetaFor: anUrl into: article.
 
@@ -82,54 +79,6 @@ ZoaACMLoader >> loadReferencedBy: anUrl into: article [
 ]
 
 { #category : #'as yet unclassified' }
-ZoaACMLoader >> privateAbstractFor: anUrl [
-	| stream id |
-
-	id := self idFor: anUrl.
-	stream := (ZnEasy
-		get: ('https://dl.acm.org/doi/{1}' format: {id}))
-		entity readStream.
-	stream upToAll: 'article__section article__abstract hlFld-Abstract'.
-	stream upToAll: '<p>'.
-	^ stream upToAll: '</p>'
-]
-
-{ #category : #setting }
-ZoaACMLoader >> setAuthor: anArray into: aZoaDocument [
-
-]
-
-{ #category : #initialization }
-ZoaACMLoader >> setCollectionNumber: aString into: aZoaArticle [ 
-
-]
-
-{ #category : #'as yet unclassified' }
-ZoaACMLoader >> setCollectionTitle: aString into: aZoaDocument [
-	self setConference: aString into: aZoaDocument
-]
-
-{ #category : #'as yet unclassified' }
-ZoaACMLoader >> setContainerTitle: aString into: aZoaDocument [
-	self setTitle: aString into: aZoaDocument
-]
-
-{ #category : #initialization }
-ZoaACMLoader >> setEdition: aString into: aZoaArticle [ 
-
-]
-
-{ #category : #setting }
-ZoaACMLoader >> setFirstpage: aString into: aZoaDocument [ 
-	page
-		ifNil: [ page := aString asNumber ]
-		ifNotNil: [ aZoaDocument
-				pages:
-					{page.
-					aString asNumber} ]
-]
-
-{ #category : #'as yet unclassified' }
 ZoaACMLoader >> setKeyword: aString into: aZoaDocument [
 	self setKeywords: aString into: aZoaDocument
 ]
@@ -139,29 +88,4 @@ ZoaACMLoader >> setKeywords: aString into: anArticle [
 	| keys | 
 	keys := (([ :c | c = $; or: [ c = $, ] ] split: aString) collect: #trimBoth).
 	super setKeywords: keys into: anArticle
-]
-
-{ #category : #setting }
-ZoaACMLoader >> setLastpage: aString into: aZoaDocument [
-	page
-		ifNil: [ page := aString asNumber ]
-		ifNotNil: [ aZoaDocument
-				pages:
-					{page.
-					aString asNumber} ]
-]
-
-{ #category : #'as yet unclassified' }
-ZoaACMLoader >> setNumber: aString into: aZoaDocument [
-	aZoaDocument number: aString
-]
-
-{ #category : #setting }
-ZoaACMLoader >> setPdfUrl: aString into: aZoaDocument [
-	^ aZoaDocument pdfUrl: aString asUrl
-]
-
-{ #category : #initialization }
-ZoaACMLoader >> setSource: aString into: aZoaArticle [ 
-
 ]

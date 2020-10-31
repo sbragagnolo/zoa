@@ -1,3 +1,6 @@
+"
+I represent an authro reference. I link an article to an author, accounting the affiliations
+"
 Class {
 	#name : #ZoaArticleAuthorReference,
 	#superclass : #Object,

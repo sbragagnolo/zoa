@@ -5,7 +5,7 @@ Class {
 		'refs',
 		'search'
 	],
-	#category : #'Zoa-Loader'
+	#category : #'Zoa-HTMLAnalysis'
 }
 
 { #category : #initialization }

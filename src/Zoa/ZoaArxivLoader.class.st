@@ -12,6 +12,11 @@ ZoaArxivLoader class >> loads: aString [
 	^ aString = 'arxiv.org'
 ]
 
+{ #category : #api }
+ZoaArxivLoader class >> publisher [
+	^ #Arxiv
+]
+
 { #category : #accessing }
 ZoaArxivLoader >> loadDocument: aDocument [
 	self halt.

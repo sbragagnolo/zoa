@@ -12,6 +12,11 @@ ZoaScienceDirectLoader class >> loads: aString [
 	^ (aString indexOfSubCollection: 'sciencedirect.com') > 0
 ]
 
+{ #category : #api }
+ZoaScienceDirectLoader class >> publisher [
+	^ #ScienceDirect
+]
+
 { #category : #'as yet unclassified' }
 ZoaScienceDirectLoader >> loadDocument: anUrl [
 
@@ -36,28 +41,23 @@ ZoaScienceDirectLoader >> loadDocument: anUrl [
 { #category : #initialization }
 ZoaScienceDirectLoader >> setAuthor: aString into: aZoaArticle [
 
-	| anArray articleRef author |
-	anArray := ' and ' split: aString.
-self halt.
-	anArray do: [ :authorEntry | 
-		|  name |
+	| lastname firstname userId array |
+	array := ' and ' split: aString.
+	array do: [ :authorEntry | 
+		| name |
 		name := ' ' split: authorEntry.
-		author := ZoaAuthor new.
-		author name: name first.
 
-		author lastname: name second.
+		firstname := name first.
 
-		author scienceDirectId:
-			'UNKNOWN TS' , author fullName hash asString,  DateAndTime now asUnixTime asString.
-self halt .
-		(aZoaArticle authors noneSatisfy: [ :a | a isLike: author ]) 
-			ifTrue: [ 
-				author := Zoa current findAuthorByExampleOrStore: author.
-				articleRef := ZoaArticleAuthorReference new.
-				articleRef affiliation: {  }.
-				articleRef author: author.
-				author addArticle: articleRef.
-				aZoaArticle addAuthorReference: articleRef ] ]
+		lastname := name second.
+
+		userId := ZoaAuthorID unknown: firstname , lastname.
+		self
+			addTo: aZoaArticle
+			authorFirstNamed: firstname
+			lastName: lastname
+			id: userId
+			affiliations: {  } ]
 ]
 
 { #category : #initialization }

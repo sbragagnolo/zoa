@@ -69,7 +69,7 @@ ZoaArticle >> addReference: aZoaArticleArticleReference [
 { #category : #accessing }
 ZoaArticle >> affiliations [
 
-	^ authorsReference flatCollect: [ :a | a affiliation ]
+	^ authorsReference collect: [ :a | a affiliation ]
 ]
 
 { #category : #accessing }
