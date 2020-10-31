@@ -1,3 +1,7 @@
+"
+I am a loader based on google scholar. 
+I do delagate directly to a visitor that delegates to the proper library .
+"
 Class {
 	#name : #ZoaGoogleScholarLoader,
 	#superclass : #ZoaLoader,

@@ -1,3 +1,6 @@
+"
+I do load science directe papers, taking ElSevier into account. 
+"
 Class {
 	#name : #ZoaElSevierLoader,
 	#superclass : #ZoaLoader,

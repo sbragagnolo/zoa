@@ -1,3 +1,6 @@
+"
+I represent an author id. I include an authority (such as ORCID, acm, google scholar etc) and the identifier within this domain. 
+"
 Class {
 	#name : #ZoaAuthorID,
 	#superclass : #Object,
@@ -5,7 +8,7 @@ Class {
 		'authority',
 		'id'
 	],
-	#category : #'Zoa-Loader'
+	#category : #'Zoa-Model'
 }
 
 { #category : #'as yet unclassified' }

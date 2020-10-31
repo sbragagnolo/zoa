@@ -1,3 +1,6 @@
+"
+I load springer documents
+"
 Class {
 	#name : #ZoaSpringerLoader,
 	#superclass : #ZoaVisitorLoader,

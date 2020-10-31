@@ -1,3 +1,7 @@
+"
+I do represent a visitor based loader. 
+I load the related url to the article. I set some basic attribues and i delegate to a domain related visitor. I am abn abstract class. I require to learn how to get the doi from an url, and how to create a visitor
+"
 Class {
 	#name : #ZoaVisitorLoader,
 	#superclass : #ZoaLoader,

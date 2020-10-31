@@ -1,3 +1,7 @@
+"
+I am an abstract HTML visitor. 
+I do define some basic visiting behaviour. Im linked to a loader and an article. 
+"
 Class {
 	#name : #ZoaHTMLVisitor,
 	#superclass : #XMLNodeVisitor,

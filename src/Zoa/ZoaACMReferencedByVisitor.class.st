@@ -1,3 +1,6 @@
+"
+I do represent a visitor of ACM in the context of harvesting citations instead of references .
+"
 Class {
 	#name : #ZoaACMReferencedByVisitor,
 	#superclass : #ZoaACMVisitor,

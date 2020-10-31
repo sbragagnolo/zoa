@@ -1,3 +1,6 @@
+"
+I am a visitor on springer domain
+"
 Class {
 	#name : #ZoaSpringerVisitor,
 	#superclass : #ZoaHTMLVisitor,

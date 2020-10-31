@@ -1,3 +1,6 @@
+"
+I represent a Google scholar visitor. I am here to detect the source of an article and delagate to the proper loader. 
+"
 Class {
 	#name : #ZoaGoogleScholarVisitor,
 	#superclass : #XMLNodeVisitor,

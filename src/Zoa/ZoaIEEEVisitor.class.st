@@ -1,3 +1,6 @@
+"
+I am a visitor on IEEE. But i am different from the other visitors. I am to be used with the firefox crawling plugin. 
+"
 Class {
 	#name : #ZoaIEEEVisitor,
 	#superclass : #ZoaHTMLVisitor,
