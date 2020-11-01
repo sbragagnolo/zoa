@@ -39,9 +39,9 @@ ZoaLoader >> addTo: anArticle authorFirstNamed: firstname lastName: lastname id:
 	author addId: userId.
 	author := Zoa current findAuthorByExampleOrStore: author.
 
-	^ anArticle authors
-		detect: [ :a | a isLike: author ]
-		ifFound: [ :ref | affiliations do: [ :a | ref addAffiliation: a ]. ref ]
+	^ anArticle authorsReferences
+		detect: [ :a | a author isLike: author ]
+		ifFound: [ :ref | affiliations do: [ :a | ref addAffiliation: a ]. ref author ]
 		ifNone: [ 
 			articleRef := ZoaArticleAuthorReference new.
 			articleRef affiliation: affiliations.
@@ -93,7 +93,7 @@ ZoaLoader >> loadDocument: anId [
 
 { #category : #settings }
 ZoaLoader >> loadUsingResearchGateReferencesTo: anArticle [
-	self halt. 
+ 
 ]
 
 { #category : #'as yet unclassified' }
@@ -115,7 +115,8 @@ ZoaLoader >> setAbstract: aString into: aZoaDocument [
 
 { #category : #'as yet unclassified' }
 ZoaLoader >> setAccessed: aCollection into: aZoaDocument [ 
-	self halt.
+	" Date when the article information was accessed "
+	
 ]
 
 { #category : #accessing }
@@ -126,7 +127,7 @@ ZoaLoader >> setBooktitle: aString into: aZoaDocument [
 { #category : #'as yet unclassified' }
 ZoaLoader >> setCallNumber: aString into: aZoaDocument [
 
-	self halt
+	self assert: aZoaDocument doi = aString
 ]
 
 { #category : #settings }
@@ -150,8 +151,9 @@ ZoaLoader >> setDoi: aString into: aZoaDocument [
 ]
 
 { #category : #'as yet unclassified' }
-ZoaLoader >> setEventPlace: aString into: aZoaDocument [ 
-	self halt. 
+ZoaLoader >> setEventPlace: aString into: aZoaDocument [
+
+	aZoaDocument data at: #EventCity put: aString
 ]
 
 { #category : #'as yet unclassified' }
@@ -255,13 +257,15 @@ ZoaLoader >> setNote: aString into: aZoaDocument [
 
 { #category : #accessing }
 ZoaLoader >> setNumber: aString into: aZoaDocument [
-	(aString copyReplaceAll: ',' with: '')
-		ifNotEmpty: [ :v | aZoaDocument number: v trimBoth asNumber ]
+
+	(aString select: [ :c | c isDigit ]) ifNotEmpty: [ :v | 
+		aZoaDocument data at: #Number put: v trimBoth asNumber ]
 ]
 
 { #category : #'as yet unclassified' }
-ZoaLoader >> setNumberOfPages: aString into: aZoaDocument [ 
-	self halt. 
+ZoaLoader >> setNumberOfPages: aString into: aZoaArticle [
+
+	aZoaArticle data at: #NumberOfPages put: aString
 ]
 
 { #category : #setting }
@@ -294,8 +298,9 @@ ZoaLoader >> setPublisher: aString into: aZoaDocument [
 ]
 
 { #category : #'as yet unclassified' }
-ZoaLoader >> setPublisherPlace: aString into: aZoaDocument [ 
-	self halt. 
+ZoaLoader >> setPublisherPlace: aString into: aZoaDocument [
+
+	aZoaDocument data at:#PublisherCity put: aString
 ]
 
 { #category : #accessing }

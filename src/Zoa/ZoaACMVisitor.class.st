@@ -44,19 +44,25 @@ ZoaACMVisitor >> addAuthor: anElement [
 { #category : #visiting }
 ZoaACMVisitor >> createReferenceFromElement: anElement [
 
-	| text reference |
+	| text fromReference toReference |
 	self assert: anElement nodes first name = 'span'.
 
 	text := ((self detectStringElement: anElement) asSortedCollection: [ 
 		         :a 
 		         :b | a size > b size ]) first.
 
-	reference := self detectHrefToArticle: anElement.
-	self
-		addReference: reference
-		text: text
-		from: article
-		to: nil
+	fromReference := ZoaArticleReference new
+		                 reference: article doi;
+		                 title: article title;
+		                 yourself.
+
+	toReference := ZoaArticleReference new
+		               reference: (self detectHrefToArticle: anElement);
+		               title: text;
+		               yourself.
+
+
+	self addReferenceFrom: fromReference to: toReference
 ]
 
 { #category : #visiting }

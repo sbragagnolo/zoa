@@ -23,6 +23,11 @@ ZoaArticleAuthorReference class >> isVoyageRoot [
 	^ true
 ]
 
+{ #category : #adding }
+ZoaArticleAuthorReference >> addAffiliation: aString [ 
+	affiliation  add: aString 
+]
+
 { #category : #accessing }
 ZoaArticleAuthorReference >> affiliation [
 
@@ -30,8 +35,11 @@ ZoaArticleAuthorReference >> affiliation [
 ]
 
 { #category : #accessing }
-ZoaArticleAuthorReference >> affiliation: aString [ 
-	affiliation := aString
+ZoaArticleAuthorReference >> affiliation: aString [
+	aString ifNil: [ ^ self  ].
+	affiliation := (aString isString
+		                ifTrue: [ { aString } ]
+		                ifFalse: [ aString ]) asSet
 ]
 
 { #category : #accessing }

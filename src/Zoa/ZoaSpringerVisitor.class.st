@@ -117,16 +117,24 @@ ZoaSpringerVisitor >> processKeywords: anElement [
 { #category : #visiting }
 ZoaSpringerVisitor >> processReference: anElement [
 
-	| reference text |
+	| reference text fromReference toReference |
 	self assert: anElement nodes first isStringNode.
 
 	text := anElement nodes first asString.
-	reference := self detectHrefToArticle: anElement.
-	^ self
-		  addReference: reference
-		  text: text
-		  from: article
-		  to: nil
+
+
+	fromReference := ZoaArticleReference new
+		                 reference: article doi;
+		                 title: article title;
+		                 yourself.
+
+	toReference := ZoaArticleReference new
+		               reference: (self detectHrefToArticle: anElement);
+		               title: text;
+		               yourself.
+
+
+	^ self addReferenceFrom: fromReference to: toReference
 ]
 
 { #category : #visiting }

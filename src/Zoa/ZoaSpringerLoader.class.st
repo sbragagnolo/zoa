@@ -27,6 +27,6 @@ ZoaSpringerLoader >> createVisitor [
 { #category : #'as yet unclassified' }
 ZoaSpringerLoader >> idFor: aZnUrl [
 
-	self assert: aZnUrl segments size = 2.
-	^ '/' join: aZnUrl segments
+
+	^ '/' join:(aZnUrl segments last:2 )
 ]

@@ -10,7 +10,7 @@ Class {
 { #category : #visiting }
 ZoaACMReferencedByVisitor >> createReferenceToElement: anElement [
 
-	| text reference texts |
+	| text texts fromReference toReference |
 	self assert: anElement nodes first name = 'span'.
 
 	texts := (self detectStringElement: anElement) asSortedCollection: [ 
@@ -18,14 +18,19 @@ ZoaACMReferencedByVisitor >> createReferenceToElement: anElement [
 		         :b | a size > b size ].
 	texts ifEmpty: [ ^ nil ].
 	text := texts first.
-	
 
-	reference := self detectHrefToArticle: anElement. 
-	self
-		addReference: reference
-		text: text
-		from: nil
-		to: article
+	fromReference := ZoaArticleReference new
+		                 reference: (self detectHrefToArticle: anElement);
+		                 title: text;
+		                 yourself.
+
+	toReference := ZoaArticleReference new
+		               reference: article doi;
+		               title: article title;
+		               yourself.
+
+
+	self  addReferenceFrom: fromReference to: toReference
 ]
 
 { #category : #visiting }

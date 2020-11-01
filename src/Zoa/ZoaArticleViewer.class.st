@@ -18,7 +18,8 @@ Class {
 		'#references',
 		'#allArticles',
 		'#abstract',
-		'#htmlRefs'
+		'#htmlRefs',
+		'#zoa'
 	],
 	#category : #'Zoa-UI'
 }
@@ -187,7 +188,7 @@ ZoaArticleViewer >> initializeWidgets [
 				addColumn: ((SpLinkTableColumn
 				                title: 'Load'
 				                evaluated: [ :item | 
-					                item hasResolvedReference
+					                (item hasResolvedReferenceIn: Zoa current )
 						                ifTrue: [ 'READ' ]
 						                ifFalse: [ 'LOAD' ] ]
 				                action: [ :item | self loadOrRead: item ])
@@ -196,7 +197,7 @@ ZoaArticleViewer >> initializeWidgets [
 		              addColumn: (SpStringTableColumn
 				               title: 'Reference'
 				               evaluated: [ :item | 
-				               item referenceEntryInRelationWith: article ]);
+				               item referenceEntryInRelationWith: article zoa: Zoa current ]);
 		              
 		              beResizable;
 		              yourself.
@@ -218,15 +219,15 @@ ZoaArticleViewer >> initializeWidgets [
 
 { #category : #add }
 ZoaArticleViewer >> load: item [
-	item to.
-	item from. 
+	item toReference  ensureIsLoadedInto: Zoa current .
+	item fromReference ensureIsLoadedInto: Zoa current .  
 	owner updateViewers 
 ]
 
 { #category : #add }
 ZoaArticleViewer >> loadOrRead: item [
 "["
-	item hasResolvedReference
+	(item hasResolvedReferenceIn: Zoa current )
 		ifTrue: [ [owner readPdf: (item oppositeArticleTo: article )] on: Error do: [ :e | self inform: e messageText ]. ]
 		ifFalse: [ self load: item ]
 		
@@ -289,10 +290,12 @@ ZoaArticleViewer >> saveArticle [
 { #category : #initialization }
 ZoaArticleViewer >> updateArticle [
 	article
-		ifNotNil: [ tags items: self currentTags.
+		ifNotNil: [ 
+			
+			tags items: self currentTags.
 			authors items: self currentAuthors.
 			data items: article data associations.
-			references items: (article allReferences ).
+			references items: (article getAllReferences ).
 			view items: self currentBriefs.
 			preview text: (MicroDownParser asText: article microdownBrief ).
 			abstract text:( article abstract ifNil: [ '' ]) ]

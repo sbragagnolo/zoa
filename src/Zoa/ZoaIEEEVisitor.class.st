@@ -13,7 +13,7 @@ Class {
 { #category : #'as yet unclassified' }
 ZoaIEEEVisitor >> loadCitation: element [
 
-	| text reference |
+	| text reference fromReference toReference |
 	self assert:
 		element nodes first nodes first nodes first nodes second name
 		= 'span'.
@@ -22,17 +22,27 @@ ZoaIEEEVisitor >> loadCitation: element [
 
 	reference := self detectHrefToArticle: element.
 	reference ifNil: [ ^ self ].
-	^ self
-		  addReference: reference
-		  text: text
-		  from: nil
-		  to: article
+
+
+
+	fromReference := ZoaArticleReference new
+		                 reference: article doi;
+		                 title: article title;
+		                 yourself.
+
+	toReference := ZoaArticleReference new
+		               reference: reference;
+		               title: text;
+		               yourself.
+
+
+	self addReferenceFrom: fromReference to: toReference
 ]
 
 { #category : #'as yet unclassified' }
 ZoaIEEEVisitor >> loadReference: element [
 
-	| text reference |
+	| text reference fromReference toReference |
 	self assert:
 		element nodes first nodes first nodes first nodes second name
 		= 'span'.
@@ -41,11 +51,19 @@ ZoaIEEEVisitor >> loadReference: element [
 		        first.
 	reference := self detectHrefToArticle: element.
 	reference ifNil: [ ^ self ].
-	^ self
-		  addReference: reference
-		  text: text
-		  from: article
-		  to: nil
+
+	fromReference := ZoaArticleReference new
+		                 reference: article doi;
+		                 title: article title;
+		                 yourself.
+
+	toReference := ZoaArticleReference new
+		               reference: reference;
+		               title: text;
+		               yourself.
+
+
+	^ self addReferenceFrom: fromReference to: toReference
 ]
 
 { #category : #visiting }

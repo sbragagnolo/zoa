@@ -26,6 +26,11 @@ ZoaACMLoader class >> publisher [
 ]
 
 { #category : #'as yet unclassified' }
+ZoaACMLoader >> createVisitor [
+	^ ZoaACMVisitor new 
+]
+
+{ #category : #'as yet unclassified' }
 ZoaACMLoader >> idFor: anUrl [
 	| id |
 	id := '/' join: (anUrl segments last: 2).
@@ -76,6 +81,17 @@ ZoaACMLoader >> loadReferencedBy: anUrl into: article [
 	
 	html acceptNodeVisitor: visitor.
 
+]
+
+{ #category : #initialization }
+ZoaACMLoader >> setAuthor: aCollection into: aZoaArticle [ 
+	" Author is managed by the HTML visitor "
+]
+
+{ #category : #initialization }
+ZoaACMLoader >> setCollectionTitle: aString into: aZoaArticle [
+
+	aZoaArticle data at: #CollectionTitle put: aString
 ]
 
 { #category : #'as yet unclassified' }

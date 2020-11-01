@@ -61,3 +61,27 @@ ZoaAuthorID class >> unknown: anId [
 
 	^ self authority: #UNKNOWN id: anId
 ]
+
+{ #category : #accessing }
+ZoaAuthorID >> authority [
+	^ authority
+]
+
+{ #category : #accessing }
+ZoaAuthorID >> authority: aString [ 
+	authority := aString
+]
+
+{ #category : #accessing }
+ZoaAuthorID >> id: aString [ 
+	id := aString
+]
+
+{ #category : #accessing }
+ZoaAuthorID >> printOn: aStream [
+
+	aStream
+		nextPutAll: id asString;
+		nextPutAll: '@';
+		nextPutAll: authority
+]

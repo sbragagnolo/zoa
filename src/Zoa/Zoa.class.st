@@ -62,24 +62,6 @@ Zoa >> authors [
 	^ (root / #database / #authors) ensureCreateDirectory
 ]
 
-{ #category : #read }
-Zoa >> browse: aDocument [
-	| url |
-	url := aDocument pdfUrl
-		ifNil: [ aDocument link
-				ifNil: [ ^ self error: 'No url registered on this text' ] ].
-	^ ([ :spec | 
-	spec
-		command: 'open';
-		argument: url asString ] asOSTask
-		future: TKTNewProcessTaskRunner new) waitForCompletion: 1 second
-]
-
-{ #category : #read }
-Zoa >> browseDoi: aDoi [
-	^ self browse: (self findByDoi: aDoi)
-]
-
 { #category : #public }
 Zoa >> delete: aZoaArticle [
 
@@ -137,7 +119,7 @@ Zoa >> exportArticle: anArticle to: aFolder [
 
 { #category : #find }
 Zoa >> findAllArticleReferences [
-	^ (self repository findAllArticleReferences flatCollect: [ :a | a allReferences ]) asSet.
+	^ (self repository findAllArticleReferences flatCollect: [ :a | a getAllReferences ]) asSet.
 ]
 
 { #category : #find }
@@ -166,8 +148,10 @@ Zoa >> findAllTags [
 ]
 
 { #category : #find }
-Zoa >> findAuthorAcmId: anId [
-	^ self findAllAuthors detect: [ :a | a acmId = anId ] ifNone: [ nil ]
+Zoa >> findArticleByDoi: aDoi [
+	^ self repository
+		selectOne: ZoaArticle
+		where: [ :q | (q fieldNamed: 'doi') = aDoi ]
 ]
 
 { #category : #find }
@@ -184,15 +168,8 @@ Zoa >> findAuthorLike: anOtherAuthor [
 		ifNone: [ nil ]
 ]
 
-{ #category : #find }
-Zoa >> findByDoi: aDoi [
-	^ self repository
-		selectOne: ZoaArticle
-		where: [ :q | (q fieldNamed: 'doi') = aDoi ]
-]
-
 { #category : #command }
-Zoa >> getPdf: doc [
+Zoa >> getPdfFileForArticle: doc [
 
 	| entity binary url ref |
 	url := self privateGetUrlFor: doc.
@@ -220,11 +197,19 @@ Zoa >> getPdf: doc [
 	^ self articles / doc fileBasename , 'pdf'
 ]
 
-{ #category : #command }
-Zoa >> getPdfByDoi: aString [
-	| doc |
-	doc := self findByDoi: aString.
-	self getPdf: doc
+{ #category : #public }
+Zoa >> ifArticleIsLoaded: aReference then: aBlock ifNot: otherBlock [
+
+	^ ({ 'ieeexplore.ieee.org'. 'scholar.google.com'. 'dl.acm.org'.
+	   'researchgate.net'. 'academia.edu'. 'linkinghub.elsevier.com'.
+	   'portal.acm.org'. 'arxiv.org'. 'sciencedirect.com'.
+	   'link.springer.com' } anySatisfy: [ :s | 
+		   (aReference indexOfSubCollection: s) > 0 ])
+		  ifTrue: [ otherBlock value ]
+		  ifFalse: [ 
+			  (self findArticleByDoi: aReference)
+				  ifNil: [ otherBlock  value ]
+				  ifNotNil: [ :val | aBlock cull: val ] ]
 ]
 
 { #category : #read }
@@ -269,7 +254,7 @@ Zoa >> loadAndSaveArticle: anEntry [
 
 { #category : #save }
 Zoa >> loadAndSaveArticleDoi: aDoi [
-	^ (self findByDoi: aDoi)
+	^ (self findArticleByDoi: aDoi)
 		ifNil: [ self loadAndSaveArticleUrl: (self doiToUrl: aDoi) ]
 ]
 
@@ -313,7 +298,7 @@ Zoa >> manageRedirect: aString [
 { #category : #read }
 Zoa >> pdfFileFor: doc [
 
-	^ self pdfFileFor: doc ifNotYetResolved: [ self getPdf: doc ]
+	^ self pdfFileFor: doc ifNotYetResolved: [ self getPdfFileForArticle: doc ]
 ]
 
 { #category : #read }
@@ -335,11 +320,6 @@ Zoa >> privateGetUrlFor: doc [
 	doc pdfUrl ifNil: [ self error: 'Cannot download pdf ' ].
 	
 	^ doc pdfUrl
-]
-
-{ #category : #read }
-Zoa >> readDoi: aDoi [
-	^ self read: (self findByDoi: aDoi)
 ]
 
 { #category : #read }

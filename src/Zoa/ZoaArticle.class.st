@@ -18,7 +18,8 @@ Class {
 		'type',
 		'references',
 		'authorsReference',
-		'publisher'
+		'publisher',
+		'containerTitle'
 	],
 	#category : #'Zoa-Model'
 }
@@ -109,6 +110,11 @@ ZoaArticle >> authors: anObject [
 ]
 
 { #category : #accessing }
+ZoaArticle >> authorsReferences [
+	^ authorsReference
+]
+
+{ #category : #accessing }
 ZoaArticle >> bibtex [
 	^ String
 		streamContents: [ :str | 
@@ -193,6 +199,11 @@ ZoaArticle >> conference: aString [
 	data at: #conference put: aString
 ]
 
+{ #category : #'as yet unclassified' }
+ZoaArticle >> containerTitle: aString [ 
+	containerTitle:= aString
+]
+
 { #category : #accessing }
 ZoaArticle >> data [
 	^ data
@@ -243,6 +254,11 @@ ZoaArticle >> firstAuthorName [
 	^ authorsReference
 		  ifEmpty: [ 'None Author found' ]
 		  ifNotEmpty: [ authorsReference first author fullName ]
+]
+
+{ #category : #accessing }
+ZoaArticle >> getAllReferences [
+	^ references
 ]
 
 { #category : #accessing }
@@ -346,12 +362,10 @@ ZoaArticle >> link: anObject [
 
 { #category : #'as yet unclassified' }
 ZoaArticle >> mergeWith: aZoaArticle [
-
 	self = aZoaArticle ifTrue: [ ^ self ].
 	title ifNil: [ title := aZoaArticle title ].
 	self references ifEmpty: [ 
 		aZoaArticle references do: [ :r | 
-			r from: self.
 			self addReference: r ].
 		aZoaArticle references removeAll ].
 	date ifNil: [ date := aZoaArticle date  ]. 
@@ -425,7 +439,7 @@ ZoaArticle >> microdownBrief [
 		  self citedBy do: [ :r | 
 			  str
 				  nextPutAll: ' ';
-				  nextPutAll: (r referenceEntryInRelationWith: self);
+				  nextPutAll: (r referenceEntryInRelationWith: self zoa: Zoa current );
 				  cr ].
 		  str
 			  nextPutAll: '###This article Cites';
@@ -433,7 +447,7 @@ ZoaArticle >> microdownBrief [
 		  self cites do: [ :r | 
 			  str
 				  nextPutAll: ' ';
-				  nextPutAll: (r referenceEntryInRelationWith: self);
+				  nextPutAll: (r referenceEntryInRelationWith: self zoa: Zoa current );
 				  cr ].
 
 		  str

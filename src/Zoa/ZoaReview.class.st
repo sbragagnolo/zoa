@@ -20,6 +20,21 @@ ZoaReview class >> isVoyageRoot [
 	^ true
 ]
 
+{ #category : #accessing }
+ZoaReview >> abstractKeywords [
+
+	^ (((((String space split: ((String space join:
+			         ((self articles collect: [ :a | a article abstract ]) collect: [ 
+				          :a | 
+				          String space join:
+					          (String space split: a asLowercase) asSet
+						          asOrderedCollection ])) asLowercase select: [ :i | 
+			        i isLetter or: [ i = Character space ] ])) select: [ :i | 
+		      i size > 5 ]) groupedBy: [ :s | s asSymbol ]) associations 
+		    collect: [ :ass | ass key -> ass value size ]) select: [ :ass | 
+		   ass value > (self articles size / 3) ]) asDictionary
+]
+
 { #category : #adding }
 ZoaReview >> addArticle: anArticle [
 
@@ -31,8 +46,8 @@ ZoaReview >> addArticle: anArticle [
 { #category : #accessing }
 ZoaReview >> affiliations [
 
-	^ (articles flatCollect: [ :a | a article affiliations ]) asSet
-		  asOrderedCollection collect: [ :a | a isString ifTrue: [ a ] ifFalse:[ a first] ]
+	^ (articles flatCollect: [ :a | a article affiliations flatCollect:#asOrderedCollection  ]) asSet
+		  asOrderedCollection select:[: i | i isNotNil ] thenCollect: [ :a | a isString ifTrue: [ a ] ifFalse:[ a first] ]
 ]
 
 { #category : #accessing }

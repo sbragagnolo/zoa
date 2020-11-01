@@ -22,16 +22,13 @@ ZoaHTMLVisitor class >> new [
 ]
 
 { #category : #visiting }
-ZoaHTMLVisitor >> addReference: reference text: text from: from to: to [
+ZoaHTMLVisitor >> addReferenceFrom: from to: to [
 
 	| ref |
 	ref := ZoaArticleArticleReference new.
 	ref
-		text: text;
-		reference: reference;
-		text: text;
-		from: from;
-		to: to.
+		fromReference: from;
+		toReference: to.
 	article addReference: ref.
 	^ ref
 ]
@@ -52,7 +49,7 @@ ZoaHTMLVisitor >> detectHrefToArticle: anElement [
 		  ifNone: [ 
 			  href
 				  detect: [ :d | self isUrlToResearchEngine: d ]
-				  ifNone: [ self error: 'Unexpected case' ] ]
+				  ifNone: [ nil] ]
 ]
 
 { #category : #'as yet unclassified' }

@@ -8,6 +8,11 @@ Class {
 	#category : #'Zoa-Loader'
 }
 
+{ #category : #api }
+ZoaVisitorLoader class >> loads: aString [ 
+	^ false
+]
+
 { #category : #'as yet unclassified' }
 ZoaVisitorLoader >> createVisitor [
 	self subclassResponsibility 
@@ -36,4 +41,14 @@ ZoaVisitorLoader >> loadDocument: anUrl [
 	self loadUsingResearchGateReferencesTo: article.
 
 	^ article
+]
+
+{ #category : #initialization }
+ZoaVisitorLoader >> setCollectionNumber: aString into: aZoaArticle [ 
+	aZoaArticle data at: #CollectionNumber put: aString
+]
+
+{ #category : #initialization }
+ZoaVisitorLoader >> setContainerTitle: aString into: aZoaArticle [ 
+	aZoaArticle containerTitle: aString
 ]

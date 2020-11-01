@@ -129,7 +129,9 @@ ZoaDatabaseExplorer >> importCitationsAndReferences: anArticle [
 		html := text text asString parseHTML.
 		visitor := ZoaIEEEVisitor new.
 		visitor article: anArticle.
-		html acceptNodeVisitor: visitor ]
+		html acceptNodeVisitor: visitor.
+		Zoa current saveArticle: anArticle 
+		]
 ]
 
 { #category : #initialization }

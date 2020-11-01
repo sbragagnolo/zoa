@@ -7,7 +7,6 @@ Class {
 	#instVars : [
 		'name',
 		'lastname',
-		'acmId',
 		'articles',
 		'ids'
 	],
@@ -30,16 +29,6 @@ ZoaAuthor >> = anOtherArticle [
 
 	^ self species = anOtherArticle species and: [ 
 		  self uniqueId = anOtherArticle uniqueId ]
-]
-
-{ #category : #accessing }
-ZoaAuthor >> acmId [
-	^ ids at:#ACM ifAbsent: [  nil ]
-]
-
-{ #category : #accessing }
-ZoaAuthor >> acmId: aString [ 
-	ids at: #ACM put: aString 
 ]
 
 { #category : #add }
@@ -76,20 +65,7 @@ ZoaAuthor >> hash [
 { #category : #accessing }
 ZoaAuthor >> ids [
 
-	^ ids ifNil: [ 
-		  ids := Dictionary new.
-		  acmId ifNotNil: [ self acmId: acmId ].
-		  ids ]
-]
-
-{ #category : #accessing }
-ZoaAuthor >> ieee [
-	^ ids at:#IEEE ifAbsent: [  nil ]
-]
-
-{ #category : #accessing }
-ZoaAuthor >> ieeeId: aString [ 
-	ids at: #IEEE put: aString 
+	^ ids ifNil: [ ids := Dictionary new ]
 ]
 
 { #category : #accessing }
@@ -129,8 +105,7 @@ ZoaAuthor >> mergeWith: anOtherAuthor [
 	
 	
 	self halt.
-	self assert: self acmId isNotNil.
-	self assert: self acmId = anOtherAuthor acmId.
+self error: 'Ensure that the left and right author have the same id'.
 	self class allSlots
 		do: [ :s | 
 			| val |
@@ -149,17 +124,6 @@ ZoaAuthor >> name: aName [
 ]
 
 { #category : #accessing }
-ZoaAuthor >> orcId [
-
-	^ ids at: #ORCID ifAbsent: [ nil ]
-]
-
-{ #category : #accessing }
-ZoaAuthor >> orcId: aString [ 
-	ids at: #ORCID put: aString 
-]
-
-{ #category : #accessing }
 ZoaAuthor >> printOn: aStream [
 	aStream
 		nextPutAll: lastname;
@@ -167,23 +131,11 @@ ZoaAuthor >> printOn: aStream [
 		nextPutAll: name
 ]
 
-{ #category : #'as yet unclassified' }
-ZoaAuthor >> scienceDirectId: aString [
-
-	ids at: #SCIENCEDIRECT put: aString
-]
-
-{ #category : #'as yet unclassified' }
-ZoaAuthor >> springerId: anInteger [
-
-	ids at: #SPRINGER put: anInteger asString
-]
-
 { #category : #add }
 ZoaAuthor >> uniqueId [
 
 	^ '{1}:{2}:{3}' format: { 
-			  acmId asString.
+			  ids asString.
 			  lastname asString.
 			  name asString }
 ]

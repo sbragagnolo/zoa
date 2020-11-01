@@ -9,9 +9,8 @@ Class {
 	#superclass : #Object,
 	#instVars : [
 		'text',
-		'reference',
-		'from',
-		'to'
+		'fromReference',
+		'toReference'
 	],
 	#category : #'Zoa-Model'
 }
@@ -31,82 +30,77 @@ ZoaArticleArticleReference class >> isVoyageRoot [
 ZoaArticleArticleReference >> = aZoaRef [
 
 	^ self species = aZoaRef species and: [ 
-		  reference = aZoaRef reference ]
-]
-
-{ #category : #accessing }
-ZoaArticleArticleReference >> allReferences [
-
-	^ from ifNil: [ { to } ] ifNotNil: [ 
-		  to ifNil: [ { from } ] ifNotNil: [ 
-			  { 
-				  from.
-				  to } ] ]
-]
-
-{ #category : #'as yet unclassified' }
-ZoaArticleArticleReference >> arrayKeywords [
-
-	^ to ifNotNil: [ to keywords ] ifNil: [ {  } ]
+		  fromReference = aZoaRef fromReference and: [ 
+			  toReference = aZoaRef toReference ] ]
 ]
 
 { #category : #accessing }
 ZoaArticleArticleReference >> citedBy: anArticle [
 
-	^ from = anArticle
+	^ fromReference refersTo: anArticle
 	
 ]
 
 { #category : #'as yet unclassified' }
 ZoaArticleArticleReference >> cites: aZoaArticle [
 
-	^ to = aZoaArticle
+	^ toReference  respondsTo: aZoaArticle
 ]
 
 { #category : #accessing }
-ZoaArticleArticleReference >> from [
-	^ from ifNil: [ 
-		from := Zoa current loadAndSaveArticle: reference.
-		to references remove: self .
-		to references add: self. 
-		Zoa current saveArticle: from.
-		Zoa current saveArticle: to.
-		from 
-	 ]
+ZoaArticleArticleReference >> fromReference [
+
+	^ fromReference
 ]
 
 { #category : #accessing }
-ZoaArticleArticleReference >> from: anArticle [
-	from := anArticle
+ZoaArticleArticleReference >> fromReference: aReference [ 
+	fromReference := aReference
+]
+
+{ #category : #accessing }
+ZoaArticleArticleReference >> getAllReferences [
+
+	^ { 
+		  fromReference.
+		  toReference }
+]
+
+{ #category : #accessing }
+ZoaArticleArticleReference >> getAllReferencesWith: aZoaAPI [
+
+	^ { 
+		  (aZoaAPI findArticle: fromReference).
+		  (aZoaAPI findArticle: toReference) }
 ]
 
 { #category : #'as yet unclassified' }
-ZoaArticleArticleReference >> hasResolvedReference [ 
-	^ to isNotNil and:[ from isNotNil ].
+ZoaArticleArticleReference >> hasResolvedReference [
+
+	^ toReference isResolved and: [ fromReference isResolved ]
+]
+
+{ #category : #'as yet unclassified' }
+ZoaArticleArticleReference >> hasResolvedReferenceIn: zoaApi [
+
+	^ (toReference isResolvedIn: zoaApi) and: [ fromReference isResolvedIn: zoaApi ]
 ]
 
 { #category : #'as yet unclassified' }
 ZoaArticleArticleReference >> hash [
-	^ reference hash
+	^ fromReference hash bitXor: toReference hash
 ]
 
 { #category : #testing }
 ZoaArticleArticleReference >> isRelatedWith: aZoaArticle [
 
-	^ from = aZoaArticle or: [ to = aZoaArticle ]
+	^ (fromReference refersTo: aZoaArticle) or: [ 
+		  toReference refersTo: aZoaArticle ]
 ]
 
 { #category : #accessing }
 ZoaArticleArticleReference >> key [
 	^ text
-]
-
-{ #category : #'as yet unclassified' }
-ZoaArticleArticleReference >> oppositeArticleTo: anArticle [
-
-	^ from = anArticle
-		  ifTrue: [ self to ]
-		  ifFalse: [ self from ]
 ]
 
 { #category : #accessing }
@@ -118,36 +112,14 @@ ZoaArticleArticleReference >> printOn: aStream [
 
 { #category : #'as yet unclassified' }
 ZoaArticleArticleReference >> reference [
-	^ reference
-]
-
-{ #category : #accessing }
-ZoaArticleArticleReference >> reference: aString [
-	reference := aString
+	self halt 
 ]
 
 { #category : #'as yet unclassified' }
-ZoaArticleArticleReference >> referenceEntryInRelationWith: anArticle [
-
-	^from = anArticle
-		ifTrue: [ 
-			(to ifNil: [ reference ] ifNotNil: [ 
-				 to date year asString , '-' , to firstAuthorCiteName , ' -'
-				 , to title ]) readStream next: 50 ]
-		ifFalse: [ 
-			(from ifNil: [ reference ] ifNotNil: [ 
-				 from date year asString , '-' , from firstAuthorCiteName , ' -'
-				 , from title ]) readStream next: 50 ]
-]
-
-{ #category : #accessing }
-ZoaArticleArticleReference >> sanitize [
-
-	(reference beginsWith: 'http') ifTrue: [ 
-		| content stream |
-		stream := reference readStream.
-		content := stream upToAll: 'http'.
-		reference := 'http' , content , (stream upToAll: 'http') ]
+ZoaArticleArticleReference >> referenceEntryInRelationWith: anArticle zoa: aZoaApi [
+	^ (fromReference refersTo: anArticle)
+		  ifTrue: [ toReference referenceEntry: aZoaApi ]
+		  ifFalse: [ fromReference referenceEntry: aZoaApi ]
 ]
 
 { #category : #accessing }
@@ -173,6 +145,17 @@ ZoaArticleArticleReference >> to: anArticle [
 ]
 
 { #category : #accessing }
+ZoaArticleArticleReference >> toReference [
+
+	^ toReference
+]
+
+{ #category : #accessing }
+ZoaArticleArticleReference >> toReference: aReference [ 
+	toReference := aReference
+]
+
+{ #category : #accessing }
 ZoaArticleArticleReference >> value [ 
-	^ reference 
+	^ self halt 
 ]

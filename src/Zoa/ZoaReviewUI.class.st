@@ -12,7 +12,8 @@ Class {
 		'edition',
 		'toolbar',
 		'review',
-		'preview'
+		'preview',
+		'abstractTags'
 	],
 	#category : #'Zoa-UI'
 }
@@ -138,7 +139,7 @@ ZoaReviewUI >> articlesExcludedFromTag: aTag [
 
 	^ (review articles select: [ :ref | 
 		   (aTag articles includes: ref article) and: [ ref isIncluded not ] ])
-		  size
+		  size 
 ]
 
 { #category : #initialization }
@@ -154,7 +155,7 @@ ZoaReviewUI >> articlesIncludedFromTag: aTag [
 
 	^ (review articles select: [ :ref | 
 		   (aTag articles includes: ref article) and: [ ref isIncluded ] ])
-		  size
+		  size +1
 ]
 
 { #category : #'as yet unclassified' }
@@ -244,6 +245,7 @@ ZoaReviewUI >> initializeWidgets [
 				 yourself).
 
 	tags := self newTagTable.
+	abstractTags := self newAbstractKeywordsTable.
 	query := self newText autoAccept: true.
 	query whenSubmitDo: [ :text | review query: text ].
 
@@ -253,7 +255,8 @@ ZoaReviewUI >> initializeWidgets [
 	affiliations := self newAffiliationTable.
 	edition := self newEditionArea.
 	tabs
-		addPage: (self newNotebookPageWith: tags and: 'Tags');
+		addPage: (self newNotebookPageWith: tags and: 'Keywords');
+		addPage: (self newNotebookPageWith: abstractTags and: 'Abstract Keywords');
 		addPage: (self newNotebookPageWith: query and: 'Query');
 		addPage:
 			(self newNotebookPageWith: articles and: 'Articles');
@@ -262,6 +265,23 @@ ZoaReviewUI >> initializeWidgets [
 		addPage: (self newNotebookPageWith: affiliations and: 'Affiliations') ;
 		addPage: (self newNotebookPageWith: edition and: 'Edition') ;
 		addPage: (self newNotebookPageWith: preview and: 'Preview')   
+]
+
+{ #category : #initialization }
+ZoaReviewUI >> newAbstractKeywordsTable [
+
+	| table |
+	table := self newTable.
+
+	table
+		sortingBlock: [ :a :b | a key < b key ];
+		addColumn:
+			(SpStringTableColumn title: 'Word' evaluated: [ :item | item key ]);
+		addColumn: (SpStringTableColumn
+				 title: 'Appearances'
+				 evaluated: [ :item | item value ]);
+		beResizable.
+	^ table
 ]
 
 { #category : #initialization }
@@ -410,7 +430,20 @@ ZoaReviewUI >> newTagTable [
 	| table |
 	table := self newTreeTable.
 
-	table
+	table	addColumn:
+			((SpStringTableColumn
+				 title: 'Included'
+				 evaluated: [ :aTag | 
+					 (aTag isKindOf: ZoaTag)
+						 ifTrue: [ self articlesIncludedFromTag: aTag ]
+						 ifFalse: [ '' ] ] ) width: 30; yourself) ;
+		addColumn:
+			((SpStringTableColumn
+				 title: 'Excluded'
+				 evaluated: [ :aTag | 
+					 (aTag isKindOf: ZoaTag)
+						 ifTrue: [ self articlesExcludedFromTag: aTag ]
+						 ifFalse: [ '' ] ]) width: 30; yourself);
 		addColumn: (SpCompositeTableColumn new
 				 title: 'Name';
 				 addColumn: ((SpImageTableColumn evaluated: #systemIcon)
@@ -418,24 +451,11 @@ ZoaReviewUI >> newTagTable [
 						  yourself);
 				 addColumn: (SpStringTableColumn evaluated: #name);
 				 yourself);
-		addColumn:
-			(SpStringTableColumn
-				 title: 'Articles Included'
-				 evaluated: [ :aTag | 
-					 (aTag isKindOf: ZoaTag)
-						 ifTrue: [ self articlesIncludedFromTag: aTag ]
-						 ifFalse: [ '' ] ]);
-		addColumn:
-			(SpStringTableColumn
-				 title: 'Articles Excluded'
-				 evaluated: [ :aTag | 
-					 (aTag isKindOf: ZoaTag)
-						 ifTrue: [ self articlesExcludedFromTag: aTag ]
-						 ifFalse: [ '' ] ]);
+	
 		roots: { Object };
 		children: [ :aTag | 
 			(aTag isKindOf: ZoaTag)
-				ifTrue: [ aTag articles ]
+				ifTrue: [ aTag articles asOrderedCollection ]
 				ifFalse: [ {  } ] ];
 		beResizable.
 	^ table
@@ -475,7 +495,8 @@ ZoaReviewUI >> updateReview [
 
 	| briefs |
 	review ifNil: [ 
-		tags items: {  }.
+		tags roots: {  }.
+		abstractTags items: {  }.
 		articles items: {  }.
 		authors items: {  }.
 		publisher items: {  }.
@@ -483,9 +504,8 @@ ZoaReviewUI >> updateReview [
 		edition items: {  }.
 		query text: ''.
 		preview text: ''.
-		^ self. 	
-	 ].
-	tags items: review tags.
+		^ self ].
+	tags roots: review tags.
 	articles items: review articles.
 	authors items: review authors.
 	query text: (review query ifNil: [ '' ]).
@@ -504,6 +524,6 @@ ZoaReviewUI >> updateReview [
 			          brief: b;
 			          onDelete: [ :br | review briefs remove: br ];
 			          yourself ].
-
+	abstractTags items: review abstractKeywords associations.
 	edition items: briefs
 ]
