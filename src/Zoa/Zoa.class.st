@@ -137,6 +137,13 @@ Zoa >> findAllAuthors [
 	^ self repository selectAll: ZoaAuthor
 ]
 
+{ #category : #accesing }
+Zoa >> findAllCodifications [
+
+	^ { #NotRelated. #Irrelevant. #TooShort. #GreyLiterature.
+	  #Other }
+]
+
 { #category : #'as yet unclassified' }
 Zoa >> findAllReviews [
 	^ self repository selectAll: ZoaReview

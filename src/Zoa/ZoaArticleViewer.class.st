@@ -3,7 +3,7 @@ Article viewer
 "
 Class {
 	#name : #ZoaArticleViewer,
-	#superclass : #SpPresenter,
+	#superclass : #ZoaPresenter,
 	#instVars : [
 		'#article => SpObservableSlot',
 		'#view',
@@ -46,7 +46,7 @@ ZoaArticleViewer class >> example [
 		openWithSpec
 ]
 
-{ #category : #add }
+{ #category : #actions }
 ZoaArticleViewer >> addBrief [
 	| name |
 	name := UIManager default request: 'Brief name'.
@@ -59,13 +59,13 @@ ZoaArticleViewer >> addBrief [
 	self updateArticle 
 ]
 
-{ #category : #initialization }
+{ #category : #'update and set' }
 ZoaArticleViewer >> article: anArticle [
 	article := anArticle.
 	self updateArticle .
 ]
 
-{ #category : #initialization }
+{ #category : #'data query' }
 ZoaArticleViewer >> currentAuthors [
 	^ article authors
 		collect: [ :a | 
@@ -74,7 +74,7 @@ ZoaArticleViewer >> currentAuthors [
 				yourself ]
 ]
 
-{ #category : #initialization }
+{ #category : #'data query' }
 ZoaArticleViewer >> currentBriefs [
 
 	article briefs ifEmpty: [ 
@@ -88,26 +88,26 @@ ZoaArticleViewer >> currentBriefs [
 			  yourself ]
 ]
 
-{ #category : #initialization }
+{ #category : #'data query' }
 ZoaArticleViewer >> currentTags [
 	^ article tags , article keywords
 		collect: [ :t | ZoaTagKeywordWidget new tag: t ]
 ]
 
-{ #category : #initialization }
+{ #category : #actions }
 ZoaArticleViewer >> deleteArticle [
 	Zoa current delete: article.
 	self inform: 'Deleted from database... '.
 	owner updateViewers .
 ]
 
-{ #category : #initialization }
+{ #category : #actions }
 ZoaArticleViewer >> deleteBrief: aBrief [
 	article briefs remove: aBrief.
 	self updateArticle.
 ]
 
-{ #category : #'as yet unclassified' }
+{ #category : #'data query' }
 ZoaArticleViewer >> directionIcon: aZoaArticleArticleReference [
 
 	^ (aZoaArticleArticleReference citedBy: article)
@@ -115,7 +115,7 @@ ZoaArticleViewer >> directionIcon: aZoaArticleArticleReference [
 		  ifFalse: [ self iconNamed: #changeBlock ]
 ]
 
-{ #category : #initialization }
+{ #category : #actions }
 ZoaArticleViewer >> exportArticle [
 
 	| folder |
@@ -132,6 +132,23 @@ ZoaArticleViewer >> initialize [
 ]
 
 { #category : #initialization }
+ZoaArticleViewer >> initializeNotebook [
+
+	tabs addPage:
+		(self newNotebookPageWith: [ references ] and: 'References').
+	tabs addPage: (self
+			 newNotebookPageWith: [ 
+				 self newStackedComponentWith: { 
+						 abstract.
+						 data.
+						 tags } ]
+			 and: 'Metadata').
+	tabs addPage: (self newNotebookPageWith: authors and: 'Authors')
+
+	
+]
+
+{ #category : #initialization }
 ZoaArticleViewer >> initializePrivateAnnouncements [
 	super initializePrivateAnnouncements.
 	self property: #article whenChangedDo: [ self updateArticle ].
@@ -139,9 +156,7 @@ ZoaArticleViewer >> initializePrivateAnnouncements [
 ]
 
 { #category : #initialization }
-ZoaArticleViewer >> initializeWidgets [
-
-	toolBar := self newToolbar.
+ZoaArticleViewer >> initializeToolbar [
 
 	toolBar addItemLeft: (self newToolbarButton
 			 icon: (Smalltalk ui icons iconNamed: #add);
@@ -160,71 +175,49 @@ ZoaArticleViewer >> initializeWidgets [
 			 action: [ self exportArticle ] yourself).
 	toolBar addItemRight: (self newToolbarButton
 			 label: 'Delete';
-			 action: [ self deleteArticle ] yourself).
+			 action: [ self deleteArticle ] yourself)
+]
 
-	tabs := self newNotebook.
-	abstract := self newText.
-	authors := self instantiate: SpComponentListPresenter.
-	tags := self instantiate: SpComponentListPresenter.
-	view := self instantiate: SpComponentListPresenter.
-	viewTabs := self newNotebook.
-	preview := self newText.
-	htmlRefs  := self newText.
+{ #category : #initialization }
+ZoaArticleViewer >> initializeViewtabs [
+
 	viewTabs addPage:
 		(self newNotebookPageWith: view and: 'Briefs Editor').
 	viewTabs addPage:
-		(self newNotebookPageWith: preview and: 'Text preview').
-
-	data := self newTable
-		        addColumn: (SpStringTableColumn evaluated: #key);
-		        addColumn: (SpStringTableColumn evaluated: #value);
-		        yourself.
-	references := self newTable
-		              addColumn: ((SpImageTableColumn
-				                title: ''
-				                evaluated: [ :item | self directionIcon: item ])
-				               width: 15;
-				               yourself);
-				addColumn: ((SpLinkTableColumn
-				                title: 'Load'
-				                evaluated: [ :item | 
-					                (item hasResolvedReferenceIn: Zoa current )
-						                ifTrue: [ 'READ' ]
-						                ifFalse: [ 'LOAD' ] ]
-				                action: [ :item | self loadOrRead: item ])
-				               width: 20;
-				               yourself);
-		              addColumn: (SpStringTableColumn
-				               title: 'Reference'
-				               evaluated: [ :item | 
-				               item referenceEntryInRelationWith: article zoa: Zoa current ]);
-		              
-		              beResizable;
-		              yourself.
-
-	tabs addPage:
-		(self newNotebookPageWith: [ references ] and: 'References').
-	tabs addPage: (self
-			 newNotebookPageWith: [ 
-				 self newStackedComponentWith: { 
-						 abstract.
-						 data.
-						 tags } ]
-			 and: 'Metadata').
-	tabs addPage: (self newNotebookPageWith: authors and: 'Authors')
-
-	"	newSubPresenter owner: self.
-	layout add: newSubPresenter"
+		(self newNotebookPageWith: preview and: 'Text preview')
 ]
 
-{ #category : #add }
+{ #category : #initialization }
+ZoaArticleViewer >> initializeWidgets [
+
+	toolBar := self newToolbar.
+	self initializeToolbar.
+	
+	
+	abstract := self newText.
+	authors := self newAuthorList.
+	tags := self newTagsList.
+	view := self instantiate: SpComponentListPresenter.
+	
+	preview := self newText.
+	htmlRefs  := self newText.
+	viewTabs := self newNotebook.
+	self initializeViewtabs.
+	
+	data := self newDataTable.
+	references := self newReferenceTable.
+	tabs := self newNotebook.
+	self initializeNotebook.
+]
+
+{ #category : #actions }
 ZoaArticleViewer >> load: item [
 	item toReference  ensureIsLoadedInto: Zoa current .
 	item fromReference ensureIsLoadedInto: Zoa current .  
 	owner updateViewers 
 ]
 
-{ #category : #add }
+{ #category : #actions }
 ZoaArticleViewer >> loadOrRead: item [
 "["
 	(item hasResolvedReferenceIn: Zoa current )
@@ -232,6 +225,21 @@ ZoaArticleViewer >> loadOrRead: item [
 		ifFalse: [ self load: item ]
 		
 		"] on: Error do: [ :e | self inform: e messageText  ]"
+]
+
+{ #category : #initialization }
+ZoaArticleViewer >> newAuthorList [
+
+	^ self instantiate: SpComponentListPresenter
+]
+
+{ #category : #initialization }
+ZoaArticleViewer >> newDataTable [
+
+	^ self newTable
+		  addColumn: (SpStringTableColumn evaluated: #key);
+		  addColumn: (SpStringTableColumn evaluated: #value);
+		  yourself
 ]
 
 { #category : #initialization }
@@ -245,16 +253,35 @@ ZoaArticleViewer >> newNotebookPageWith: aProvider and: aTitle [
 ]
 
 { #category : #initialization }
-ZoaArticleViewer >> newStackedComponentWith: anArray [
+ZoaArticleViewer >> newReferenceTable [
 
-	| component |
-	component := self instantiate: SpDynamicPresenter.
-	component layout: SpBoxLayout newVertical.
+	^ self newTable
+		  addColumn: ((SpImageTableColumn
+				    title: ''
+				    evaluated: [ :item | self directionIcon: item ])
+				   width: 15;
+				   yourself);
+		  addColumn: ((SpLinkTableColumn
+				    title: 'Load'
+				    evaluated: [ :item | 
+					    (item hasResolvedReferenceIn: Zoa current)
+						    ifTrue: [ 'READ' ]
+						    ifFalse: [ 'LOAD' ] ]
+				    action: [ :item | self loadOrRead: item ])
+				   width: 20;
+				   yourself);
+		  addColumn: (SpStringTableColumn
+				   title: 'Reference'
+				   evaluated: [ :item | 
+				   item referenceEntryInRelationWith: article zoa: Zoa current ]);
+		  beResizable;
+		  yourself
+]
 
-	anArray do: [ :a | 
-		component layout add: a.
-		a owner: component ].
-	^ component
+{ #category : #initialization }
+ZoaArticleViewer >> newTagsList [
+
+	^ self instantiate: SpComponentListPresenter
 ]
 
 { #category : #initialization }
@@ -262,13 +289,13 @@ ZoaArticleViewer >> onArticleReloadClicked: aBlock [
 	onArticleReloadClicked := aBlock
 ]
 
-{ #category : #initialization }
+{ #category : #actions }
 ZoaArticleViewer >> openArticlePdf [
 	article pdfUrl ifNil: [ self inform:  ' must download pdf first '. ^ self  ].
 	(#open command arguments: {article pdfUrl}) schedule.
 ]
 
-{ #category : #initialization }
+{ #category : #'data query' }
 ZoaArticleViewer >> referencesFor: anArticle [
 
 	 allArticles := Zoa current findAllArticles .
@@ -276,18 +303,18 @@ ZoaArticleViewer >> referencesFor: anArticle [
 		  ref isRelatedWith: anArticle ]
 ]
 
-{ #category : #initialization }
+{ #category : #actions }
 ZoaArticleViewer >> reloadArticle [
 	onArticleReloadClicked value.
 ]
 
-{ #category : #initialization }
+{ #category : #actions }
 ZoaArticleViewer >> saveArticle [
 	Zoa new saveArticle: article.
 	self inform: 'Saved into database..'
 ]
 
-{ #category : #initialization }
+{ #category : #'update and set' }
 ZoaArticleViewer >> updateArticle [
 	article
 		ifNotNil: [ 

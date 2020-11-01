@@ -3,7 +3,7 @@ It shows a brief with tags and some nice data.
 "
 Class {
 	#name : #ZoaBriefWidget,
-	#superclass : #SpPresenter,
+	#superclass : #ZoaPresenter,
 	#instVars : [
 		'#brief => SpObservableSlot',
 		'#nameLabel',
@@ -38,17 +38,17 @@ ZoaBriefWidget class >> defaultSpec [
 		yourself
 ]
 
-{ #category : #initialization }
+{ #category : #'update and set' }
 ZoaBriefWidget >> brief: aBrief [
 	brief := aBrief
 ]
 
-{ #category : #accessing }
+{ #category : #'data query' }
 ZoaBriefWidget >> currentTags [
 	^ brief tags collect: [ :t | ZoaTagKeywordWidget new tag: t ]
 ]
 
-{ #category : #initialization }
+{ #category : #actions }
 ZoaBriefWidget >> deleteBrief [
 	onDelete ifNotNil: [ onDelete cull: brief ].
 ]
@@ -65,19 +65,22 @@ ZoaBriefWidget >> initializePrivateAnnouncements [
 ]
 
 { #category : #initialization }
+ZoaBriefWidget >> initializeToolbar [
+
+	toolBar addItemLeft: (self newToolbarButton
+			 icon: (Smalltalk ui icons iconNamed: #smallSave);
+			 action: [ self saveBrief ] yourself).
+	toolBar addItemLeft: (self newToolbarButton
+			 icon: (Smalltalk ui icons iconNamed: #smallDelete);
+			 action: [ self deleteBrief ] yourself)
+]
+
+{ #category : #initialization }
 ZoaBriefWidget >> initializeWidgets [
 	nameLabel := self newLabel.
 	toolBar := self newToolbar.
-	toolBar
-		addItemLeft:
-			(self newToolbarButton 
-				icon: (Smalltalk ui icons iconNamed: #smallSave);
-				action: [ self saveBrief ] yourself).
-	toolBar
-		addItemLeft:
-			(self newToolbarButton 
-				icon: (Smalltalk ui icons iconNamed: #smallDelete);
-				action: [ self deleteBrief ] yourself).
+	self initializeToolbar.
+	
 	includeInText := self newButton.
 	includeInText action: [ self toggleIncludeText ].
 
@@ -88,35 +91,35 @@ ZoaBriefWidget >> initializeWidgets [
 	actions add: includeInText
 ]
 
-{ #category : #accessing }
+{ #category : #'data query' }
 ZoaBriefWidget >> nameLabel [
 	^ nameLabel
 ]
 
-{ #category : #initialization }
+{ #category : #accessors }
 ZoaBriefWidget >> onDelete: aBlock [
 	onDelete := aBlock
 ]
 
-{ #category : #initialization }
+{ #category : #accessors }
 ZoaBriefWidget >> onSave: aBlock [
 	onSave := aBlock
 ]
 
-{ #category : #initialization }
+{ #category : #actions }
 ZoaBriefWidget >> saveBrief [
 	brief text: text text. 
 	
 	onSave ifNotNil: [ onSave cull: brief ].
 ]
 
-{ #category : #initialization }
+{ #category : #actions }
 ZoaBriefWidget >> toggleIncludeText [
 	brief toggleIncludeInText.
 	self updateBrief.
 ]
 
-{ #category : #accessing }
+{ #category : #'update and set' }
 ZoaBriefWidget >> updateBrief [
 	nameLabel label: brief name.
 	text text: brief text.

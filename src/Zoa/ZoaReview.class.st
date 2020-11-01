@@ -64,14 +64,19 @@ ZoaReview >> authors [
 
 { #category : #accessing }
 ZoaReview >> briefs [
-	^ briefs ifNil: [ briefs := OrderedCollection new ]
+
+	^ briefs
 ]
 
 { #category : #adding }
 ZoaReview >> initialize [
 
 	super initialize.
-	articles := OrderedCollection new
+	articles := OrderedCollection new.
+	briefs := OrderedCollection new.
+	briefs add: (ZoaBrief new
+			 name: #Motivation;
+			 yourself)
 ]
 
 { #category : #accessing }
@@ -149,6 +154,13 @@ ZoaReview >> microdownBrief [
 						  nextPutAll: '###Tags';
 						  nextPutAll: (';' join: (b tags collect: [ :k | k name ]));
 						  cr ] ] ] ]
+]
+
+{ #category : #accessing }
+ZoaReview >> publishers [
+
+	^ (articles collect: [ :a | a article publisher ]) asSet
+		  asOrderedCollection 
 ]
 
 { #category : #accessing }

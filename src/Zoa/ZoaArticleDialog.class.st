@@ -1,6 +1,9 @@
+"
+I am a simple article dialog made for choosing articles .
+"
 Class {
 	#name : #ZoaArticleDialog,
-	#superclass : #SpPresenter,
+	#superclass : #ZoaPresenter,
 	#instVars : [
 		'articles',
 		'preview',
@@ -44,31 +47,38 @@ ZoaArticleDialog >> initializeWidgets [
 
 	articles := self newTable.
 	preview := self newText.
-	articles
-		sortingBlock: [ :a :b | a title < b title ];
-		addColumn: ((SpCheckBoxTableColumn
-				  title: ' '
-				  evaluated: [ :x | chosenArticles includes: x ])
-				 onActivation: [ :class | chosenArticles add: class ];
-				 onDeactivation: [ :class | chosenArticles remove: class ];
-				 width: 20;
-				 yourself);
-		addColumn: ((SpStringTableColumn
-				  title: 'Date'
-				  evaluated: [ :item | item date year asString ])
-				 width: 50;
-				 yourself);
-		addColumn: ((SpStringTableColumn
-				  title: 'Author'
-				  evaluated: [ :item | item firstAuthorName ])
-				 width: 100;
-				 yourself);
-		addColumn:
-		(SpStringTableColumn
-			 title: 'Title'
-			 evaluated: [ :item | item title ]);
-		whenSelectionChangedDo: [ :selection | 
-			selection selectedItem ifNotNil: [ :article | 
-				preview text: (MicroDownParser asText: article microdownBrief) ] ];
-		beResizable
+	articles := self newArticleTable. 
+	
+]
+
+{ #category : #initialization }
+ZoaArticleDialog >> newArticleTable [
+
+	^ self newTable
+		  sortingBlock: [ :a :b | a title < b title ];
+		  addColumn: ((SpCheckBoxTableColumn
+				    title: ' '
+				    evaluated: [ :x | chosenArticles includes: x ])
+				   onActivation: [ :class | chosenArticles add: class ];
+				   onDeactivation: [ :class | chosenArticles remove: class ];
+				   width: 20;
+				   yourself);
+		  addColumn: ((SpStringTableColumn
+				    title: 'Date'
+				    evaluated: [ :item | item date year asString ])
+				   width: 50;
+				   yourself);
+		  addColumn: ((SpStringTableColumn
+				    title: 'Author'
+				    evaluated: [ :item | item firstAuthorName ])
+				   width: 100;
+				   yourself);
+		  addColumn:
+		  (SpStringTableColumn
+			   title: 'Title'
+			   evaluated: [ :item | item title ]);
+		  whenSelectionChangedDo: [ :selection | 
+			  selection selectedItem ifNotNil: [ :article | 
+				  preview text: (MicroDownParser asText: article microdownBrief) ] ];
+		  beResizable
 ]

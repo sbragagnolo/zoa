@@ -1,6 +1,6 @@
 Class {
 	#name : #ZoaDatabaseExplorer,
-	#superclass : #SpPresenter,
+	#superclass : #ZoaPresenter,
 	#instVars : [
 		'listables',
 		'preview',
@@ -48,7 +48,7 @@ ZoaDatabaseExplorer class >> worldMenuOn: aBuilder [
 		
 ]
 
-{ #category : #initialization }
+{ #category : #'widget creation' }
 ZoaDatabaseExplorer >> contextMenuForArticle [
 
 	^ self newMenu
@@ -74,7 +74,7 @@ ZoaDatabaseExplorer >> contextMenuForArticle [
 		  yourself
 ]
 
-{ #category : #initialization }
+{ #category : #'data query' }
 ZoaDatabaseExplorer >> defaultQueryText [
 	^ '
 	"Selecting articles sets the widget articles to a specific query result "
@@ -90,7 +90,7 @@ ZoaDatabaseExplorer >> focusOn: aZoaArticle [
 	articles selectItems: { aZoaArticle  }
 ]
 
-{ #category : #initialization }
+{ #category : #actions }
 ZoaDatabaseExplorer >> importArticleDoi [
 	| doi |
 	
@@ -104,7 +104,7 @@ ZoaDatabaseExplorer >> importArticleDoi [
 	
 ]
 
-{ #category : #initialization }
+{ #category : #actions }
 ZoaDatabaseExplorer >> importArticleUrl [
 	| url |
 	
@@ -118,7 +118,7 @@ ZoaDatabaseExplorer >> importArticleUrl [
 	
 ]
 
-{ #category : #initialization }
+{ #category : #actions }
 ZoaDatabaseExplorer >> importCitationsAndReferences: anArticle [
 
 	| html visitor text |
@@ -134,7 +134,7 @@ ZoaDatabaseExplorer >> importCitationsAndReferences: anArticle [
 		]
 ]
 
-{ #category : #initialization }
+{ #category : #actions }
 ZoaDatabaseExplorer >> importReferences: anArticle [
 	Zoa current importAllReferencesRelatedWith: anArticle .
 	self updateViewers
@@ -149,11 +149,16 @@ ZoaDatabaseExplorer >> initializePresenters [
 ]
 
 { #category : #initialization }
-ZoaDatabaseExplorer >> initializeWidgets [
+ZoaDatabaseExplorer >> initializeQuery [
 
-	super initializeWidgets.
-	queryModel := ZoaQueryModel new. 
-	toolbar := self newToolbar.
+	query := self newCode.
+	query text: self defaultQueryText.
+	queryModel owner: self.
+	query beForObject: queryModel
+]
+
+{ #category : #initialization }
+ZoaDatabaseExplorer >> initializeToolbar [.
 	toolbar addItemLeft: (self newToolbarButton
 			 icon: (Smalltalk ui icons iconNamed: #add);
 			 action: [ self importArticleUrl ] yourself).
@@ -166,26 +171,32 @@ ZoaDatabaseExplorer >> initializeWidgets [
 	toolbar addItemLeft: (self newToolbarButton
 			 icon: (Smalltalk ui icons iconNamed: #remove);
 			 action: [ self removeAll ] yourself).
-	query := self newCode.
-	query text: self defaultQueryText.
-	queryModel owner: self. 
-	query beForObject:  queryModel.
+	
+]
+
+{ #category : #initialization }
+ZoaDatabaseExplorer >> initializeWidgets [
+
+	super initializeWidgets.
+	queryModel := ZoaQueryModel new. 
+	toolbar := self newToolbar.
+	self initializeToolbar.
+	
+	self initializeQuery. 
 	
 	listables := self newNotebook.
 	articles := self newArticleView.
 	authors := self newAuthorsView.
-	"	keywords := self newKeywordsView."
+	keywords := self newKeywordsView.
 	preview := self instantiate: ZoaArticleViewer.
 	"spec script: [ :view | view addShape: RSBox new. value := value + 1 ]."
 	listables
 		addPage: (self newNotebookPageWith: articles and: 'Articles');
-		addPage: (self newNotebookPageWith: authors and: 'Authors').
-	
-	";
-		addPage: (self newNotebookPageWith: keywords and: 'Keywords')"
+		addPage: (self newNotebookPageWith: authors and: 'Authors');
+		addPage: (self newNotebookPageWith: keywords and: 'Keywords')
 ]
 
-{ #category : #initialization }
+{ #category : #'widget creation' }
 ZoaDatabaseExplorer >> newArticleView [
 
 	| table |
@@ -211,7 +222,7 @@ ZoaDatabaseExplorer >> newArticleView [
 	^ table
 ]
 
-{ #category : #initialization }
+{ #category : #'widget creation' }
 ZoaDatabaseExplorer >> newAuthorsView [
 	| table |
 	table := self newTable.
@@ -225,17 +236,31 @@ ZoaDatabaseExplorer >> newAuthorsView [
 	^ table
 ]
 
-{ #category : #initialization }
+{ #category : #'widget creation' }
 ZoaDatabaseExplorer >> newKeywordsView [
 
-	^ self newNotebookPage
-		  title: 'Articles Perspective';
-		  icon: (self iconNamed: #nautilusIcon);
-		  presenterProvider: [ MessageBrowser new messages: Object methods ];
-		  yourself
+	| table |
+	table := self newTreeTable.
+
+	table
+		addColumn: (SpCompositeTableColumn new
+				 title: 'Name';
+				 addColumn: ((SpImageTableColumn evaluated: #systemIcon)
+						  width: 20;
+						  yourself);
+				 addColumn: (SpStringTableColumn evaluated: #name);
+				 yourself);
+		roots: {  };
+		children: [ :aTag | 
+			(aTag isKindOf: ZoaTag)
+				ifTrue: [ aTag articles asOrderedCollection ]
+				ifFalse: [ {  } ] ];
+		beResizable.
+	
+	^ table
 ]
 
-{ #category : #initialization }
+{ #category : #'widget creation' }
 ZoaDatabaseExplorer >> newNotebookPageWith: aProvider and: aTitle [
 
 	^ self newNotebookPage
@@ -245,13 +270,13 @@ ZoaDatabaseExplorer >> newNotebookPageWith: aProvider and: aTitle [
 		  yourself
 ]
 
-{ #category : #initialization }
+{ #category : #actions }
 ZoaDatabaseExplorer >> readPdf: anArticle [
 
 	(#open command arguments: { anArticle pdfFile fullName }) schedule
 ]
 
-{ #category : #initialization }
+{ #category : #actions }
 ZoaDatabaseExplorer >> removeAll [
 
 	(UIManager default confirm:
@@ -261,13 +286,18 @@ ZoaDatabaseExplorer >> removeAll [
 				Zoa current dropDatabase  . self updateViewers  ] ].
 ]
 
-{ #category : #initialization }
+{ #category : #actions }
 ZoaDatabaseExplorer >> selectArticle: aSelection [
-aSelection selectedItem ifNotNil: [: val|  preview article: val ]
+
+	aSelection selectedItem ifNotNil: [ :val | preview article: val ]
 ]
 
 { #category : #'as yet unclassified' }
 ZoaDatabaseExplorer >> updateViewers [
+
 	articles items: queryModel articles.
-	authors items:( Zoa current findAllAuthors select:[: a | a articles isNotEmpty] )
+	authors items:
+		(Zoa current findAllAuthors select: [ :a | a articles isNotEmpty ]).
+	keywords roots:
+		(queryModel articles flatCollect: [ :t | t keywords ]) asSet asOrderedCollection 
 ]

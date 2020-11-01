@@ -3,7 +3,7 @@ Author brief
 "
 Class {
 	#name : #ZoaAuthorWidget,
-	#superclass : #SpPresenter,
+	#superclass : #ZoaPresenter,
 	#instVars : [
 		'#author => SpObservableSlot',
 		'#nameLabel',

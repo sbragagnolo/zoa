@@ -1,6 +1,6 @@
 Class {
 	#name : #ZoaReviewUI,
-	#superclass : #SpPresenter,
+	#superclass : #ZoaPresenter,
 	#instVars : [
 		'tabs',
 		'tags',
@@ -13,7 +13,8 @@ Class {
 		'toolbar',
 		'review',
 		'preview',
-		'abstractTags'
+		'abstractTags',
+		'codifications'
 	],
 	#category : #'Zoa-UI'
 }
@@ -50,7 +51,7 @@ ZoaReviewUI class >> worldMenuOn: aBuilder [
 		
 ]
 
-{ #category : #adding }
+{ #category : #actions }
 ZoaReviewUI >> addArticles [
 
 	| dialog |
@@ -63,9 +64,8 @@ ZoaReviewUI >> addArticles [
 		yourself
 ]
 
-{ #category : #'as yet unclassified' }
+{ #category : #actions }
 ZoaReviewUI >> addBrief [
-
 	| name |
 	name := UIManager default
 		        request: 'Name the brief'
@@ -78,13 +78,13 @@ ZoaReviewUI >> addBrief [
 	self updateReview
 ]
 
-{ #category : #initialization }
+{ #category : #'data query' }
 ZoaReviewUI >> amountOfArticlesByAffiliation: anAffiliation [
 
 	^(review articles select: [ :a | a article affiliations includes: anAffiliation  ])
 ]
 
-{ #category : #initialization }
+{ #category : #'data query' }
 ZoaReviewUI >> amountOfArticlesPublishedBy: aPublisher [
 
 	^ (review articles select: [ :a | a article publisher = aPublisher ])
@@ -126,7 +126,7 @@ ZoaReviewUI >> articleContextMenu [
 		  yourself
 ]
 
-{ #category : #initialization }
+{ #category : #'data query' }
 ZoaReviewUI >> articlesExcludedFromAuthor: anAuthor [
 
 	^ (review articles select: [ :ref | 
@@ -134,7 +134,7 @@ ZoaReviewUI >> articlesExcludedFromAuthor: anAuthor [
 		  size
 ]
 
-{ #category : #initialization }
+{ #category : #'data query' }
 ZoaReviewUI >> articlesExcludedFromTag: aTag [
 
 	^ (review articles select: [ :ref | 
@@ -142,7 +142,7 @@ ZoaReviewUI >> articlesExcludedFromTag: aTag [
 		  size 
 ]
 
-{ #category : #initialization }
+{ #category : #'data query' }
 ZoaReviewUI >> articlesIncludedFromAuthor: anAuthor [
 
 	^ (review articles select: [ :ref | 
@@ -150,7 +150,7 @@ ZoaReviewUI >> articlesIncludedFromAuthor: anAuthor [
 		  size
 ]
 
-{ #category : #initialization }
+{ #category : #'data query' }
 ZoaReviewUI >> articlesIncludedFromTag: aTag [
 
 	^ (review articles select: [ :ref | 
@@ -158,7 +158,7 @@ ZoaReviewUI >> articlesIncludedFromTag: aTag [
 		  size +1
 ]
 
-{ #category : #'as yet unclassified' }
+{ #category : #actions }
 ZoaReviewUI >> askAndSaveIfNeeded [
 
 	| save |
@@ -168,7 +168,17 @@ ZoaReviewUI >> askAndSaveIfNeeded [
 	save ifTrue: [ Zoa current saveReview: review ]
 ]
 
-{ #category : #'as yet unclassified' }
+{ #category : #'data query' }
+ZoaReviewUI >> briefWidgets [
+
+	^ review briefs collect: [ :b | 
+		  ZoaBriefWidget new
+			  brief: b;
+			  onDelete: [ :br | review briefs remove: br ];
+			  yourself ]
+]
+
+{ #category : #actions }
 ZoaReviewUI >> deleteReview [
 
 	review ifNotNil: [ 
@@ -180,17 +190,14 @@ ZoaReviewUI >> deleteReview [
 				self updateReview  ] ] ]
 ]
 
-{ #category : #initialization }
+{ #category : #actions }
 ZoaReviewUI >> excludeArticleFromReview: anArticleRef [
 
 	| reason codification |
+	codifications := Zoa current findAllCodifications.
 	codification := UIManager default
-		                chooseFrom:
-		                { #NotRelated. #Irrelevant. #TooShort. #GreyLiterature.
-		                #Other }
-		                values:
-		                { #NotRelated. #Irrelevant. #TooShort. #GreyLiterature.
-		                #Other }
+		                chooseFrom: codifications
+		                values: codifications
 		                title: 'Please enter the exclusion codification'.
 
 	codification ifNil: [ ^ self ].
@@ -212,13 +219,25 @@ ZoaReviewUI >> includeArticleIntoReview: anArticleRef [
 ]
 
 { #category : #initialization }
-ZoaReviewUI >> initializeWidgets [
+ZoaReviewUI >> initializeNotebook [
 
-	tabs := self newNotebook.
+	tabs
+		addPage: (self newNotebookPageWith: tags and: 'Keywords');
+		addPage:
+			(self newNotebookPageWith: abstractTags and: 'Abstract Keywords');
+		addPage: (self newNotebookPageWith: query and: 'Query');
+		addPage: (self newNotebookPageWith: articles and: 'Articles');
+		addPage: (self newNotebookPageWith: authors and: 'Authors');
+		addPage: (self newNotebookPageWith: publisher and: 'Publishers');
+		addPage:
+			(self newNotebookPageWith: affiliations and: 'Affiliations');
+		addPage: (self newNotebookPageWith: edition and: 'Edition');
+		addPage: (self newNotebookPageWith: preview and: 'Preview')
+]
 
-	toolbar := self newToolbar.
-	preview := self newText.
-	toolbar
+{ #category : #initialization }
+ZoaReviewUI >> initializeToolbar [
+		toolbar
 		addItemLeft: (self newToolbarButton
 				 icon: (Smalltalk ui icons iconNamed: #glamorousSave);
 				 action: [ self saveReview ];
@@ -244,27 +263,25 @@ ZoaReviewUI >> initializeWidgets [
 				 action: [ self addBrief ];
 				 yourself).
 
+]
+
+{ #category : #initialization }
+ZoaReviewUI >> initializeWidgets [
+
+	tabs := self newNotebook.
+	toolbar := self newToolbar.
+	preview := self newText.
+	self initializeToolbar.
 	tags := self newTagTable.
 	abstractTags := self newAbstractKeywordsTable.
-	query := self newText autoAccept: true.
-	query whenSubmitDo: [ :text | review query: text ].
-
+	query := self newQuery.
 	articles := self newArticleTable.
 	authors := self newAuthorTable.
-		publisher := self newPublisherTable.
+	publisher := self newPublisherTable.
 	affiliations := self newAffiliationTable.
 	edition := self newEditionArea.
-	tabs
-		addPage: (self newNotebookPageWith: tags and: 'Keywords');
-		addPage: (self newNotebookPageWith: abstractTags and: 'Abstract Keywords');
-		addPage: (self newNotebookPageWith: query and: 'Query');
-		addPage:
-			(self newNotebookPageWith: articles and: 'Articles');
-		addPage: (self newNotebookPageWith: authors and: 'Authors') ;
-		addPage: (self newNotebookPageWith:publisher and: 'Publishers') ;
-		addPage: (self newNotebookPageWith: affiliations and: 'Affiliations') ;
-		addPage: (self newNotebookPageWith: edition and: 'Edition') ;
-		addPage: (self newNotebookPageWith: preview and: 'Preview')   
+	self initializeNotebook.
+
 ]
 
 { #category : #initialization }
@@ -275,11 +292,13 @@ ZoaReviewUI >> newAbstractKeywordsTable [
 
 	table
 		sortingBlock: [ :a :b | a key < b key ];
+		addColumn: ((SpStringTableColumn
+				  title: '#'
+				  evaluated: [ :item | item value ])
+				 width: 40;
+				 yourself);
 		addColumn:
-			(SpStringTableColumn title: 'Word' evaluated: [ :item | item key ]);
-		addColumn: (SpStringTableColumn
-				 title: 'Appearances'
-				 evaluated: [ :item | item value ]);
+		(SpStringTableColumn title: 'Word' evaluated: [ :item | item key ]);
 		beResizable.
 	^ table
 ]
@@ -371,22 +390,6 @@ ZoaReviewUI >> newAuthorTable [
 ]
 
 { #category : #initialization }
-ZoaReviewUI >> newEditionArea [
-
-	^ self instantiate: SpComponentListPresenter
-]
-
-{ #category : #initialization }
-ZoaReviewUI >> newNotebookPageWith: aProvider and: aTitle [
-
-	^ self newNotebookPage
-		  title: aTitle;
-		  icon: (self iconNamed: #nautilusIcon);
-		  presenterProvider: aProvider;
-		  yourself
-]
-
-{ #category : #initialization }
 ZoaReviewUI >> newPublisherTable [
 
 	| table |
@@ -408,7 +411,17 @@ ZoaReviewUI >> newPublisherTable [
 	^ table
 ]
 
-{ #category : #'instance creation' }
+{ #category : #initialization }
+ZoaReviewUI >> newQuery [
+
+	| comp |
+	comp := self newText autoAccept: true.
+	comp whenSubmitDo: [ :text | review query: text ].
+
+	^ comp
+]
+
+{ #category : #actions }
 ZoaReviewUI >> newReview [
 
 	| new title |
@@ -452,7 +465,7 @@ ZoaReviewUI >> newTagTable [
 				 addColumn: (SpStringTableColumn evaluated: #name);
 				 yourself);
 	
-		roots: { Object };
+		roots: {  };
 		children: [ :aTag | 
 			(aTag isKindOf: ZoaTag)
 				ifTrue: [ aTag articles asOrderedCollection ]
@@ -461,7 +474,7 @@ ZoaReviewUI >> newTagTable [
 	^ table
 ]
 
-{ #category : #'as yet unclassified' }
+{ #category : #actions }
 ZoaReviewUI >> openReview [
 
 	| reviews opening |
@@ -473,7 +486,13 @@ ZoaReviewUI >> openReview [
 	opening ifNotNil: [ self review: opening ]
 ]
 
-{ #category : #'as yet unclassified' }
+{ #category : #'data query' }
+ZoaReviewUI >> previewTextModel [
+
+	^ MicroDownParser asText: review microdownBrief
+]
+
+{ #category : #'update and set' }
 ZoaReviewUI >> review: aZoaReview [ 
 	review ifNotNil: [  
 		self askAndSaveIfNeeded.	
@@ -482,7 +501,7 @@ ZoaReviewUI >> review: aZoaReview [
 	 self updateReview.
 ]
 
-{ #category : #'as yet unclassified' }
+{ #category : #actions }
 ZoaReviewUI >> saveReview [
 
 	review ifNotNil: [ 
@@ -490,10 +509,9 @@ ZoaReviewUI >> saveReview [
 		self updateReview ]
 ]
 
-{ #category : #'as yet unclassified' }
+{ #category : #'update and set' }
 ZoaReviewUI >> updateReview [
 
-	| briefs |
 	review ifNil: [ 
 		tags roots: {  }.
 		abstractTags items: {  }.
@@ -509,21 +527,9 @@ ZoaReviewUI >> updateReview [
 	articles items: review articles.
 	authors items: review authors.
 	query text: (review query ifNil: [ '' ]).
-	preview text: (MicroDownParser asText: review microdownBrief).
-	publisher items:
-		(review articles collect: [ :a | a article publisher ]) asSet
-			asOrderedCollection.
+	preview text: self previewTextModel.
+	publisher items: review publishers.
 	affiliations items: review affiliations.
-
-	review briefs ifEmpty: [ 
-		review briefs add: (ZoaBrief new
-				 name: #Motivation;
-				 yourself) ].
-	briefs := review briefs collect: [ :b | 
-		          ZoaBriefWidget new
-			          brief: b;
-			          onDelete: [ :br | review briefs remove: br ];
-			          yourself ].
 	abstractTags items: review abstractKeywords associations.
-	edition items: briefs
+	edition items: self briefWidgets
 ]

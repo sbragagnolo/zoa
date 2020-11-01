@@ -1,6 +1,6 @@
 Class {
 	#name : #ZoaTagsWidget,
-	#superclass : #SpPresenter,
+	#superclass : #ZoaPresenter,
 	#instVars : [
 		'#tags => SpObservableSlot',
 		'#table',
