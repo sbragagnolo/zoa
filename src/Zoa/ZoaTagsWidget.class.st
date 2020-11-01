@@ -4,7 +4,9 @@ Class {
 	#instVars : [
 		'#tags => SpObservableSlot',
 		'#table',
-		'#bar'
+		'#bar',
+		'#onAddTags',
+		'#onDeleteTag'
 	],
 	#category : #'Zoa-UI'
 }
@@ -26,6 +28,7 @@ ZoaTagsWidget >> addTag [
 		name: name;
 		yourself.
 	tags add: tag.
+	onAddTags value: tag.
 	self updateTags.
 ]
 
@@ -42,6 +45,8 @@ ZoaTagsWidget >> initializePrivateAnnouncements [
 
 { #category : #initialization }
 ZoaTagsWidget >> initializeWidgets [
+	onAddTags  := [ :v |  ].
+	onDeleteTag :=onAddTags .
 	table := self newTable
 		addColumn: (SpStringTableColumn evaluated: #name);
 		yourself.
@@ -58,8 +63,22 @@ ZoaTagsWidget >> initializeWidgets [
 ]
 
 { #category : #initialization }
+ZoaTagsWidget >> onAddTags: aBlock [
+	onAddTags := aBlock
+]
+
+{ #category : #initialization }
+ZoaTagsWidget >> onDeleteTag: aBlock [
+	onDeleteTag := aBlock
+]
+
+{ #category : #initialization }
 ZoaTagsWidget >> removeTag [
-	tags remove: table selection selectedItem .
+
+	| tag |
+	tag := table selection selectedItem.
+	tags remove: tag.
+	onDeleteTag value: tag.
 	self updateTags
 ]
 
@@ -70,7 +89,7 @@ ZoaTagsWidget >> tags [
 
 { #category : #initialization }
 ZoaTagsWidget >> tags: aCollectionOfTags [
-	tags := aCollectionOfTags
+	tags := aCollectionOfTags asOrderedCollection 
 ]
 
 { #category : #initialization }

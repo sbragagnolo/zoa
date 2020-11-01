@@ -90,8 +90,8 @@ ZoaArticleViewer >> currentBriefs [
 
 { #category : #'data query' }
 ZoaArticleViewer >> currentTags [
-	^ article tags , article keywords
-		collect: [ :t | ZoaTagKeywordWidget new tag: t ]
+
+	^ (article tags , article keywords) asOrderedCollection 
 ]
 
 { #category : #actions }
@@ -192,22 +192,22 @@ ZoaArticleViewer >> initializeWidgets [
 
 	toolBar := self newToolbar.
 	self initializeToolbar.
-	
-	
 	abstract := self newText.
 	authors := self newAuthorList.
 	tags := self newTagsList.
+	tags onDeleteTag: [ :t | article removeKeyword:  t ]. 
+	tags onAddTags: [ :t | article addKeyword: t ].
 	view := self instantiate: SpComponentListPresenter.
-	
+
 	preview := self newText.
-	htmlRefs  := self newText.
+	htmlRefs := self newText.
 	viewTabs := self newNotebook.
 	self initializeViewtabs.
-	
+
 	data := self newDataTable.
 	references := self newReferenceTable.
 	tabs := self newNotebook.
-	self initializeNotebook.
+	self initializeNotebook
 ]
 
 { #category : #actions }
@@ -281,7 +281,7 @@ ZoaArticleViewer >> newReferenceTable [
 { #category : #initialization }
 ZoaArticleViewer >> newTagsList [
 
-	^ self instantiate: SpComponentListPresenter
+	^ self instantiate: ZoaTagsWidget 
 ]
 
 { #category : #initialization }
@@ -316,14 +316,13 @@ ZoaArticleViewer >> saveArticle [
 
 { #category : #'update and set' }
 ZoaArticleViewer >> updateArticle [
-	article
-		ifNotNil: [ 
-			
-			tags items: self currentTags.
-			authors items: self currentAuthors.
-			data items: article data associations.
-			references items: (article getAllReferences ).
-			view items: self currentBriefs.
-			preview text: (MicroDownParser asText: article microdownBrief ).
-			abstract text:( article abstract ifNil: [ '' ]) ]
+
+	article ifNotNil: [ 
+		tags tags: self currentTags.
+		authors items: self currentAuthors.
+		data items: article data associations.
+		references items: article getAllReferences.
+		view items: self currentBriefs.
+		preview text: (MicroDownParser asText: article microdownBrief).
+		abstract text: (article abstract ifNil: [ '' ]) ]
 ]

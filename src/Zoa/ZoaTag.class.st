@@ -58,3 +58,9 @@ ZoaTag >> name: aName [
 ZoaTag >> printOn: aStream [
 	aStream nextPutAll:'Tag('; nextPutAll: name; nextPutAll:')'.
 ]
+
+{ #category : #removing }
+ZoaTag >> removeArticle: aZoaArticle [
+
+	articles remove: aZoaArticle
+]

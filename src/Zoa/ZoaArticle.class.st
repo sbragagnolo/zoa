@@ -62,6 +62,12 @@ ZoaArticle >> addBrief: aBrief [
 	briefs add: aBrief
 ]
 
+{ #category : #accessing }
+ZoaArticle >> addKeyword: aKeyword [
+ 	keywords add: aKeyword .
+	aKeyword addArticle: self
+]
+
 { #category : #reference }
 ZoaArticle >> addReference: aZoaArticleArticleReference [ 
 	references add: aZoaArticleArticleReference.
@@ -76,16 +82,6 @@ ZoaArticle >> affiliations [
 { #category : #accessing }
 ZoaArticle >> allReferences [ 
 	^ Zoa current allReferencesRelatedWith: self
-]
-
-{ #category : #accessing }
-ZoaArticle >> arrayKeywords [
-	^ self keywords asArray 
-]
-
-{ #category : #accessing }
-ZoaArticle >> arrayTags [
-	^ self tags asArray 
 ]
 
 { #category : #accessing }
@@ -337,7 +333,7 @@ ZoaArticle >> keywords [
 
 { #category : #accessing }
 ZoaArticle >> keywords: aCollection [
-	keywords := aCollection
+	keywords := aCollection asOrderedCollection 
 ]
 
 { #category : #accessing }
@@ -531,6 +527,12 @@ ZoaArticle >> publisher: aPublisherSymbol [
 { #category : #accessing }
 ZoaArticle >> references [
 	^ references
+]
+
+{ #category : #accessing }
+ZoaArticle >> removeKeyword: aKeyword [
+ 	keywords remove: aKeyword .
+	aKeyword removeArticle: self
 ]
 
 { #category : #accessing }

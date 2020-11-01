@@ -128,18 +128,6 @@ ZoaArticleArticleReference >> text: aString [
 ]
 
 { #category : #accessing }
-ZoaArticleArticleReference >> to [
-	^ to ifNil: [ 
-		to := Zoa current loadAndSaveArticle: reference.
-		from references remove: self .
-		from references add: self. 
-		Zoa current saveArticle: from.
-		Zoa current saveArticle: to.
-		to
-	 ]
-]
-
-{ #category : #accessing }
 ZoaArticleArticleReference >> to: anArticle [
 	to := anArticle
 ]

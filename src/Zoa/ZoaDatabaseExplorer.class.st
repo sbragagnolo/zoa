@@ -231,7 +231,7 @@ ZoaDatabaseExplorer >> newAuthorsView [
 		sortingBlock: [ :a :b | a fullName < b fullName ];
 		addColumn: (SpStringTableColumn title: 'CiteName' evaluated: [ :item | item citeName asString ]);
 		addColumn: (SpStringTableColumn title: 'Articles' evaluated: [ :item | item articles size asString ]);
-		addColumn: (SpStringTableColumn title: 'Keywords' evaluated: [ :item |  ';' join: (item articles flatCollect: [ :a | a arrayKeywords ]) ]);
+		addColumn: (SpStringTableColumn title: 'Keywords' evaluated: [ :item |  ';' join: (item articles flatCollect: [ :a | a keywords ]) ]);
 		beResizable.
 	^ table
 ]

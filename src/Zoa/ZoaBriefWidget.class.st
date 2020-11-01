@@ -43,11 +43,6 @@ ZoaBriefWidget >> brief: aBrief [
 	brief := aBrief
 ]
 
-{ #category : #'data query' }
-ZoaBriefWidget >> currentTags [
-	^ brief tags collect: [ :t | ZoaTagKeywordWidget new tag: t ]
-]
-
 { #category : #actions }
 ZoaBriefWidget >> deleteBrief [
 	onDelete ifNotNil: [ onDelete cull: brief ].
@@ -77,16 +72,19 @@ ZoaBriefWidget >> initializeToolbar [
 
 { #category : #initialization }
 ZoaBriefWidget >> initializeWidgets [
+
 	nameLabel := self newLabel.
 	toolBar := self newToolbar.
 	self initializeToolbar.
-	
+
 	includeInText := self newButton.
 	includeInText action: [ self toggleIncludeText ].
 
 	text := self newText.
 	text whenEditableChangedDo: [ self saveBrief ].
 	tags := self instantiate: ZoaTagsWidget.
+	tags onDeleteTag: [ :t | brief tags remove: t ].
+	tags onAddTags: [ :t | brief tags add: t ].
 	actions := self newActionBar.
 	actions add: includeInText
 ]

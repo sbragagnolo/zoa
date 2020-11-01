@@ -58,6 +58,12 @@ ZoaTagKeywordWidget >> initializeWidgets [
 ]
 
 { #category : #accessing }
+ZoaTagKeywordWidget >> name [
+
+	^ nameLabel
+]
+
+{ #category : #accessing }
 ZoaTagKeywordWidget >> nameLabel [
 	^ nameLabel
 ]
