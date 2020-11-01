@@ -17,7 +17,7 @@ Class {
 { #category : #specs }
 ZoaDatabaseExplorer class >> defaultSpec [
 	^ SpBoxLayout newVertical
-		add: #toolbar height: self toolbarHeight;
+		add: #toolbar height: self toolbarHeight * 1.5;
 		add:
 			(SpPanedLayout newHorizontal
 				position: 20 percent;
@@ -158,20 +158,44 @@ ZoaDatabaseExplorer >> initializeQuery [
 ]
 
 { #category : #initialization }
-ZoaDatabaseExplorer >> initializeToolbar [.
+ZoaDatabaseExplorer >> initializeToolbar [
+
 	toolbar addItemLeft: (self newToolbarButton
-			 icon: (Smalltalk ui icons iconNamed: #add);
-			 action: [ self importArticleUrl ] yourself).
+			 label: 'Import';
+			 icon: (self iconNamed: #glamorousCloud);
+			 help: 'Import Article Using URL';
+			 action: [ self importArticleUrl ];
+			 yourself).
+
+
 	toolbar addItemLeft: (self newToolbarButton
-			 icon: (Smalltalk ui icons iconNamed: #add);
-			 action: [ self importArticleDoi ] yourself).
+			 label: 'Import';
+			 icon: (self iconNamed: #smallBarcode);
+			 help: 'Import Article Using DOI';
+			 action: [ self importArticleDoi ];
+			 yourself).
+
 	toolbar addItemLeft: (self newToolbarButton
-			 icon: (Smalltalk ui icons iconNamed: #refresh);
-			 action: [ self updateViewers ] yourself).
+			 label: 'Create';
+			 icon: (self iconNamed: #glamorousAdd);
+			 help: 'Create New Article';
+			 action: [ self createNewArticle ];
+			 yourself).
+
 	toolbar addItemLeft: (self newToolbarButton
-			 icon: (Smalltalk ui icons iconNamed: #remove);
-			 action: [ self removeAll ] yourself).
-	
+			 label: 'Refresh';
+			 icon: (self iconNamed: #glamorousRefresh);
+			 help: 'Refresh UI';
+			 action: [ self updateViewers ];
+			 yourself).
+
+	toolbar addItemRight: (self newToolbarButton
+			 label: 'Destroy';
+			 icon: (self iconNamed: #packageDelete);
+			 help: 'Destroys the WHOLE DB. Reviews included.';
+			 action: [ self removeAll ];
+			 yourself).
+
 ]
 
 { #category : #initialization }
@@ -180,8 +204,8 @@ ZoaDatabaseExplorer >> initializeWidgets [
 	super initializeWidgets.
 	queryModel := ZoaQueryModel new. 
 	toolbar := self newToolbar.
-	self initializeToolbar.
 	
+	self initializeToolbar.
 	self initializeQuery. 
 	
 	listables := self newNotebook.

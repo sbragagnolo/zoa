@@ -31,7 +31,7 @@ ZoaArticleAuthorReference >> addAffiliation: aString [
 { #category : #accessing }
 ZoaArticleAuthorReference >> affiliation [
 
-	^ affiliation
+	^ affiliation ifNil: [ affiliation := Set new ]
 ]
 
 { #category : #accessing }

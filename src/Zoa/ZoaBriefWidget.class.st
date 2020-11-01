@@ -26,14 +26,14 @@ ZoaBriefWidget class >> defaultSpec [
 			(SpPanedLayout newHorizontal
 				add: #text;
 				add: #tags;
-				position: 850;
+				position: 90 percent ;
 				yourself)
 			withConstraints: [ :constraints | 
 				constraints
 					expand: true;
 					fill: true;
 					padding: 20;
-					height: 200 ];
+					height: 300 ];
 		add: #actions height: self toolbarHeight;
 		yourself
 ]

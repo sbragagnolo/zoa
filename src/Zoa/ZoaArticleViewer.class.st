@@ -7,7 +7,6 @@ Class {
 	#instVars : [
 		'#article => SpObservableSlot',
 		'#view',
-		'#viewTabs',
 		'#preview',
 		'#tags',
 		'#authors',
@@ -28,13 +27,9 @@ Class {
 ZoaArticleViewer class >> defaultSpec [
 
 	^ SpBoxLayout newVertical
-		  add: #toolBar height: self toolbarHeight;
-		  add: (SpPanedLayout newHorizontal
-				   position: 250;
-				   add: (SpBoxLayout newVertical
-						    add: #tabs;
-						    yourself);
-				   add: #viewTabs;
+		  add: #toolBar height: self toolbarHeight * 1.5;
+		  add: (SpBoxLayout newVertical
+				   add: #tabs;
 				   yourself)
 ]
 
@@ -140,11 +135,16 @@ ZoaArticleViewer >> initializeNotebook [
 			 newNotebookPageWith: [ 
 				 self newStackedComponentWith: { 
 						 abstract.
+						 authors.
 						 data.
 						 tags } ]
 			 and: 'Metadata').
-	tabs addPage: (self newNotebookPageWith: authors and: 'Authors')
-
+	tabs addPage: (self newNotebookPageWith: authors and: 'Authors').
+	
+	tabs addPage:
+		(self newNotebookPageWith: view and: 'Briefs Editor').
+	tabs addPage:
+		(self newNotebookPageWith: preview and: 'Text preview')
 	
 ]
 
@@ -158,33 +158,51 @@ ZoaArticleViewer >> initializePrivateAnnouncements [
 { #category : #initialization }
 ZoaArticleViewer >> initializeToolbar [
 
-	toolBar addItemLeft: (self newToolbarButton
-			 icon: (Smalltalk ui icons iconNamed: #add);
-			 action: [ self addBrief ] yourself).
-	toolBar addItemLeft: (self newToolbarButton
-			 icon: (Smalltalk ui icons iconNamed: #refresh);
-			 action: [ self reloadArticle ] yourself).
-	toolBar addItemLeft: (self newToolbarButton
-			 icon: (Smalltalk ui icons iconNamed: #open);
-			 action: [ self openArticlePdf ] yourself).
-	toolBar addItemRight: (self newToolbarButton
-			 label: 'Save';
-			 action: [ self saveArticle ] yourself).
-	toolBar addItemRight: (self newToolbarButton
-			 label: 'Export';
-			 action: [ self exportArticle ] yourself).
 	toolBar addItemRight: (self newToolbarButton
 			 label: 'Delete';
-			 action: [ self deleteArticle ] yourself)
-]
+			 icon: (self iconNamed: #smallDelete);
+			 help: 'Deletes the spotted article';
+			 action: [ self deleteArticle ];
+			 yourself).
+	toolBar addItemLeft: (self newToolbarButton
+			 label: 'Save';
+			 icon: (self iconNamed: #smallSave);
+			 help: 'Save changes in the spotted article';
+			 action: [ self saveArticle ];
+			 yourself).
 
-{ #category : #initialization }
-ZoaArticleViewer >> initializeViewtabs [
+	toolBar addItemLeft: (self newToolbarButton
+			 label: 'Refresh';
+			 icon: (self iconNamed: #glamorousRefresh);
+			 help: 'Refresh the spotted article';
+			 action: [ self reloadArticle ];
+			 yourself).
+			
+	
+	toolBar addItemLeft: (self newToolbarButton
+			 label: 'Comment';
+			 icon: (self iconNamed: #announcement);
+			 help: 'Add new brief comment to the spotted article ';
+			 action: [ self addBrief ];
+			 yourself).
+	
+		
+	toolBar addItemLeft: (self newToolbarButton
+			 label: 'Read';
+			 icon: (self iconNamed: #smallInspectIt);
+			 help: 'Read the spotted article';
+			 action: [ self openArticlePdf ];
+			 yourself).
+	
+	toolBar addItemLeft: (self newToolbarButton
+			 label: 'Export';
+			 icon: (self iconNamed: #smallExport);
+			 help: 'Export spotted article';
+			 action: [ self exportArticle ];
+			 yourself).
+	
 
-	viewTabs addPage:
-		(self newNotebookPageWith: view and: 'Briefs Editor').
-	viewTabs addPage:
-		(self newNotebookPageWith: preview and: 'Text preview')
+
 ]
 
 { #category : #initialization }
@@ -201,8 +219,7 @@ ZoaArticleViewer >> initializeWidgets [
 
 	preview := self newText.
 	htmlRefs := self newText.
-	viewTabs := self newNotebook.
-	self initializeViewtabs.
+
 
 	data := self newDataTable.
 	references := self newReferenceTable.

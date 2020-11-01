@@ -46,7 +46,7 @@ ZoaReview >> addArticle: anArticle [
 { #category : #accessing }
 ZoaReview >> affiliations [
 
-	^ (articles flatCollect: [ :a | a article affiliations flatCollect:#asOrderedCollection  ]) asSet
+	^ (articles flatCollect: [ :a | a article affiliations  ]) asSet
 		  asOrderedCollection select:[: i | i isNotNil ] thenCollect: [ :a | a isString ifTrue: [ a ] ifFalse:[ a first] ]
 ]
 
