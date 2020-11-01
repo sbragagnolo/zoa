@@ -36,7 +36,7 @@ ZoaArticleDialog >> filterArticles: aCollectionOfArticles [
 { #category : #initialization }
 ZoaArticleDialog >> initializePresenters [
 	super initializePresenters. 
-	articles items: Zoa current findAllArticles 
+	articles items: zoa findAllArticles 
 ]
 
 { #category : #initialization }
@@ -47,12 +47,12 @@ ZoaArticleDialog >> initializeWidgets [
 
 	articles := self newTable.
 	preview := self newText.
-	articles := self newArticleTable. 
+	articles := self newArticleTableUsing: zoa. 
 	
 ]
 
 { #category : #initialization }
-ZoaArticleDialog >> newArticleTable [
+ZoaArticleDialog >> newArticleTableUsing: aZoa [
 
 	^ self newTable
 		  sortingBlock: [ :a :b | a title < b title ];
@@ -79,6 +79,7 @@ ZoaArticleDialog >> newArticleTable [
 			   evaluated: [ :item | item title ]);
 		  whenSelectionChangedDo: [ :selection | 
 			  selection selectedItem ifNotNil: [ :article | 
-				  preview text: (MicroDownParser asText: article microdownBrief) ] ];
+				  preview text:
+					  (MicroDownParser asText: (article microdownBriefUsing: aZoa)) ] ];
 		  beResizable
 ]

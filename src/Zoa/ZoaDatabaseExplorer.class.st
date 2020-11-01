@@ -92,30 +92,28 @@ ZoaDatabaseExplorer >> focusOn: aZoaArticle [
 
 { #category : #actions }
 ZoaDatabaseExplorer >> importArticleDoi [
-	| doi |
-	
-	doi := UIManager default request: 'Insert a DOI to an article to import' 
-		initialAnswer: '' 
-		title: 'Import Article From DOI'.
-	doi ifNil: [ ^ self ].
-	Zoa current loadAndSaveArticleDoi: doi. 
-	self updateViewers.
 
-	
+	| doi |
+	doi := UIManager default
+		       request: 'Insert a DOI to an article to import'
+		       initialAnswer: ''
+		       title: 'Import Article From DOI'.
+	doi ifNil: [ ^ self ].
+	zoa loadAndSaveArticleDoi: doi.
+	self updateViewers
 ]
 
 { #category : #actions }
 ZoaDatabaseExplorer >> importArticleUrl [
-	| url |
-	
-	url := UIManager default request: 'Insert a url to an article to import' 
-		initialAnswer: 'http://' 
-		title: 'Import Article From URL'.
-	url ifNil: [ ^ self ].
-	Zoa current loadAndSaveArticleUrl: url asZnUrl . 
-	self updateViewers.
 
-	
+	| url |
+	url := UIManager default
+		       request: 'Insert a url to an article to import'
+		       initialAnswer: 'http://'
+		       title: 'Import Article From URL'.
+	url ifNil: [ ^ self ].
+	zoa loadAndSaveArticleUrl: url asZnUrl.
+	self updateViewers
 ]
 
 { #category : #actions }
@@ -130,13 +128,13 @@ ZoaDatabaseExplorer >> importCitationsAndReferences: anArticle [
 		visitor := ZoaIEEEVisitor new.
 		visitor article: anArticle.
 		html acceptNodeVisitor: visitor.
-		Zoa current saveArticle: anArticle 
-		]
+		zoa saveArticle: anArticle ]
 ]
 
 { #category : #actions }
 ZoaDatabaseExplorer >> importReferences: anArticle [
-	Zoa current importAllReferencesRelatedWith: anArticle .
+
+	zoa importAllReferencesRelatedWith: anArticle.
 	self updateViewers
 ]
 
@@ -202,12 +200,13 @@ ZoaDatabaseExplorer >> initializeToolbar [
 ZoaDatabaseExplorer >> initializeWidgets [
 
 	super initializeWidgets.
-	queryModel := ZoaQueryModel new. 
+	queryModel := ZoaQueryModel new.
+	queryModel zoa: zoa.
 	toolbar := self newToolbar.
-	
+
 	self initializeToolbar.
-	self initializeQuery. 
-	
+	self initializeQuery.
+
 	listables := self newNotebook.
 	articles := self newArticleView.
 	authors := self newAuthorsView.
@@ -308,9 +307,9 @@ ZoaDatabaseExplorer >> openArticleMetadata: anArticle [
 ]
 
 { #category : #actions }
-ZoaDatabaseExplorer >> readPdf: anArticle [
+ZoaDatabaseExplorer >> readPdf: anArticle using: aZoa [
 
-	(#open command arguments: { anArticle pdfFile fullName }) schedule
+	(#open command arguments: { (anArticle pdfFileUsing: aZoa) fullName }) schedule
 ]
 
 { #category : #actions }
@@ -320,7 +319,8 @@ ZoaDatabaseExplorer >> removeAll [
 		 ' This command is going to delete the whole database. Are you sure? ') 
 		ifTrue: [ 
 			(UIManager default confirm: ' You have a second chance! ') ifTrue: [ 
-				Zoa current dropDatabase  . self updateViewers  ] ].
+				zoa dropDatabase.
+				self updateViewers ] ]
 ]
 
 { #category : #actions }
@@ -334,7 +334,8 @@ ZoaDatabaseExplorer >> updateViewers [
 
 	articles items: queryModel articles.
 	authors items:
-		(Zoa current findAllAuthors select: [ :a | a articles isNotEmpty ]).
+		(zoa findAllAuthors select: [ :a | a articles isNotEmpty ]).
 	keywords roots:
-		(queryModel articles flatCollect: [ :t | t keywords ]) asSet asOrderedCollection 
+		(queryModel articles flatCollect: [ :t | t keywords ]) asSet
+			asOrderedCollection
 ]

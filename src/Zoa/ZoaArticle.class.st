@@ -79,11 +79,6 @@ ZoaArticle >> affiliations [
 ]
 
 { #category : #accessing }
-ZoaArticle >> allReferences [ 
-	^ Zoa current allReferencesRelatedWith: self
-]
-
-{ #category : #accessing }
 ZoaArticle >> arxivId [
 	^ data at:#arxiv
 ]
@@ -170,13 +165,14 @@ ZoaArticle >> cite [
 ]
 
 { #category : #accessing }
-ZoaArticle >> citedBy [ 
-	^ Zoa current allIncomingReferencesTo: self  
+ZoaArticle >> citedByUsing: aZoa [
+	^ aZoa allIncomingReferencesTo: self  
 ]
 
 { #category : #accessing }
-ZoaArticle >> cites [ 
-	^ Zoa current allOutgoingReferencesFrom: self 
+ZoaArticle >> citesUsing: aZoa [
+
+	^ aZoa allOutgoingReferencesFrom: self
 ]
 
 { #category : #accessing }
@@ -358,7 +354,7 @@ ZoaArticle >> mergeWith: aZoaArticle [
 ]
 
 { #category : #reference }
-ZoaArticle >> microdownBrief [
+ZoaArticle >> microdownBriefUsing: aZoa [
 
 	^ String streamContents: [ :str | 
 		  str
@@ -421,18 +417,18 @@ ZoaArticle >> microdownBrief [
 		  str
 			  nextPutAll: '###This article is cited by';
 			  cr.
-		  self citedBy do: [ :r | 
+		  (self citedByUsing: aZoa) do: [ :r | 
 			  str
 				  nextPutAll: ' ';
-				  nextPutAll: (r referenceEntryInRelationWith: self zoa: Zoa current );
+				  nextPutAll: (r referenceEntryInRelationWith: self zoa: aZoa);
 				  cr ].
 		  str
 			  nextPutAll: '###This article Cites';
 			  cr.
-		  self cites do: [ :r | 
+		  (self citesUsing: aZoa) do: [ :r | 
 			  str
 				  nextPutAll: ' ';
-				  nextPutAll: (r referenceEntryInRelationWith: self zoa: Zoa current );
+				  nextPutAll: (r referenceEntryInRelationWith: self zoa: aZoa);
 				  cr ].
 
 		  str
@@ -469,8 +465,8 @@ ZoaArticle >> pages: aCollection [
 ]
 
 { #category : #accessing }
-ZoaArticle >> pdfFile [
-	^ Zoa current pdfFileFor: self 
+ZoaArticle >> pdfFileUsing: aZoa [
+	^ aZoa current pdfFileFor: self 
 ]
 
 { #category : #accessing }

@@ -111,7 +111,7 @@ Zoa >> exportArticle: anArticle to: aFolder [
 		         ensureCreateFile;
 		         writeStream.
 
-	brief nextPutAll: anArticle microdownBrief.
+	brief nextPutAll: (anArticle microdownBriefUsing: self).
 	brief
 		flush;
 		close

@@ -14,8 +14,7 @@ Class {
 		'#tabs',
 		'#references',
 		'#allArticles',
-		'#htmlRefs',
-		'#zoa'
+		'#htmlRefs'
 	],
 	#category : #'Zoa-UI'
 }
@@ -73,7 +72,7 @@ ZoaArticleViewer >> currentBriefs [
 
 { #category : #actions }
 ZoaArticleViewer >> deleteArticle [
-	Zoa current delete: article.
+	zoa delete: article.
 	self inform: 'Deleted from database... '.
 	owner updateViewers .
 ]
@@ -99,7 +98,7 @@ ZoaArticleViewer >> exportArticle [
 	folder := UIManager default
 		          chooseDirectory: 'Exporting directory'
 		          from: PlatformResolver forCurrentPlatform home.
-	folder ifNotNil: [ Zoa current exportArticle: article to: folder ]
+	folder ifNotNil: [ zoa exportArticle: article to: folder ]
 ]
 
 { #category : #initialization }
@@ -113,9 +112,6 @@ ZoaArticleViewer >> initializeNotebook [
 
 	tabs addPage:
 		(self newNotebookPageWith: [ references ] and: 'References').
-	tabs addPage:
-		(self newNotebookPageWith: [ metadata ] and: 'Metadata').
-
 	tabs addPage: (self newNotebookPageWith: view and: 'Briefs Editor').
 	tabs addPage: (self newNotebookPageWith: preview and: 'Text preview')
 ]
@@ -188,7 +184,6 @@ ZoaArticleViewer >> initializeWidgets [
 
 	preview := self newText.
 	htmlRefs := self newText.
-	metadata := self instantiate: ZoaArticleMetadata.
 	references := self newReferenceTable.
 	tabs := self newNotebook.
 	self initializeNotebook
@@ -196,19 +191,24 @@ ZoaArticleViewer >> initializeWidgets [
 
 { #category : #actions }
 ZoaArticleViewer >> load: item [
-	item toReference  ensureIsLoadedInto: Zoa current .
-	item fromReference ensureIsLoadedInto: Zoa current .  
-	owner updateViewers 
+
+	item toReference ensureIsLoadedInto: zoa.
+	item fromReference ensureIsLoadedInto: zoa.
+	owner updateViewers
 ]
 
 { #category : #actions }
 ZoaArticleViewer >> loadOrRead: item [
-"["
-	(item hasResolvedReferenceIn: Zoa current )
-		ifTrue: [ [owner readPdf: (item oppositeArticleTo: article )] on: Error do: [ :e | self inform: e messageText ]. ]
-		ifFalse: [ self load: item ]
-		
-		"] on: Error do: [ :e | self inform: e messageText  ]"
+
+	"["
+
+	(item hasResolvedReferenceIn: zoa)
+		ifTrue: [ 
+			[ owner readPdf: (item oppositeArticleTo: article) ]
+				on: Error
+				do: [ :e | self inform: e messageText ] ]
+		ifFalse: [ "] on: Error do: [ :e | self inform: e messageText  ]" 
+			self load: item ]
 ]
 
 { #category : #initialization }
@@ -242,7 +242,7 @@ ZoaArticleViewer >> newReferenceTable [
 		  addColumn: ((SpLinkTableColumn
 				    title: 'Load'
 				    evaluated: [ :item | 
-					    (item hasResolvedReferenceIn: Zoa current)
+					    (item hasResolvedReferenceIn: zoa)
 						    ifTrue: [ 'READ' ]
 						    ifFalse: [ 'LOAD' ] ]
 				    action: [ :item | self loadOrRead: item ])
@@ -251,7 +251,7 @@ ZoaArticleViewer >> newReferenceTable [
 		  addColumn: (SpStringTableColumn
 				   title: 'Reference'
 				   evaluated: [ :item | 
-				   item referenceEntryInRelationWith: article zoa: Zoa current ]);
+				   item referenceEntryInRelationWith: article zoa: zoa ]);
 		  beResizable;
 		  yourself
 ]
@@ -270,7 +270,7 @@ ZoaArticleViewer >> openArticlePdf [
 { #category : #'data query' }
 ZoaArticleViewer >> referencesFor: anArticle [
 
-	 allArticles := Zoa current findAllArticles .
+	allArticles := zoa findAllArticles.
 	^ (allArticles flatCollect: [ :a | a references ]) select: [ :ref | 
 		  ref isRelatedWith: anArticle ]
 ]
@@ -282,7 +282,8 @@ ZoaArticleViewer >> reloadArticle [
 
 { #category : #actions }
 ZoaArticleViewer >> saveArticle [
-	Zoa new saveArticle: article.
+
+	zoa saveArticle: article.
 	self inform: 'Saved into database..'
 ]
 
@@ -292,6 +293,6 @@ ZoaArticleViewer >> updateArticle [
 	article ifNotNil: [ 
 		references items: article getAllReferences.
 		view items: self currentBriefs.
-		preview text: (MicroDownParser asText: article microdownBrief).
-		metadata article: article ]
+		preview text:
+			(MicroDownParser asText: (article microdownBriefUsing: zoa)) ]
 ]

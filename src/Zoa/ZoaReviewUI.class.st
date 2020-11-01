@@ -92,7 +92,7 @@ ZoaReviewUI >> amountOfArticlesPublishedBy: aPublisher [
 ]
 
 { #category : #initialization }
-ZoaReviewUI >> articleContextMenu [
+ZoaReviewUI >> articleContextMenuUsing: aZoa [
 
 	^ self newMenu
 		  addGroup: [ :aGroup | 
@@ -122,7 +122,8 @@ ZoaReviewUI >> articleContextMenu [
 						  name: 'Read!';
 						  action: [ 
 							  (#open command arguments:
-									   { articles selectedItem article pdfFile fullName }) schedule ] ] ];
+									   { (articles selectedItem article pdfFileUsing: aZoa)
+										   fullName }) schedule ] ] ];
 		  yourself
 ]
 
@@ -165,7 +166,7 @@ ZoaReviewUI >> askAndSaveIfNeeded [
 	save := UIManager default questionWithoutCancel:
 		        'You are about to open an other review. Do you want to save  '
 		        , review title , ' before closing? '.
-	save ifTrue: [ Zoa current saveReview: review ]
+	save ifTrue: [ zoa saveReview: review ]
 ]
 
 { #category : #'data query' }
@@ -185,16 +186,16 @@ ZoaReviewUI >> deleteReview [
 		(UIManager default questionWithoutCancel:
 			 'Are you sure about deleting ' , review title , ' ? ') ifTrue: [ 
 			(UIManager default questionWithoutCancel: 'Deadly sure?') ifTrue: [ 
-				Zoa current delete: review.
+				zoa delete: review.
 				review := nil.
-				self updateReview  ] ] ]
+				self updateReview ] ] ]
 ]
 
 { #category : #actions }
 ZoaReviewUI >> excludeArticleFromReview: anArticleRef [
 
 	| reason codification |
-	codifications := Zoa current findAllCodifications.
+	codifications := zoa findAllCodifications.
 	codification := UIManager default
 		                chooseFrom: codifications
 		                values: codifications
@@ -275,13 +276,12 @@ ZoaReviewUI >> initializeWidgets [
 	tags := self newTagTable.
 	abstractTags := self newAbstractKeywordsTable.
 	query := self newQuery.
-	articles := self newArticleTable.
+	articles := self newArticleTableUsing: zoa.
 	authors := self newAuthorTable.
 	publisher := self newPublisherTable.
 	affiliations := self newAffiliationTable.
 	edition := self newEditionArea.
-	self initializeNotebook.
-
+	self initializeNotebook
 ]
 
 { #category : #initialization }
@@ -327,7 +327,7 @@ ZoaReviewUI >> newAffiliationTable [
 ]
 
 { #category : #initialization }
-ZoaReviewUI >> newArticleTable [
+ZoaReviewUI >> newArticleTableUsing: aZoa [
 
 	| table |
 	table := self newTable.
@@ -357,12 +357,16 @@ ZoaReviewUI >> newArticleTable [
 		(SpStringTableColumn
 			 title: 'Title'
 			 evaluated: [ :item | item title ]);
-			addColumn:
-		(SpStringTableColumn
-			 title: 'Exclusion Reason'
-			 evaluated: [ :item | item isIncluded ifTrue: [ '' ] ifFalse: [ (item codification ifNil: ['NIL']), ': ', item reason ] ]);
+		addColumn:
+			(SpStringTableColumn
+				 title: 'Exclusion Reason'
+				 evaluated: [ :item | 
+					 item isIncluded
+						 ifTrue: [ '' ]
+						 ifFalse: [ 
+						 (item codification ifNil: [ 'NIL' ]) , ': ' , item reason ] ]);
 		beResizable.
-		table contextMenu: self articleContextMenu. 
+	table contextMenu: (self articleContextMenuUsing: aZoa).
 	^ table
 ]
 
@@ -480,18 +484,18 @@ ZoaReviewUI >> newTagTable [
 ZoaReviewUI >> openReview [
 
 	| reviews opening |
-	reviews := Zoa current findAllReviews.
-	opening := (UIManager default
-			 chooseFrom: (reviews collect: [ :r | r title ])
-			 values: reviews
-			 title: 'Open review').
+	reviews := zoa findAllReviews.
+	opening := UIManager default
+		           chooseFrom: (reviews collect: [ :r | r title ])
+		           values: reviews
+		           title: 'Open review'.
 	opening ifNotNil: [ self review: opening ]
 ]
 
 { #category : #'data query' }
 ZoaReviewUI >> previewTextModel [
 
-	^ MicroDownParser asText: review microdownBrief
+	^ MicroDownParser asText: (review microdownBriefUsing: zoa)
 ]
 
 { #category : #'update and set' }
@@ -507,7 +511,7 @@ ZoaReviewUI >> review: aZoaReview [
 ZoaReviewUI >> saveReview [
 
 	review ifNotNil: [ 
-		Zoa current saveReview: review.
+		zoa saveReview: review.
 		self updateReview ]
 ]
 

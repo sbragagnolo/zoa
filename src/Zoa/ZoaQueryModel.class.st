@@ -3,7 +3,8 @@ Class {
 	#superclass : #Object,
 	#instVars : [
 		'articles',
-		'owner'
+		'owner',
+		'zoa'
 	],
 	#category : #'Zoa-UI'
 }
@@ -11,7 +12,7 @@ Class {
 { #category : #'as yet unclassified' }
 ZoaQueryModel >> articles [
 
-	^ articles ifNil: [ Zoa current findAllArticles ]
+	^ articles ifNil: [ self zoa findAllArticles ]
 ]
 
 { #category : #'as yet unclassified' }
@@ -47,5 +48,12 @@ ZoaQueryModel >> select: someArticles [
 
 { #category : #'as yet unclassified' }
 ZoaQueryModel >> zoa [
-	^ Zoa current
+
+	^ zoa
+]
+
+{ #category : #'as yet unclassified' }
+ZoaQueryModel >> zoa: aZoaAPI [
+
+	zoa := aZoaAPI
 ]

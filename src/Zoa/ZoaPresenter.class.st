@@ -1,8 +1,19 @@
 Class {
 	#name : #ZoaPresenter,
 	#superclass : #SpPresenter,
+	#instVars : [
+		'zoa'
+	],
 	#category : #'Zoa-UI'
 }
+
+{ #category : #'instance creation' }
+ZoaPresenter class >> basicNew [
+
+	^ super basicNew
+		  zoa: Zoa current;
+		  yourself
+]
 
 { #category : #initialization }
 ZoaPresenter >> newAuthorList [
@@ -59,4 +70,9 @@ ZoaPresenter >> newTagsList [
 				name: name;
 				yourself ] ].
 	^ widget
+]
+
+{ #category : #initialization }
+ZoaPresenter >> zoa: aZoa [ 
+	zoa := aZoa
 ]

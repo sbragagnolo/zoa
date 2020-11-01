@@ -79,8 +79,8 @@ ZoaReview >> initialize [
 			 yourself)
 ]
 
-{ #category : #accessing }
-ZoaReview >> microdownBrief [
+{ #category : #reference }
+ZoaReview >> microdownBriefUsing: aZoa [
 
 	^ String streamContents: [ :str | 
 		  str
@@ -129,7 +129,9 @@ ZoaReview >> microdownBrief [
 			  cr.
 		  ((articles reject: [ :a | a isIncluded ]) groupedBy: [ :a | 
 			   a codification ]) keysAndValuesDo: [ :codification :arts | 
-			  str nextPutAll: '### ' , codification; cr.
+			  str
+				  nextPutAll: '### ' , codification;
+				  cr.
 			  arts do: [ :a | 
 				  str
 					  nextPutAll: '-';
@@ -138,8 +140,8 @@ ZoaReview >> microdownBrief [
 					  nextPutAll: ')';
 					  nextPutAll: a article title;
 					  cr ] ].
-		
-		 
+
+
 		  self briefs do: [ :b | 
 			  b includeInText ifTrue: [ 
 				  str
