@@ -24,13 +24,6 @@ ZoaAuthor class >> isVoyageRoot [
 	^ true
 ]
 
-{ #category : #accessing }
-ZoaAuthor >> = anOtherArticle [
-
-	^ self species = anOtherArticle species and: [ 
-		  self uniqueId = anOtherArticle uniqueId ]
-]
-
 { #category : #add }
 ZoaAuthor >> addArticle: aZoaArticleAuthorReference [
 	^ self articles add: aZoaArticleAuthorReference
@@ -52,14 +45,13 @@ ZoaAuthor >> citeName [
 ]
 
 { #category : #accessing }
-ZoaAuthor >> fullName [
-	^ lastname, ', ', name
+ZoaAuthor >> firstname [
+	^ name
 ]
 
 { #category : #accessing }
-ZoaAuthor >> hash [
-
-	^ self uniqueId hash
+ZoaAuthor >> fullName [
+	^ lastname, ', ', name
 ]
 
 { #category : #accessing }
@@ -115,7 +107,7 @@ self error: 'Ensure that the left and right author have the same id'.
 
 { #category : #accessing }
 ZoaAuthor >> name [
-	^ name
+	^ self fullName 
 ]
 
 { #category : #accessing }
@@ -129,13 +121,4 @@ ZoaAuthor >> printOn: aStream [
 		nextPutAll: lastname;
 		nextPutAll: ', ';
 		nextPutAll: name
-]
-
-{ #category : #add }
-ZoaAuthor >> uniqueId [
-
-	^ '{1}:{2}:{3}' format: { 
-			  ids asString.
-			  lastname asString.
-			  name asString }
 ]

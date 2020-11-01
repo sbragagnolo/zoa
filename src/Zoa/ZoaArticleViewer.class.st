@@ -8,15 +8,12 @@ Class {
 		'#article => SpObservableSlot',
 		'#view',
 		'#preview',
-		'#tags',
-		'#authors',
-		'#data',
+		'#metadata',
 		'#toolBar',
 		'#onArticleReloadClicked',
 		'#tabs',
 		'#references',
 		'#allArticles',
-		'#abstract',
 		'#htmlRefs',
 		'#zoa'
 	],
@@ -61,15 +58,6 @@ ZoaArticleViewer >> article: anArticle [
 ]
 
 { #category : #'data query' }
-ZoaArticleViewer >> currentAuthors [
-	^ article authors
-		collect: [ :a | 
-			ZoaAuthorWidget new
-				author: a;
-				yourself ]
-]
-
-{ #category : #'data query' }
 ZoaArticleViewer >> currentBriefs [
 
 	article briefs ifEmpty: [ 
@@ -81,12 +69,6 @@ ZoaArticleViewer >> currentBriefs [
 			  brief: b;
 			  onDelete: [ :br | self deleteBrief: br ];
 			  yourself ]
-]
-
-{ #category : #'data query' }
-ZoaArticleViewer >> currentTags [
-
-	^ (article tags , article keywords) asOrderedCollection 
 ]
 
 { #category : #actions }
@@ -131,21 +113,11 @@ ZoaArticleViewer >> initializeNotebook [
 
 	tabs addPage:
 		(self newNotebookPageWith: [ references ] and: 'References').
-	tabs addPage: (self
-			 newNotebookPageWith: [ 
-				 self newStackedComponentWith: { 
-						 abstract.
-						 authors.
-						 data.
-						 tags } ]
-			 and: 'Metadata').
-	tabs addPage: (self newNotebookPageWith: authors and: 'Authors').
-	
 	tabs addPage:
-		(self newNotebookPageWith: view and: 'Briefs Editor').
-	tabs addPage:
-		(self newNotebookPageWith: preview and: 'Text preview')
-	
+		(self newNotebookPageWith: [ metadata ] and: 'Metadata').
+
+	tabs addPage: (self newNotebookPageWith: view and: 'Briefs Editor').
+	tabs addPage: (self newNotebookPageWith: preview and: 'Text preview')
 ]
 
 { #category : #initialization }
@@ -210,18 +182,13 @@ ZoaArticleViewer >> initializeWidgets [
 
 	toolBar := self newToolbar.
 	self initializeToolbar.
-	abstract := self newText.
-	authors := self newAuthorList.
-	tags := self newTagsList.
-	tags onDeleteTag: [ :t | article removeKeyword:  t ]. 
-	tags onAddTags: [ :t | article addKeyword: t ].
+
+
 	view := self instantiate: SpComponentListPresenter.
 
 	preview := self newText.
 	htmlRefs := self newText.
-
-
-	data := self newDataTable.
+	metadata := self instantiate: ZoaArticleMetadata.
 	references := self newReferenceTable.
 	tabs := self newNotebook.
 	self initializeNotebook
@@ -242,12 +209,6 @@ ZoaArticleViewer >> loadOrRead: item [
 		ifFalse: [ self load: item ]
 		
 		"] on: Error do: [ :e | self inform: e messageText  ]"
-]
-
-{ #category : #initialization }
-ZoaArticleViewer >> newAuthorList [
-
-	^ self instantiate: SpComponentListPresenter
 ]
 
 { #category : #initialization }
@@ -296,12 +257,6 @@ ZoaArticleViewer >> newReferenceTable [
 ]
 
 { #category : #initialization }
-ZoaArticleViewer >> newTagsList [
-
-	^ self instantiate: ZoaTagsWidget 
-]
-
-{ #category : #initialization }
 ZoaArticleViewer >> onArticleReloadClicked: aBlock [
 	onArticleReloadClicked := aBlock
 ]
@@ -335,11 +290,8 @@ ZoaArticleViewer >> saveArticle [
 ZoaArticleViewer >> updateArticle [
 
 	article ifNotNil: [ 
-		tags tags: self currentTags.
-		authors items: self currentAuthors.
-		data items: article data associations.
 		references items: article getAllReferences.
 		view items: self currentBriefs.
 		preview text: (MicroDownParser asText: article microdownBrief).
-		abstract text: (article abstract ifNil: [ '' ]) ]
+		metadata article: article ]
 ]

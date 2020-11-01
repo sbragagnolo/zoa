@@ -82,9 +82,9 @@ ZoaBriefWidget >> initializeWidgets [
 
 	text := self newText.
 	text whenEditableChangedDo: [ self saveBrief ].
-	tags := self instantiate: ZoaTagsWidget.
-	tags onDeleteTag: [ :t | brief tags remove: t ].
-	tags onAddTags: [ :t | brief tags add: t ].
+	tags := self newTagsList.
+	tags onDelete: [ :t | brief tags remove: t ].
+	tags onAdd: [ :t | brief tags add: t ].
 	actions := self newActionBar.
 	actions add: includeInText
 ]
@@ -121,7 +121,7 @@ ZoaBriefWidget >> toggleIncludeText [
 ZoaBriefWidget >> updateBrief [
 	nameLabel label: brief name.
 	text text: brief text.
-	tags tags: brief tags.
+	tags items: brief tags.
 	includeInText
 		label:
 			(brief includeInText

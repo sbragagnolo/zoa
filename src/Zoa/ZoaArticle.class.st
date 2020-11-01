@@ -14,7 +14,6 @@ Class {
 		'doi',
 		'keywords',
 		'data',
-		'cite',
 		'type',
 		'references',
 		'authorsReference',
@@ -171,11 +170,6 @@ ZoaArticle >> cite [
 ]
 
 { #category : #accessing }
-ZoaArticle >> cite: aCite [
-	^ cite := aCite
-]
-
-{ #category : #accessing }
 ZoaArticle >> citedBy [ 
 	^ Zoa current allIncomingReferencesTo: self  
 ]
@@ -265,11 +259,6 @@ ZoaArticle >> hash [
 { #category : #accessing }
 ZoaArticle >> hashCite [
 	^ (authorsReference first copyFrom: 1 to: 4) , (date year \\ 1000) asString
-]
-
-{ #category : #'as yet unclassified' }
-ZoaArticle >> header [
-	^ ''
 ]
 
 { #category : #accessing }
@@ -551,16 +540,6 @@ ZoaArticle >> stream: aVar into: str [
 		nextPut: $};
 		nextPut: $,;
 		nextPutAll: String lf
-]
-
-{ #category : #accessing }
-ZoaArticle >> tags [
-	^ tags ifNil: [ {} ]
-]
-
-{ #category : #accessing }
-ZoaArticle >> tags: anObject [
-	tags := anObject
 ]
 
 { #category : #accessing }

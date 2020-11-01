@@ -111,11 +111,6 @@ ZoaArticleArticleReference >> printOn: aStream [
 ]
 
 { #category : #'as yet unclassified' }
-ZoaArticleArticleReference >> reference [
-	self halt 
-]
-
-{ #category : #'as yet unclassified' }
 ZoaArticleArticleReference >> referenceEntryInRelationWith: anArticle zoa: aZoaApi [
 	^ (fromReference refersTo: anArticle)
 		  ifTrue: [ toReference referenceEntry: aZoaApi ]
@@ -128,11 +123,6 @@ ZoaArticleArticleReference >> text: aString [
 ]
 
 { #category : #accessing }
-ZoaArticleArticleReference >> to: anArticle [
-	to := anArticle
-]
-
-{ #category : #accessing }
 ZoaArticleArticleReference >> toReference [
 
 	^ toReference
@@ -141,9 +131,4 @@ ZoaArticleArticleReference >> toReference [
 { #category : #accessing }
 ZoaArticleArticleReference >> toReference: aReference [ 
 	toReference := aReference
-]
-
-{ #category : #accessing }
-ZoaArticleArticleReference >> value [ 
-	^ self halt 
 ]

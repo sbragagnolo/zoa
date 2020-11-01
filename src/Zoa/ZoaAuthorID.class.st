@@ -73,6 +73,11 @@ ZoaAuthorID >> authority: aString [
 ]
 
 { #category : #accessing }
+ZoaAuthorID >> id [
+	^ id
+]
+
+{ #category : #accessing }
 ZoaAuthorID >> id: aString [ 
 	id := aString
 ]

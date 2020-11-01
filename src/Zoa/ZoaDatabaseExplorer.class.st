@@ -229,11 +229,13 @@ ZoaDatabaseExplorer >> newArticleView [
 	table
 		sortingBlock: [ :a :b | a title < b title ];
 		addColumn: ((SpStringTableColumn
-				 title: 'Date' evaluated: [ :item | item date year asString ])
+				  title: 'Date'
+				  evaluated: [ :item | item date year asString ])
 				 width: 50;
 				 yourself);
 		addColumn: ((SpStringTableColumn
-				 title: 'Author' evaluated: [ :item | item firstAuthorName ])
+				  title: 'Author'
+				  evaluated: [ :item | item firstAuthorName ])
 				 width: 100;
 				 yourself);
 		addColumn:
@@ -242,7 +244,10 @@ ZoaDatabaseExplorer >> newArticleView [
 			 evaluated: [ :item | item title ]);
 		whenSelectionChangedDo: [ :selection | 
 		self selectArticle: selection ];
-		beResizable.
+		activateOnDoubleClick;
+		whenActivatedDo: [ :selection | 
+		self openArticleMetadata: selection selectedItem ];
+	beResizable.
 	^ table
 ]
 
@@ -255,7 +260,7 @@ ZoaDatabaseExplorer >> newAuthorsView [
 		sortingBlock: [ :a :b | a fullName < b fullName ];
 		addColumn: (SpStringTableColumn title: 'CiteName' evaluated: [ :item | item citeName asString ]);
 		addColumn: (SpStringTableColumn title: 'Articles' evaluated: [ :item | item articles size asString ]);
-		addColumn: (SpStringTableColumn title: 'Keywords' evaluated: [ :item |  ';' join: (item articles flatCollect: [ :a | a keywords ]) ]);
+		addColumn: (SpStringTableColumn title: 'Keywords' evaluated: [ :item |  ';' join: (item articles flatCollect: [ :a | a article keywords ]) ]);
 		beResizable.
 	^ table
 ]
@@ -292,6 +297,14 @@ ZoaDatabaseExplorer >> newNotebookPageWith: aProvider and: aTitle [
 		  icon: (self iconNamed: #nautilusIcon);
 		  presenterProvider: aProvider;
 		  yourself
+]
+
+{ #category : #'widget creation' }
+ZoaDatabaseExplorer >> openArticleMetadata: anArticle [
+
+	(self instantiate: ZoaArticleMetadata)
+		article: anArticle;
+		openWithSpec
 ]
 
 { #category : #actions }
