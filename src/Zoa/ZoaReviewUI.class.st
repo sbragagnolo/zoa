@@ -23,7 +23,7 @@ Class {
 ZoaReviewUI class >> defaultSpec [
 
 	^ SpBoxLayout newVertical
-		  add: #toolbar height: self toolbarHeight;
+		  add: #toolbar height: self toolbarHeight * 1.5; 
 		  add: #tabs
 ]
 
@@ -238,32 +238,38 @@ ZoaReviewUI >> initializeNotebook [
 
 { #category : #initialization }
 ZoaReviewUI >> initializeToolbar [
-		toolbar
+
+	toolbar
 		addItemLeft: (self newToolbarButton
+				 label: 'Save';
 				 icon: (Smalltalk ui icons iconNamed: #glamorousSave);
 				 action: [ self saveReview ];
 				 yourself);
 		addItemLeft: (self newToolbarButton
+				 label: 'New';
 				 icon: (Smalltalk ui icons iconNamed: #databaseAdd);
 				 action: [ self newReview ];
 				 yourself);
 		addItemLeft: (self newToolbarButton
+				 label: 'Open';
 				 icon: (Smalltalk ui icons iconNamed: #open);
 				 action: [ self openReview ];
 				 yourself);
 		addItemLeft: (self newToolbarButton
+				 label: 'Delete';
 				 icon: (Smalltalk ui icons iconNamed: #glamorousTrash);
 				 action: [ self deleteReview ];
 				 yourself);
 		addItemLeft: (self newToolbarButton
+				 label: 'Add Articles';
 				 icon: (Smalltalk ui icons iconNamed: #add);
 				 action: [ self addArticles ];
 				 yourself);
 		addItemLeft: (self newToolbarButton
+				 label: 'Comment';
 				 icon: (Smalltalk ui icons iconNamed: #announcement);
 				 action: [ self addBrief ];
-				 yourself).
-
+				 yourself)
 ]
 
 { #category : #initialization }
