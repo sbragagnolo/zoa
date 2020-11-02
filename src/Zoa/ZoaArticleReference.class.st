@@ -42,7 +42,7 @@ ZoaArticleReference >> referenceEntry: aZoaApi [
 		  then: [ :article | 
 			  (article date year asString , '-' , article firstAuthorCiteName
 			   , ' -' , article title)  ]
-		  ifNot: [ title , ' (' , reference , ')' ])readStream next: 50
+		  ifNot: [ title , ' (' , reference , ')' ])readStream next: 150
 ]
 
 { #category : #accessing }

@@ -44,7 +44,7 @@ ZoaArticleArticleReference >> citedBy: anArticle [
 { #category : #'as yet unclassified' }
 ZoaArticleArticleReference >> cites: aZoaArticle [
 
-	^ toReference  respondsTo: aZoaArticle
+	^ toReference  refersTo: aZoaArticle
 ]
 
 { #category : #accessing }
@@ -64,14 +64,6 @@ ZoaArticleArticleReference >> getAllReferences [
 	^ { 
 		  fromReference.
 		  toReference }
-]
-
-{ #category : #accessing }
-ZoaArticleArticleReference >> getAllReferencesWith: aZoaAPI [
-
-	^ { 
-		  (aZoaAPI findArticle: fromReference).
-		  (aZoaAPI findArticle: toReference) }
 ]
 
 { #category : #'as yet unclassified' }
