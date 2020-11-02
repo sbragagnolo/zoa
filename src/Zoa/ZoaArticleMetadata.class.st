@@ -29,34 +29,37 @@ Class {
 ZoaArticleMetadata class >> defaultSpec [
 
 	^ SpBoxLayout newVertical
+	
+		 
 		  add: (SpBoxLayout newHorizontal
 				   add: (SpBoxLayout newVertical
-						    add: #titleLabel;
-						    add: #title);
+						    add: #titleLabel expand: false fill: false padding: 0;
+						    add: #title expand: false fill: false padding: 0);
 				   add: (SpBoxLayout newVertical
-						    add: #doiLabel;
-						    add: #doi));
-		  add: #abstractLabel;
-		  add: #abstract height: 100;
+						    add: #doiLabel expand: false fill: false padding: 0 ;
+						    add: #doi expand: false fill: false padding: 0))height: 50 ;
+		add: (SpBoxLayout newHorizontal
+				   add: (SpBoxLayout newVertical
+						    add: #dateLabel expand: false fill: false padding: 0;
+						    add: #date expand: false fill: false padding: 0);
+				   add: (SpBoxLayout newVertical
+						    add: #linkLabel  expand: false fill: false padding: 0;
+						    add: #link expand: false fill: false padding: 0);
+				   add: (SpBoxLayout newVertical
+						    add: #publisherLabel expand: false fill: false padding: 0;
+						    add: #publisher expand: false fill: false padding: 0)) height: 50 ;
+		  add: #abstractLabel  expand: false ;
+		  add: #abstract;
+		 
 		  add: (SpBoxLayout newHorizontal
 				   add: (SpBoxLayout newVertical
-						    add: #dateLabel;
-						    add: #date);
-				   add: (SpBoxLayout newVertical
-						    add: #linkLabel;
-						    add: #link);
-				   add: (SpBoxLayout newVertical
-						    add: #publisherLabel;
-						    add: #publisher));
-		  add: (SpBoxLayout newHorizontal
-				   add: (SpBoxLayout newVertical
-						    add: #keywordsLabel;
+						    add: #keywordsLabel expand: false  ;
 						    add: #keywords);
 				   add: (SpBoxLayout newVertical
-						    add: #authorsLabel;
-						    add: #authors)) height: 300;
-		  add: #metadataLabel;
-		  add: #metadata
+						    add: #authorsLabel expand: false ;
+						    add: #authors )) expand: true fill: true padding: 0;
+		  add: #metadataLabel expand: false ;
+		  add: #metadata  expand: true fill: true  padding: 0
 ]
 
 { #category : #specs }

@@ -107,7 +107,9 @@ self error: 'Ensure that the left and right author have the same id'.
 
 { #category : #accessing }
 ZoaAuthor >> name [
-	^ self fullName 
+
+	^ self fullName , ' ('
+	  , (' ' join: (ids collect: [ :i | i asString ])) , ')'
 ]
 
 { #category : #accessing }
