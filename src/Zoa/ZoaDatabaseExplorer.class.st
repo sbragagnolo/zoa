@@ -67,6 +67,10 @@ ZoaDatabaseExplorer >> contextMenuForArticle [
 					  anItem
 						  name: 'Load references and citations from HTML';
 						  action: [ self importCitationsAndReferences: articles selectedItem ] ];
+					addItem: [ :anItem | 
+					  anItem
+						  name: 'Open in browser';
+						  action: [ self openInBrowser: articles selectedItem ] ];
 					 addItem: [ :anItem | 
 					  anItem
 						  name: 'Read!';
@@ -304,6 +308,11 @@ ZoaDatabaseExplorer >> openArticleMetadata: anArticle [
 	(self instantiate: ZoaArticleMetadata)
 		article: anArticle;
 		openWithSpec
+]
+
+{ #category : #'as yet unclassified' }
+ZoaDatabaseExplorer >> openInBrowser: anArticle [
+ 	WebBrowser openOn: anArticle link
 ]
 
 { #category : #actions }

@@ -15,8 +15,7 @@ ZoaIEEEVisitor >> loadCitation: element [
 
 	| text reference fromReference toReference |
 	self assert:
-		element nodes first nodes first nodes first nodes second name
-		= 'span'.
+		element nodes first nodes first nodes second name = 'span'.
 	text := (self detectStringElement:
 		         element nodes first nodes first nodes second) first.
 
@@ -26,13 +25,13 @@ ZoaIEEEVisitor >> loadCitation: element [
 
 
 	fromReference := ZoaArticleReference new
-		                 reference: article doi;
-		                 title: article title;
+		                 reference: reference;
+		                 title: text;
 		                 yourself.
 
 	toReference := ZoaArticleReference new
-		               reference: reference;
-		               title: text;
+		               reference: article doi;
+		               title: article title;
 		               yourself.
 
 
