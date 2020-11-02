@@ -466,7 +466,7 @@ ZoaArticle >> pages: aCollection [
 
 { #category : #accessing }
 ZoaArticle >> pdfFileUsing: aZoa [
-	^ aZoa current pdfFileFor: self 
+	^ aZoa pdfFileFor: self 
 ]
 
 { #category : #accessing }
