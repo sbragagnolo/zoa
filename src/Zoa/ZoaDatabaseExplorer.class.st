@@ -283,6 +283,31 @@ ZoaDatabaseExplorer >> newAuthorsView [
 ]
 
 { #category : #'widget creation' }
+ZoaDatabaseExplorer >> newAuthorsView [
+
+	| table |
+	table := self newTable.
+
+	table
+		sortingBlock: [ :a :b | a fullName < b fullName ];
+		addColumn: ((SpStringTableColumn
+				  title: 'Articles'
+				  evaluated: [ :item | item articles size asString ])
+				 width: 50;
+				 beSortable;
+				 yourself);
+		addColumn: ((SpStringTableColumn
+				  title: 'Author'
+				  evaluated: [ :item | item fullName asString ])
+				 beSortable;
+				 yourself);
+		activateOnDoubleClick;
+		whenActivatedDo: [ :l | self openAuthorEditingDialog: l selectedItem ];
+		beResizable.
+	^ table
+]
+
+{ #category : #'widget creation' }
 ZoaDatabaseExplorer >> newKeywordsView [
 
 	| table |

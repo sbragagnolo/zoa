@@ -61,6 +61,14 @@ ZoaSpringerVisitor >> processAbstract: anElement [
 ]
 
 { #category : #visiting }
+ZoaSpringerVisitor >> processAbstract: anElement [
+
+	self assert: anElement nodes second nodes first isStringNode.
+	article abstract:
+		anElement nodes second nodes first asString
+]
+
+{ #category : #visiting }
 ZoaSpringerVisitor >> processContributorArea: anElement [
 
 	| affiliations |

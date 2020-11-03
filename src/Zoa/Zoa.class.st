@@ -168,6 +168,11 @@ Zoa >> findAllTags [
 	^ self repository selectAll: ZoaTag 
 ]
 
+{ #category : #'as yet unclassified' }
+Zoa >> findAllTags [
+	^ self repository selectAll: ZoaTag 
+]
+
 { #category : #find }
 Zoa >> findArticleByDoi: aDoi [
 	^ self repository
