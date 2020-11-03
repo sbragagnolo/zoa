@@ -25,6 +25,11 @@ ZoaAuthor class >> isVoyageRoot [
 ]
 
 { #category : #add }
+ZoaAuthor >> = otherAuthor [
+	^ self species = otherAuthor species and:[ self ids = otherAuthor ids] 
+]
+
+{ #category : #add }
 ZoaAuthor >> addArticle: aZoaArticleAuthorReference [
 	^ self articles add: aZoaArticleAuthorReference
 ]
@@ -52,6 +57,11 @@ ZoaAuthor >> firstname [
 { #category : #accessing }
 ZoaAuthor >> fullName [
 	^ lastname, ', ', name
+]
+
+{ #category : #add }
+ZoaAuthor >> hash [
+	^ self ids hash
 ]
 
 { #category : #accessing }

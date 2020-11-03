@@ -16,7 +16,7 @@ Class {
 ZoaArticleDialog class >> defaultSpec [
 
 	^ SpPanedLayout newHorizontal
-		  position: 30 percent;
+		  position: 40 percent;
 		  add: #articles;
 		  add: #preview
 ]
@@ -67,16 +67,20 @@ ZoaArticleDialog >> newArticleTableUsing: aZoa [
 				    title: 'Date'
 				    evaluated: [ :item | item date year asString ])
 				   width: 50;
+				   beSortable;
 				   yourself);
 		  addColumn: ((SpStringTableColumn
 				    title: 'Author'
 				    evaluated: [ :item | item firstAuthorName ])
 				   width: 100;
+				   beSortable;
 				   yourself);
 		  addColumn:
-		  (SpStringTableColumn
-			   title: 'Title'
-			   evaluated: [ :item | item title ]);
+			  ((SpStringTableColumn
+				    title: 'Title'
+				    evaluated: [ :item | item title ])
+				   beSortable;
+				   yourself);
 		  whenSelectionChangedDo: [ :selection | 
 			  selection selectedItem ifNotNil: [ :article | 
 				  preview text:

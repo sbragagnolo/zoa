@@ -33,7 +33,9 @@ ZoaReviewUI class >> open [
 	<example>
 	| new |
 	new := self new.
-	new openWithSpec title: 'Review'.
+	new openWithSpec
+		title: 'Review';
+		extent: 1200 @ 750.
 	^ new
 ]
 
@@ -60,7 +62,7 @@ ZoaReviewUI >> addArticles [
 	dialog filterArticles: (review articles collect: [: a |a article ]).
 	dialog openDialogWithSpec
 		okAction: [ dialog chosenArticles do: [:article | review addArticle: article ]. self updateReview ];
-		cancelAction: [  ];
+		title: 'Add articles into the review';
 		yourself
 ]
 
@@ -139,8 +141,8 @@ ZoaReviewUI >> articlesExcludedFromAuthor: anAuthor [
 ZoaReviewUI >> articlesExcludedFromTag: aTag [
 
 	^ (review articles select: [ :ref | 
-		   (aTag articles includes: ref article) and: [ ref isIncluded not ] ])
-		  size 
+		   (ref article keywords includes: aTag) and: [ ref isIncluded not ] ])
+		  size
 ]
 
 { #category : #'data query' }
@@ -155,8 +157,8 @@ ZoaReviewUI >> articlesIncludedFromAuthor: anAuthor [
 ZoaReviewUI >> articlesIncludedFromTag: aTag [
 
 	^ (review articles select: [ :ref | 
-		   (aTag articles includes: ref article) and: [ ref isIncluded ] ])
-		  size +1
+		   (ref article keywords includes: aTag) and: [ ref isIncluded ] ])
+		  size
 ]
 
 { #category : #actions }
@@ -288,13 +290,15 @@ ZoaReviewUI >> newAbstractKeywordsTable [
 
 	table
 		sortingBlock: [ :a :b | a key < b key ];
-		addColumn: ((SpStringTableColumn
-				  title: '#'
-				  evaluated: [ :item | item value ])
+		addColumn:
+			((SpStringTableColumn title: '#' evaluated: [ :item | item value ])
 				 width: 40;
+				 beSortable;
 				 yourself);
 		addColumn:
-		(SpStringTableColumn title: 'Word' evaluated: [ :item | item key ]);
+			((SpStringTableColumn title: 'Word' evaluated: [ :item | item key ])
+				 beSortable;
+				 yourself);
 		beResizable.
 	^ table
 ]
@@ -311,11 +315,13 @@ ZoaReviewUI >> newAffiliationTable [
 				  title: '#'
 				  evaluated: [ :item | self amountOfArticlesByAffiliation: item ])
 				 width: 20;
+				 beSortable;
 				 yourself);
 		addColumn:
 			((SpStringTableColumn
 				  title: 'Affiliation'
 				  evaluated: [ :item | item ])
+				 beSortable;
 				 yourself);
 		beResizable.
 
@@ -343,6 +349,7 @@ ZoaReviewUI >> newArticleTableUsing: aZoa [
 				  title: 'Date'
 				  evaluated: [ :item | item date year asString ])
 				 width: 50;
+				 beSortable;
 				 yourself);
 		addColumn: ((SpStringTableColumn
 				  title: 'Author'
@@ -350,17 +357,21 @@ ZoaReviewUI >> newArticleTableUsing: aZoa [
 				 width: 100;
 				 yourself);
 		addColumn:
-		(SpStringTableColumn
-			 title: 'Title'
-			 evaluated: [ :item | item title ]);
+			((SpStringTableColumn
+				  title: 'Title'
+				  evaluated: [ :item | item title ])
+				 beSortable;
+				 yourself);
 		addColumn:
-			(SpStringTableColumn
-				 title: 'Exclusion Reason'
-				 evaluated: [ :item | 
-					 item isIncluded
-						 ifTrue: [ '' ]
-						 ifFalse: [ 
-						 (item codification ifNil: [ 'NIL' ]) , ': ' , item reason ] ]);
+			((SpStringTableColumn
+				  title: 'Exclusion Reason'
+				  evaluated: [ :item | 
+					  item isIncluded
+						  ifTrue: [ '' ]
+						  ifFalse: [ 
+							  (item codification ifNil: [ 'NIL' ]) , ': ' , item reason ] ])
+				 beSortable;
+				 yourself);
 		beResizable.
 	table contextMenu: (self articleContextMenuUsing: aZoa).
 	^ table
@@ -403,11 +414,13 @@ ZoaReviewUI >> newPublisherTable [
 		addColumn: ((SpStringTableColumn
 				  title: '#'
 				  evaluated: [ :item | self amountOfArticlesPublishedBy: item ])
+				 beSortable;
 				 width: 20;
 				 yourself);
 		addColumn:
-			(SpStringTableColumn title: 'Name' evaluated: [ :item | item ])
-				yourself;
+			((SpStringTableColumn title: 'Name' evaluated: [ :item | item ])
+				 beSortable;
+				 yourself) yourself;
 		beResizable.
 
 	^ table
@@ -445,20 +458,21 @@ ZoaReviewUI >> newTagTable [
 	| table |
 	table := self newTreeTable.
 
-	table	addColumn:
-			((SpStringTableColumn
-				 title: '(I) Included'
-				 evaluated: [ :aTag | 
-					 (aTag isKindOf: ZoaTag)
-						 ifTrue: [ self articlesIncludedFromTag: aTag ]
-						 ifFalse: [ '' ] ] ) width: 30; yourself) ;
+	table
 		addColumn:
-			((SpStringTableColumn
-				 title: '(X) Excluded'
-				 evaluated: [ :aTag | 
-					 (aTag isKindOf: ZoaTag)
-						 ifTrue: [ self articlesExcludedFromTag: aTag ]
-						 ifFalse: [ '' ] ]) width: 30; yourself);
+			((SpStringTableColumn title: '(I) Included' evaluated: [ :aTag | 
+					  (aTag isKindOf: ZoaTag)
+						  ifTrue: [ self articlesIncludedFromTag: aTag ]
+						  ifFalse: [ '' ] ])
+				 width: 30;
+				 yourself);
+		addColumn:
+			((SpStringTableColumn title: '(X) Excluded' evaluated: [ :aTag | 
+					  (aTag isKindOf: ZoaTag)
+						  ifTrue: [ self articlesExcludedFromTag: aTag ]
+						  ifFalse: [ '' ] ])
+				 width: 30;
+				 yourself);
 		addColumn: (SpCompositeTableColumn new
 				 title: 'Name';
 				 addColumn: ((SpImageTableColumn evaluated: #systemIcon)
@@ -466,11 +480,13 @@ ZoaReviewUI >> newTagTable [
 						  yourself);
 				 addColumn: (SpStringTableColumn evaluated: #name);
 				 yourself);
-	
 		roots: {  };
 		children: [ :aTag | 
 			(aTag isKindOf: ZoaTag)
-				ifTrue: [ aTag articles asOrderedCollection ]
+				ifTrue: [ 
+					review articles
+						select: [ :ref | ref article keywords includes: aTag ]
+						thenCollect: [ :ref | ref article ] ]
 				ifFalse: [ {  } ] ];
 		beResizable.
 	^ table
@@ -525,7 +541,9 @@ ZoaReviewUI >> updateReview [
 		query text: ''.
 		preview text: ''.
 		^ self ].
-	tags roots: review tags.
+	tags roots: (review keywords sort: [ :a :b | 
+			 (self articlesIncludedFromTag: a) 
+			 > (self articlesIncludedFromTag: b)  ]).
 	articles items: review articles.
 	authors items: review authors.
 	query text: (review query ifNil: [ '' ]).

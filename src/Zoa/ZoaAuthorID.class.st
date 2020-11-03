@@ -63,6 +63,13 @@ ZoaAuthorID class >> unknown: anId [
 ]
 
 { #category : #accessing }
+ZoaAuthorID >> = otherId [
+
+	^ self species = otherId species and: [ 
+		  authority = otherId authority and: [ id = otherId id ] ]
+]
+
+{ #category : #accessing }
 ZoaAuthorID >> authority [
 	^ authority
 ]
@@ -70,6 +77,12 @@ ZoaAuthorID >> authority [
 { #category : #accessing }
 ZoaAuthorID >> authority: aString [ 
 	authority := aString
+]
+
+{ #category : #accessing }
+ZoaAuthorID >> hash [
+
+	^ authority hash bitXor: id hash
 ]
 
 { #category : #accessing }

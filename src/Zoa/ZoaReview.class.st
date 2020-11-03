@@ -74,9 +74,14 @@ ZoaReview >> initialize [
 	super initialize.
 	articles := OrderedCollection new.
 	briefs := OrderedCollection new.
-	briefs add: (ZoaBrief new
-			 name: #Motivation;
-			 yourself)
+	
+]
+
+{ #category : #accessing }
+ZoaReview >> keywords [
+	^ (articles flatCollect: [ :a | a keywords  ]) asSet asOrderedCollection sorted: [: x :y | 
+			x name > y name 
+		].
 ]
 
 { #category : #reference }
@@ -104,7 +109,7 @@ ZoaReview >> microdownBriefUsing: aZoa [
 		  str
 			  nextPutAll: '## Keywords ';
 			  cr.
-		  (self tags sort: [ :a :b | a name < b name ]) do: [ :tag | 
+		  (self keywords sort: [ :a :b | a name < b name ]) do: [ :tag | 
 			  str
 				  nextPutAll: '-';
 				  nextPutAll: tag name;
@@ -174,13 +179,6 @@ ZoaReview >> query [
 { #category : #accessing }
 ZoaReview >> query: aCollection [ 
 	query := aCollection asString 
-]
-
-{ #category : #accessing }
-ZoaReview >> tags [
-	^ (articles flatCollect: [ :a | a tags  ]) asSet asOrderedCollection sorted: [: x :y | 
-			x name > y name 
-		].
 ]
 
 { #category : #accessing }

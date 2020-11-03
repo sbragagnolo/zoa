@@ -63,6 +63,11 @@ ZoaReviewArticleReference >> isIncluded [
 ]
 
 { #category : #accessing }
+ZoaReviewArticleReference >> keywords [
+	^ article keywords 
+]
+
+{ #category : #accessing }
 ZoaReviewArticleReference >> reason [
 	^ reason
 ]
@@ -70,11 +75,6 @@ ZoaReviewArticleReference >> reason [
 { #category : #accessing }
 ZoaReviewArticleReference >> reason: aString [ 
 	reason := aString
-]
-
-{ #category : #accessing }
-ZoaReviewArticleReference >> tags [
-	^ article keywords 
 ]
 
 { #category : #accessing }
