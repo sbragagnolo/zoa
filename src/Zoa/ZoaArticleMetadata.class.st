@@ -137,7 +137,9 @@ ZoaArticleMetadata >> article: anArticle [
 { #category : #'data query' }
 ZoaArticleMetadata >> currentAuthors [
 
-	^ article authors
+	| authorsIds |
+	authorsIds := article authorsReferences  flatCollect: [ :a | a authorIds ].
+	^ zoa findAllAuthors select: [ :a | authorsIds includesAny: a ids ]
 ]
 
 { #category : #'data query' }
@@ -234,7 +236,7 @@ ZoaArticleMetadata >> updateArticle [
 	doi text: article doi.
 	publisher text: article publisher.
 	keywords items: article keywords asOrderedCollection.
-	authors items: article authors.
+	authors items: self currentAuthors. 
 	date text: article date asString. 
 	link text: article link asString.
 ]

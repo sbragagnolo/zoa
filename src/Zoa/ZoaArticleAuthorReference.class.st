@@ -5,29 +5,19 @@ Class {
 	#name : #ZoaArticleAuthorReference,
 	#superclass : #Object,
 	#instVars : [
-		'author',
-		'article',
-		'affiliation'
+		'articleReference',
+		'affiliation',
+		'authorIds'
 	],
 	#category : #'Zoa-Model'
 }
-
-{ #category : #voyage }
-ZoaArticleAuthorReference class >> descriptionContainer [
-	<voyageContainer>
-	^ VOContainer new collectionName: 'ZoaArticleAuthorReference' yourself
-]
-
-{ #category : #voyage }
-ZoaArticleAuthorReference class >> isVoyageRoot [
-	^ true
-]
 
 { #category : #accessing }
 ZoaArticleAuthorReference >> = anOtherRef [
 
 	^ self species = anOtherRef species and: [ 
-		  article = anOtherRef article and: [ author = anOtherRef author ] ]
+		  articleReference = anOtherRef articleReference and: [ 
+			  authorIds = anOtherRef authorIds ] ]
 ]
 
 { #category : #adding }
@@ -50,32 +40,37 @@ ZoaArticleAuthorReference >> affiliation: aString [
 ]
 
 { #category : #accessing }
-ZoaArticleAuthorReference >> article [
-	^ article
+ZoaArticleAuthorReference >> articleReference [
+	^ articleReference 
 ]
 
 { #category : #accessing }
-ZoaArticleAuthorReference >> article: aZoaArticle [ 
-	article := aZoaArticle
+ZoaArticleAuthorReference >> articleReference: aZoaArticleRef [
+
+	articleReference := aZoaArticleRef
 ]
 
 { #category : #'as yet unclassified' }
-ZoaArticleAuthorReference >> author [
-	^ author
+ZoaArticleAuthorReference >> authorIds [
+	^ authorIds
 ]
 
 { #category : #accessing }
-ZoaArticleAuthorReference >> author: aZoaAuthor [ 
-	author := aZoaAuthor
+ZoaArticleAuthorReference >> authorIds: aZoaAuthorIdSet [
+	authorIds := aZoaAuthorIdSet
 ]
 
 { #category : #accessing }
 ZoaArticleAuthorReference >> hash [
-	^ article hash bitXor: author hash
+	^ articleReference hash bitXor: authorIds hash
 ]
 
 { #category : #'as yet unclassified' }
 ZoaArticleAuthorReference >> printOn: aStream [
-	author printOn: aStream.
-	affiliation printOn: aStream
+
+	aStream nextPutAll: 'ArticleAuthorRef: ('.
+	authorIds anyOne printOn: aStream.
+	aStream nextPutAll: ';'.
+	articleReference printOn: aStream.
+	aStream nextPutAll: ')'
 ]

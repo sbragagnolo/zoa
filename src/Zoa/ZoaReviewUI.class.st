@@ -133,8 +133,9 @@ ZoaReviewUI >> articleContextMenuUsing: aZoa [
 ZoaReviewUI >> articlesExcludedFromAuthor: anAuthor [
 
 	^ (review articles select: [ :ref | 
-		   ((anAuthor articles collect: #article ) includes: ref article) and: [ ref isIncluded not ] ])
-		  size
+		   (anAuthor ids includesAny:
+			    (ref article authorsReferences flatCollect: [ :r | r authorIds ])) 
+			   and: [ ref isIncluded not ] ]) size
 ]
 
 { #category : #'data query' }
@@ -149,8 +150,9 @@ ZoaReviewUI >> articlesExcludedFromTag: aTag [
 ZoaReviewUI >> articlesIncludedFromAuthor: anAuthor [
 
 	^ (review articles select: [ :ref | 
-		   ((anAuthor articles collect: #article )includes: ref article) and: [ ref isIncluded ] ])
-		  size
+		   (anAuthor ids includesAny:
+			    (ref article authorsReferences flatCollect: [ :r | r authorIds ])) 
+			   and: [ ref isIncluded ] ]) size
 ]
 
 { #category : #'data query' }
@@ -169,6 +171,15 @@ ZoaReviewUI >> askAndSaveIfNeeded [
 		        'You are about to open an other review. Do you want to save  '
 		        , review title , ' before closing? '.
 	save ifTrue: [ zoa saveReview: review ]
+]
+
+{ #category : #'data query' }
+ZoaReviewUI >> currentAuthors [
+
+	| authorsIds |
+	authorsIds := review authorsReference flatCollect: [ :a | 
+		              a authorIds ].
+	^ zoa findAllAuthors select: [ :a | authorsIds includesAny: a ids ]
 ]
 
 { #category : #actions }
@@ -203,6 +214,13 @@ ZoaReviewUI >> excludeArticleFromReview: anArticleRef [
 	anArticleRef included: false.
 	anArticleRef reason: reason.
 	anArticleRef codification: codification
+]
+
+{ #category : #accessing }
+ZoaReviewUI >> firstAuthorName: aZoaReviewArticleReference [
+
+	^ (zoa findAuthorByIds:
+		   aZoaReviewArticleReference firstAuthor authorIds) citeName
 ]
 
 { #category : #initialization }
@@ -353,7 +371,7 @@ ZoaReviewUI >> newArticleTableUsing: aZoa [
 				 yourself);
 		addColumn: ((SpStringTableColumn
 				  title: 'Author'
-				  evaluated: [ :item | item firstAuthorName ])
+				  evaluated: [ :item | self firstAuthorName: item ])
 				 width: 100;
 				 yourself);
 		addColumn:
@@ -545,7 +563,7 @@ ZoaReviewUI >> updateReview [
 			 (self articlesIncludedFromTag: a) 
 			 > (self articlesIncludedFromTag: b)  ]).
 	articles items: review articles.
-	authors items: review authors.
+	authors items: self currentAuthors.
 	query text: (review query ifNil: [ '' ]).
 	preview text: self previewTextModel.
 	publisher items: review publishers.

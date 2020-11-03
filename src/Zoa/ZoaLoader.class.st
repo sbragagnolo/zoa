@@ -39,16 +39,23 @@ ZoaLoader >> addTo: anArticle authorFirstNamed: firstname lastName: lastname id:
 	author addId: userId.
 	author := Zoa current findAuthorByExampleOrStore: author.
 
-	^ anArticle authorsReferences
-		detect: [ :a | a author isLike: author ]
-		ifFound: [ :ref | affiliations do: [ :a | ref addAffiliation: a ]. ref author ]
+	anArticle authorsReferences
+		detect: [ :a | author ids includesAny: a authorIds ]
+		ifFound: [ :ref | affiliations do: [ :a | ref addAffiliation: a ] ]
 		ifNone: [ 
 			articleRef := ZoaArticleAuthorReference new.
 			articleRef affiliation: affiliations.
-			articleRef author: author.
+			articleRef authorIds: author ids.
 			author addArticle: articleRef.
+			articleRef articleReference: (ZoaArticleReference new
+					 reference: anArticle doi;
+					 title: anArticle title;
+					 yourself).
 			anArticle addAuthorReference: articleRef.
-			articleRef ]
+			Zoa current saveAuthor: author. 
+			articleRef. 
+		
+			]
 ]
 
 { #category : #'as yet unclassified' }
@@ -232,7 +239,6 @@ ZoaLoader >> setKeywords: anArrayOfkeywords into: anArticle [
 				            ZoaTag new
 					            name: k;
 					            yourself ] ].
-	keywords do: [ :k | k addArticle: anArticle ].
 	anArticle keywords: keywords
 ]
 

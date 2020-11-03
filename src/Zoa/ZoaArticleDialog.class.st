@@ -71,7 +71,7 @@ ZoaArticleDialog >> newArticleTableUsing: aZoa [
 				   yourself);
 		  addColumn: ((SpStringTableColumn
 				    title: 'Author'
-				    evaluated: [ :item | item firstAuthorName ])
+				    evaluated: [ :item | (zoa findAuthorByIds: item firstAuthor authorIds)citeName ])
 				   width: 100;
 				   beSortable;
 				   yourself);

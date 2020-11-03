@@ -128,7 +128,7 @@ ZoaDatabaseExplorer >> importCitationsAndReferences: anArticle [
 	(text
 		 autoAccept: true;
 		 yourself) openDialogWithSpec okAction: [ 
-		html := text text asString parseHTML.
+		html := text text asString parseHTML. 
 		visitor := ZoaIEEEVisitor new.
 		visitor article: anArticle.
 		html acceptNodeVisitor: visitor.
@@ -214,6 +214,7 @@ ZoaDatabaseExplorer >> initializeWidgets [
 	listables := self newNotebook.
 	articles := self newArticleView.
 	authors := self newAuthorsView.
+	
 	keywords := self newKeywordsView.
 	preview := self instantiate: ZoaArticleViewer.
 	"spec script: [ :view | view addShape: RSBox new. value := value + 1 ]."
@@ -239,7 +240,8 @@ ZoaDatabaseExplorer >> newArticleView [
 				 yourself);
 		addColumn: ((SpStringTableColumn
 				  title: 'Author'
-				  evaluated: [ :item | item firstAuthorName ])
+				  evaluated: [ :item | 
+					  zoa findAuthorByIds: item firstAuthor authorIds ])
 				 width: 100;
 				 beSortable;
 				 yourself);
@@ -286,6 +288,7 @@ ZoaDatabaseExplorer >> newAuthorsView [
 ZoaDatabaseExplorer >> newAuthorsView [
 
 	| table |
+	
 	table := self newTable.
 
 	table
@@ -324,7 +327,7 @@ ZoaDatabaseExplorer >> newKeywordsView [
 		roots: {  };
 		children: [ :aTag | 
 			(aTag isKindOf: ZoaTag)
-				ifTrue: [ aTag articles asOrderedCollection ]
+				ifTrue: [ zoa findAllArticlesWithKeyword: aTag  ]
 				ifFalse: [ {  } ] ];
 		beResizable.
 	

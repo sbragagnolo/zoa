@@ -70,10 +70,10 @@ ZoaReview >> articles [
 ]
 
 { #category : #accessing }
-ZoaReview >> authors [
-	^ (articles flatCollect: [ :a | a authors  ]) asSet asOrderedCollection sorted: [: x :y | 
-			x fullName > y fullName 
-		].
+ZoaReview >> authorsReference [
+	^ (articles flatCollect: [ :a | a authorsReferences   ]) asSet asOrderedCollection 
+	
+	
 ]
 
 { #category : #accessing }
@@ -141,7 +141,7 @@ ZoaReview >> microdownBriefUsing: aZoa [
 				  nextPutAll: '-';
 				  nextPutAll: tag name;
 				  nextPutAll: '(';
-				  nextPutAll: tag articles size asString;
+				  nextPutAll: (aZoa findAllArticlesWithKeyword: tag) size asString;
 				  nextPutAll: ')';
 				  cr ].
 		  str

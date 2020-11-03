@@ -119,7 +119,8 @@ ZoaAuthorWidget >> pushChanges [
 	newId do: [ :id | author addId: id ].
 	idModification keysAndValuesDo: [ :original :modification | 
 		original authority: modification authority.
-		original id: modification id ]
+		original id: modification id ].
+	zoa saveAuthor: author. 
 ]
 
 { #category : #initialization }
@@ -127,6 +128,10 @@ ZoaAuthorWidget >> saveIdModification [
 
 	| modifing |
 	ids selectedItem ifNil: [ ^ self ].
+
+	(UIManager default confirm:
+		 'Modify an ID of an author can lead to leak of articles. Please ensure you know what you are doing. Do you want to continue? ') 
+		ifFalse: [ ^ self ].
 	modifing := idModification
 		            keyAtValue: ids selectedItem
 		            ifAbsent: [ ids selectedItem ].
@@ -150,6 +155,6 @@ ZoaAuthorWidget >> updateAuthor [
 
 	firstName text: author firstname.
 	lastName text: author lastname.
-	ids items: (author ids values , newId collect: [ :id | 
+	ids items: (author ids , newId collect: [ :id | 
 			 idModification at: id ifAbsent: [ id ] ])
 ]

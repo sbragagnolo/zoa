@@ -5,8 +5,7 @@ Class {
 	#name : #ZoaTag,
 	#superclass : #Object,
 	#instVars : [
-		'name',
-		'articles'
+		'name'
 	],
 	#category : #'Zoa-Model'
 }
@@ -29,22 +28,6 @@ ZoaTag >> = anOtherTag [
 ]
 
 { #category : #accessing }
-ZoaTag >> addArticle: anArticle [
-	articles add: anArticle .
-	
-]
-
-{ #category : #accessing }
-ZoaTag >> articles [
-	^ articles
-]
-
-{ #category : #accessing }
-ZoaTag >> articles: acollectionOfArticles [
-	articles := acollectionOfArticles asSet
-]
-
-{ #category : #accessing }
 ZoaTag >> hash [
 	^ name hash
 ]
@@ -52,7 +35,6 @@ ZoaTag >> hash [
 { #category : #accessing }
 ZoaTag >> initialize [
 	super initialize.
-	articles := Set new
 ]
 
 { #category : #accessing }
@@ -68,10 +50,4 @@ ZoaTag >> name: aName [
 { #category : #accessing }
 ZoaTag >> printOn: aStream [
 	aStream nextPutAll:'Tag('; nextPutAll: name; nextPutAll:')'.
-]
-
-{ #category : #removing }
-ZoaTag >> removeArticle: aZoaArticle [
-
-	articles remove: aZoaArticle
 ]

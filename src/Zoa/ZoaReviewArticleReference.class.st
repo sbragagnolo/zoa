@@ -6,7 +6,6 @@ Class {
 	#name : #ZoaReviewArticleReference,
 	#superclass : #Object,
 	#instVars : [
-		'review',
 		'article',
 		'included',
 		'reason',
@@ -19,7 +18,7 @@ Class {
 ZoaReviewArticleReference >> = anOtherRef [
 
 	^ self species = anOtherRef species and: [ 
-		  article = anOtherRef article and: [ review = anOtherRef review ] ]
+		  article = anOtherRef article ]
 ]
 
 { #category : #accessing }
@@ -35,6 +34,11 @@ ZoaReviewArticleReference >> article: aZoaArticle [
 { #category : #accessing }
 ZoaReviewArticleReference >> authors [
 	^ article authors 
+]
+
+{ #category : #accessing }
+ZoaReviewArticleReference >> authorsReferences [
+	^ article authorsReferences
 ]
 
 { #category : #accessing }
@@ -54,6 +58,11 @@ ZoaReviewArticleReference >> date [
 ]
 
 { #category : #accessing }
+ZoaReviewArticleReference >> firstAuthor [
+	^ article firstAuthor
+]
+
+{ #category : #accessing }
 ZoaReviewArticleReference >> firstAuthorName [
 
 	^ article firstAuthorName
@@ -62,7 +71,7 @@ ZoaReviewArticleReference >> firstAuthorName [
 { #category : #accessing }
 ZoaReviewArticleReference >> hash [
 
-	^ review hash bitXor: article hash
+	^ article hash
 ]
 
 { #category : #accessing }
@@ -89,16 +98,6 @@ ZoaReviewArticleReference >> reason [
 { #category : #accessing }
 ZoaReviewArticleReference >> reason: aString [ 
 	reason := aString
-]
-
-{ #category : #'as yet unclassified' }
-ZoaReviewArticleReference >> review [ 
-	^ review 
-]
-
-{ #category : #'as yet unclassified' }
-ZoaReviewArticleReference >> review: aReview [ 
-	review := aReview 
 ]
 
 { #category : #accessing }

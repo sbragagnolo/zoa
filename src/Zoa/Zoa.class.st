@@ -142,8 +142,9 @@ Zoa >> findAllArticles [
 ]
 
 { #category : #find }
-Zoa >> findAllAuthorReferences [
-	^ self repository selectAll: ZoaArticleAuthorReference 
+Zoa >> findAllArticlesWithKeyword: aKeyword [
+
+	^ self findAllArticles select: [ :a | a keywords includes: aKeyword ]
 ]
 
 { #category : #find }
@@ -188,8 +189,15 @@ Zoa >> findArticleByReference: aReference [
 { #category : #find }
 Zoa >> findAuthorByExampleOrStore: anAuthor [
 
-	
-	^ (self findAuthorLike: anAuthor) ifNil: [ anAuthor ]
+	^ (self findAuthorLike: anAuthor) ifNil: [ 
+		  self saveAuthor: anAuthor.
+		  anAuthor ]
+]
+
+{ #category : #find }
+Zoa >> findAuthorByIds: aSet [
+
+	^ self findAllAuthors detect: [ :a | aSet includesAny: a ids ]
 ]
 
 { #category : #find }
@@ -368,7 +376,7 @@ Zoa >> saveArticle: doc [
 		detect: [ :a | 
 			a doi = doc doi or: [ 
 				a title = doc title and: [ 
-					a firstAuthorCiteName = doc firstAuthorCiteName ] ] ]
+					a firstAuthor = doc firstAuthor ] ] ]
 		ifFound: [ :a | 
 			a mergeWith: doc.
 			self repository save: a ]

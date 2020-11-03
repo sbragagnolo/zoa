@@ -36,7 +36,7 @@ ZoaAuthor >> addArticle: aZoaArticleAuthorReference [
 
 { #category : #'as yet unclassified' }
 ZoaAuthor >> addId: anId [
-	ids at: anId authority put: anId
+	ids add: anId 
 ]
 
 { #category : #'as yet unclassified' }
@@ -67,24 +67,22 @@ ZoaAuthor >> hash [
 { #category : #accessing }
 ZoaAuthor >> ids [
 
-	^ ids ifNil: [ ids := Dictionary new ]
+	^ ids 
 ]
 
 { #category : #accessing }
 ZoaAuthor >> initialize [ 
 	super initialize. 
 	articles := OrderedCollection new.
-	ids := Dictionary new. 
+	ids := Set new.
 ]
 
 { #category : #accessing }
 ZoaAuthor >> isLike: anOther [
 
-	self ids keysAndValuesDo: [ :k :v | 
-		((anOther ids includesKey: k) and: [ (anOther ids at: k) = v ]) 
-			ifTrue: [ ^ true ] ].
-	(lastname = anOther lastname and: [ name = anOther name ]) ifTrue: [ 
-		^ true ].
+	((self ids includesAny: anOther ids) or: [ 
+		 lastname = anOther lastname and: [ name = anOther name ] ]) 
+		ifTrue: [ ^ true ].
 
 	"Should add orcid "
 	^ false

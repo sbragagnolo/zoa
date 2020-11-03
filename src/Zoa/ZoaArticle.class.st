@@ -53,7 +53,7 @@ ZoaArticle >> abstract: anObject [
 { #category : #'as yet unclassified' }
 ZoaArticle >> addAuthorReference: aZoaArticleAuthorReference [ 
 	authorsReference add: aZoaArticleAuthorReference.
-	aZoaArticleAuthorReference article: self
+	
 ]
 
 { #category : #accessing }
@@ -66,7 +66,7 @@ ZoaArticle >> addBrief: aBrief [
 { #category : #accessing }
 ZoaArticle >> addKeyword: aKeyword [
  	keywords add: aKeyword .
-	aKeyword addArticle: self
+"	aKeyword addArticle: self"
 ]
 
 { #category : #reference }
@@ -229,11 +229,19 @@ ZoaArticle >> fileBasename [
 ]
 
 { #category : #'as yet unclassified' }
+ZoaArticle >> firstAuthor [
+
+	^ authorsReference
+		  ifEmpty: [ 'None Author found' ]
+		  ifNotEmpty: [ authorsReference first ]
+]
+
+{ #category : #'as yet unclassified' }
 ZoaArticle >> firstAuthorCiteName [
 
 	^ authorsReference
-		  ifEmpty: [ 'UnknownAuthor' ]
-		  ifNotEmpty: [ authorsReference first author citeName ]
+		  ifEmpty: [ 'None Author found' ]
+		  ifNotEmpty: [ authorsReference first authorIds asString ]
 ]
 
 { #category : #'as yet unclassified' }
@@ -241,7 +249,7 @@ ZoaArticle >> firstAuthorName [
 
 	^ authorsReference
 		  ifEmpty: [ 'None Author found' ]
-		  ifNotEmpty: [ authorsReference first author fullName ]
+		  ifNotEmpty: [ authorsReference first authorIds asString ]
 ]
 
 { #category : #accessing }
@@ -352,12 +360,13 @@ ZoaArticle >> mergeWith: aZoaArticle [
 			self addReference: r ].
 		aZoaArticle references removeAll ].
 	date ifNil: [ date := aZoaArticle date  ]. 
-	 self halt
+	
 ]
 
 { #category : #reference }
 ZoaArticle >> microdownBriefUsing: aZoa [
 
+	| authors |
 	^ String streamContents: [ :str | 
 		  str
 			  nextPutAll: '#';
@@ -374,13 +383,25 @@ ZoaArticle >> microdownBriefUsing: aZoa [
 			  cr.
 
 		  authorsReference do: [ :ar | 
-			  str nextPutAll: ar author fullName.
-			  ar author ids keysAndValuesDo: [ :k :v | 
+			  str
+				  nextPutAll: 'Auhor Name: ';
+				  nextPutAll:
+					  (aZoa findAuthorByIds: ar authorIds)
+						  fullName;
+				  cr.
+			  str nextPutAll: 'Auhor ID: '.
+			  ar authorIds do: [ :id | 
 				  str
-					  nextPutAll: k;
-					  nextPutAll: ': ';
-					  nextPutAll: v asString;
-					  cr ].
+					  nextPutAll: id asString;
+					  nextPutAll: '; ' ].
+			  str cr.
+			  str nextPutAll: 'Auhor Affiliations:  '.
+			  ar affiliation do: [ :a | 
+				  str
+					  nextPutAll: a;
+					  nextPutAll: '; ' ].
+
+
 
 			  str cr ].
 
@@ -430,7 +451,9 @@ ZoaArticle >> microdownBriefUsing: aZoa [
 		  (self citesUsing: aZoa) do: [ :r | 
 			  str
 				  nextPutAll: ' ';
-				  nextPutAll:( (r referenceEntryInRelationWith: self zoa: aZoa) readStream next:40);
+				  nextPutAll:
+					  ((r referenceEntryInRelationWith: self zoa: aZoa) readStream 
+						   next: 40);
 				  cr ].
 
 		  str
