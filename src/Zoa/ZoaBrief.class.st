@@ -25,6 +25,11 @@ ZoaBrief >> includeInText [
 	^ includeInText ifNil: [ false ]
 ]
 
+{ #category : #accessing }
+ZoaBrief >> includeInText: aValue [ 
+	includeInText := aValue
+]
+
 { #category : #initialization }
 ZoaBrief >> initialize [
 	super initialize.

@@ -276,7 +276,7 @@ ZoaReviewUI >> initializeWidgets [
 	authors := self newAuthorTable.
 	publisher := self newPublisherTable.
 	affiliations := self newAffiliationTable.
-	edition := self newEditionArea.
+	edition := self newBriefsList.
 	self initializeNotebook
 ]
 

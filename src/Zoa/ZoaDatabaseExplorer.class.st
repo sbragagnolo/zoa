@@ -235,22 +235,25 @@ ZoaDatabaseExplorer >> newArticleView [
 				  title: 'Date'
 				  evaluated: [ :item | item date year asString ])
 				 width: 50;
+				 beSortable;
 				 yourself);
 		addColumn: ((SpStringTableColumn
 				  title: 'Author'
 				  evaluated: [ :item | item firstAuthorName ])
 				 width: 100;
+				 beSortable;
 				 yourself);
 		addColumn:
-		(SpStringTableColumn
-			 title: 'Title'
-			 evaluated: [ :item | item title ]);
+			(SpStringTableColumn
+				 title: 'Title'
+				 evaluated: [ :item | item title ]) beSortable;
+		yourself;
 		whenSelectionChangedDo: [ :selection | 
 		self selectArticle: selection ];
 		activateOnDoubleClick;
 		whenActivatedDo: [ :selection | 
 		self openArticleMetadata: selection selectedItem ];
-	beResizable.
+		beResizable.
 	^ table
 ]
 
@@ -262,16 +265,19 @@ ZoaDatabaseExplorer >> newAuthorsView [
 
 	table
 		sortingBlock: [ :a :b | a fullName < b fullName ];
-		addColumn: (SpStringTableColumn
-				 title: 'Author'
-				 evaluated: [ :item | item fullName asString ]);
 		addColumn: ((SpStringTableColumn
 				  title: 'Articles'
 				  evaluated: [ :item | item articles size asString ])
-				 width: 100;
+				 width: 50;
+				 beSortable;
 				 yourself);
-		
-	
+		addColumn: ((SpStringTableColumn
+				  title: 'Author'
+				  evaluated: [ :item | item fullName asString ])
+				 beSortable;
+				 yourself);
+		activateOnDoubleClick;
+		whenActivatedDo: [ :l | self openAuthorEditingDialog: l selectedItem ];
 		beResizable.
 	^ table
 ]
@@ -288,7 +294,7 @@ ZoaDatabaseExplorer >> newKeywordsView [
 				 addColumn: ((SpImageTableColumn evaluated: #systemIcon)
 						  width: 20;
 						  yourself);
-				 addColumn: (SpStringTableColumn evaluated: #name);
+				 addColumn: ( (SpStringTableColumn evaluated: #name) beSortable; yourself  );
 				 yourself);
 		roots: {  };
 		children: [ :aTag | 
@@ -318,6 +324,17 @@ ZoaDatabaseExplorer >> openArticleMetadata: anArticle [
 		 openWithSpec)
 		extent: 720.0 @ 578.0;
 		title: (anArticle title readStream next: 50)
+]
+
+{ #category : #'widget creation' }
+ZoaDatabaseExplorer >> openAuthorEditingDialog: anAuthor [
+
+	| author |
+	author := self instantiate: ZoaAuthorWidget.
+	author author: anAuthor.
+	author openDialogWithSpec
+		okAction: [ author pushChanges ];
+		title: anAuthor fullName
 ]
 
 { #category : #'as yet unclassified' }

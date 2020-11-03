@@ -24,10 +24,9 @@ ZoaPresenter >> newAuthorList [
 		| author |
 		author := self instantiate: ZoaAuthorWidget.
 		author author: selection selectedItem.
-		author
+		author openDialogWithSpec
 			okAction: [ author pushChanges ];
-			title: selection selectedItem fullName;
-			openModalWithSpec ].
+			title: selection selectedItem fullName ].
 	^ widget
 ]
 
@@ -42,6 +41,14 @@ ZoaPresenter >> newBriefsList [
 		addColumn:
 			((SpStringTableColumn title: '#' evaluated: [ :item | item order ])
 				 width: 30;
+				 beSortable;
+				 yourself);
+		addColumn: ((SpCheckBoxTableColumn
+				  title: 'Include'
+				  evaluated: [ :brief | brief includeInText ])
+				 onActivation: [ :brief | brief includeInText: true ];
+				 onDeactivation: [ :brief | brief includeInText: false ];
+				 width: 50;
 				 yourself);
 		addColumn:
 			((SpStringTableColumn
