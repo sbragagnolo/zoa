@@ -37,7 +37,7 @@ ZoaPresenter >> newBriefsList [
 	table := self newTable.
 
 	table
-		sortingBlock: [ :a :b | a order < b order ];
+		sortingBlock: [ :a :b | (a order ifNil: [ 0 ]) < (b order ifNil: [ 0 ]) ];
 		addColumn:
 			((SpStringTableColumn title: '#' evaluated: [ :item | item order ])
 				 width: 30;
@@ -59,7 +59,6 @@ ZoaPresenter >> newBriefsList [
 		addColumn: ((SpStringTableColumn
 				  title: 'Content'
 				  evaluated: [ :item | item text readStream next: 50 ])
-				 width: 100;
 				 yourself);
 		activateOnDoubleClick;
 		whenActivatedDo: [ :selection | 

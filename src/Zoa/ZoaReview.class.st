@@ -43,6 +43,13 @@ ZoaReview >> addArticle: anArticle [
 			 yourself)
 ]
 
+{ #category : #adding }
+ZoaReview >> addBrief: aBrief [
+
+	briefs add: aBrief.
+	aBrief order: (aBrief order ifNil: [ briefs size ])
+]
+
 { #category : #accessing }
 ZoaReview >> affiliations [
 
