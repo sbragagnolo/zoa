@@ -12,6 +12,13 @@ Class {
 }
 
 { #category : #accessing }
+ZoaArticleReference >> = anOtherRef [
+
+	^ self species = anOtherRef species and: [ 
+		  reference = anOtherRef reference ]
+]
+
+{ #category : #accessing }
 ZoaArticleReference >> ensureIsLoadedInto: aZoaApi [
 
 	| article |
@@ -21,12 +28,22 @@ ZoaArticleReference >> ensureIsLoadedInto: aZoaApi [
 ]
 
 { #category : #accessing }
+ZoaArticleReference >> hash [ 
+	^ reference hash
+]
+
+{ #category : #accessing }
 ZoaArticleReference >> isResolvedIn: aZoaApi [
 
 	^ aZoaApi
 		  ifArticleIsLoaded: reference
 		  then: [ true ]
 		  ifNot: [ false ]
+]
+
+{ #category : #accessing }
+ZoaArticleReference >> reference [
+	^ reference
 ]
 
 { #category : #accessing }

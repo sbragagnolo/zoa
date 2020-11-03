@@ -23,6 +23,13 @@ ZoaArticleAuthorReference class >> isVoyageRoot [
 	^ true
 ]
 
+{ #category : #accessing }
+ZoaArticleAuthorReference >> = anOtherRef [
+
+	^ self species = anOtherRef species and: [ 
+		  article = anOtherRef article and: [ author = anOtherRef author ] ]
+]
+
 { #category : #adding }
 ZoaArticleAuthorReference >> addAffiliation: aString [ 
 	affiliation  add: aString 
@@ -60,6 +67,11 @@ ZoaArticleAuthorReference >> author [
 { #category : #accessing }
 ZoaArticleAuthorReference >> author: aZoaAuthor [ 
 	author := aZoaAuthor
+]
+
+{ #category : #accessing }
+ZoaArticleAuthorReference >> hash [
+	^ article hash bitXor: author hash
 ]
 
 { #category : #'as yet unclassified' }

@@ -20,6 +20,12 @@ Zoa class >> current [
 	^ zoa ifNil: [ zoa := self new ]
 ]
 
+{ #category : #accessing }
+Zoa class >> current: anObject [
+
+	zoa := anObject
+]
+
 { #category : #'as yet unclassified' }
 Zoa class >> defaultFolder [
 	^ (FileLocator home / '.zoa') ensureCreateDirectory 
@@ -87,9 +93,10 @@ Zoa >> doiToUrl: aDoi [
 
 { #category : #find }
 Zoa >> dropDatabase [
-	
+
 	self repository dropDatabase.
-	repository := nil
+	repository := nil.
+	Zoa current = self ifTrue: [ Zoa current: nil ]
 ]
 
 { #category : #find }
@@ -103,7 +110,7 @@ Zoa >> emptyDatabase [
 { #category : #save }
 Zoa >> exportArticle: anArticle to: aFolder [
 
-	| export pdf brief |
+	| export pdf brief ston |
 	export := aFolder / anArticle fileBasename.
 	pdf := self pdfFileFor: anArticle ifNotYetResolved: [ nil ].
 	pdf ifNotNil: [ pdf copyTo: export ].
@@ -113,6 +120,13 @@ Zoa >> exportArticle: anArticle to: aFolder [
 
 	brief nextPutAll: (anArticle microdownBriefUsing: self).
 	brief
+		flush;
+		close.
+	ston := (export / (anArticle fileBasename , '.ston'))
+		        ensureCreateFile;
+		        writeStream.
+	STON put: anArticle onStream: ston.
+	ston
 		flush;
 		close
 ]

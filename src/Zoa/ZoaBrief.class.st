@@ -9,15 +9,33 @@ Class {
 		'name',
 		'text',
 		'tags',
-		'includeInText'
+		'includeInText',
+		'id'
 	],
 	#category : #'Zoa-Model'
 }
+
+{ #category : #initialization }
+ZoaBrief >> = anOtherReview [
+
+	^ self species = anOtherReview species and: [ id = anOtherReview id ]
+]
 
 { #category : #adding }
 ZoaBrief >> addTag: aZoaTag [
 
 	tags add: aZoaTag
+]
+
+{ #category : #initialization }
+ZoaBrief >> hash [
+
+	^ id hash
+]
+
+{ #category : #initialization }
+ZoaBrief >> id [
+	^ id
 ]
 
 { #category : #accessing }
@@ -32,7 +50,9 @@ ZoaBrief >> includeInText: aValue [
 
 { #category : #initialization }
 ZoaBrief >> initialize [
+
 	super initialize.
+	id := UUID new. 
 	text := ''.
 	includeInText := false.
 ]

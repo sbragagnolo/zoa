@@ -23,6 +23,12 @@ ZoaTag class >> isVoyageRoot [
 ]
 
 { #category : #accessing }
+ZoaTag >> = anOtherTag [
+
+	^ self species = anOtherTag species and: [ name = anOtherTag name ]
+]
+
+{ #category : #accessing }
 ZoaTag >> addArticle: anArticle [
 	articles add: anArticle .
 	
@@ -36,6 +42,11 @@ ZoaTag >> articles [
 { #category : #accessing }
 ZoaTag >> articles: acollectionOfArticles [
 	articles := acollectionOfArticles asSet
+]
+
+{ #category : #accessing }
+ZoaTag >> hash [
+	^ name hash
 ]
 
 { #category : #accessing }

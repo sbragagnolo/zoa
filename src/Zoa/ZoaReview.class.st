@@ -9,7 +9,8 @@ Class {
 		'query',
 		'articles',
 		'briefs',
-		'title'
+		'title',
+		'id'
 	],
 	#category : #'Zoa-Model'
 }
@@ -18,6 +19,12 @@ Class {
 ZoaReview class >> isVoyageRoot [
 
 	^ true
+]
+
+{ #category : #adding }
+ZoaReview >> = anOtherReview [
+
+	^ self species = anOtherReview species and: [ id = anOtherReview id ]
 ]
 
 { #category : #accessing }
@@ -76,9 +83,22 @@ ZoaReview >> briefs [
 ]
 
 { #category : #adding }
+ZoaReview >> hash [
+
+	^ id hash
+]
+
+{ #category : #adding }
+ZoaReview >> id [
+
+	^ id
+]
+
+{ #category : #adding }
 ZoaReview >> initialize [
 
 	super initialize.
+	id := UUID new. 
 	articles := OrderedCollection new.
 	briefs := OrderedCollection new.
 	
