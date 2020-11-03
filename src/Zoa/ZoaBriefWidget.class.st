@@ -13,44 +13,69 @@ Class {
 		'#actions',
 		'#includeInText',
 		'#onSave',
-		'#onDelete'
+		'#onDelete',
+		'#name',
+		'#addedTags',
+		'#removedTags',
+		'#ok',
+		'#cancel',
+		'#window',
+		'#order'
 	],
 	#category : #'Zoa-UI'
 }
 
 { #category : #specs }
 ZoaBriefWidget class >> defaultSpec [
+
 	^ SpBoxLayout newVertical
-		add: #toolBar height: self toolbarHeight;
-		add:
-			(SpPanedLayout newHorizontal
-				add: #text;
-				add: #tags;
-				position: 90 percent ;
-				yourself)
-			withConstraints: [ :constraints | 
-				constraints
-					expand: true;
-					fill: true;
-					padding: 20;
-					height: 300 ];
-		add: #actions height: self toolbarHeight;
-		yourself
+		  add: #toolBar height: self toolbarHeight;
+		  add:(SpPanedLayout newHorizontal
+				   add: #name;
+				   add: #order;
+				   position: 90 percent;
+				   yourself);
+		  add: (SpPanedLayout newHorizontal
+				   add: #text;
+				   add: #tags;
+				   position: 90 percent;
+				   yourself)
+		  withConstraints: [ :constraints | 
+			  constraints
+				  expand: true;
+				  fill: true;
+				  padding: 20;
+				  height: 300 ];
+		  add: (SpBoxLayout newHorizontal
+				   add: #ok width: 150;
+				   add: #cancel width: 150;
+				   yourself)
+		  withConstraints: [ :constraints | 
+			  constraints
+				  expand: false;
+				  fill: false;
+				  padding: 70 percent];
+		  yourself
+]
+
+{ #category : #initialization }
+ZoaBriefWidget >> addTag: aTag [ 
+	addedTags add: aTag.
 ]
 
 { #category : #'update and set' }
 ZoaBriefWidget >> brief: aBrief [
-	brief := aBrief
-]
-
-{ #category : #actions }
-ZoaBriefWidget >> deleteBrief [
-	onDelete ifNotNil: [ onDelete cull: brief ].
+	brief := aBrief.
+	addedTags removeAll. 
+	removedTags removeAll. 
 ]
 
 { #category : #initialization }
 ZoaBriefWidget >> initialize [
+
 	super initialize.
+	addedTags := OrderedCollection new.
+	removedTags := OrderedCollection new
 ]
 
 { #category : #accessing }
@@ -62,31 +87,40 @@ ZoaBriefWidget >> initializePrivateAnnouncements [
 { #category : #initialization }
 ZoaBriefWidget >> initializeToolbar [
 
-	toolBar addItemLeft: (self newToolbarButton
-			 icon: (Smalltalk ui icons iconNamed: #smallSave);
-			 action: [ self saveBrief ] yourself).
-	toolBar addItemLeft: (self newToolbarButton
-			 icon: (Smalltalk ui icons iconNamed: #smallDelete);
-			 action: [ self deleteBrief ] yourself)
+
+	includeInText :=  (self newToolbarToggleButton
+			 action: [ self toggleIncludeText ];
+			 yourself).
+	toolBar addItemLeft:includeInText
 ]
 
 { #category : #initialization }
 ZoaBriefWidget >> initializeWidgets [
 
-	nameLabel := self newLabel.
 	toolBar := self newToolbar.
 	self initializeToolbar.
 
-	includeInText := self newButton.
-	includeInText action: [ self toggleIncludeText ].
-
+	name := self newTextInput.
+	order := self newNumberInput. 
 	text := self newText.
-	text whenEditableChangedDo: [ self saveBrief ].
+	text autoAccept: true.
 	tags := self newTagsList.
-	tags onDelete: [ :t | brief tags remove: t ].
-	tags onAdd: [ :t | brief tags add: t ].
-	actions := self newActionBar.
-	actions add: includeInText
+	tags onDelete: [ :t | self removeTag: t ].
+	tags onAdd: [ :t | self addTag: t ].
+	ok := self newButton.
+	ok label: 'Accept'.
+	ok action: [ 
+		self pushChanges.
+		window close ].
+	cancel := self newButton.
+	cancel label: 'Cancel'.
+	cancel action: [ window close ]
+]
+
+{ #category : #accessing }
+ZoaBriefWidget >> initializeWindow: aWindow [
+	super initializeWindow: aWindow.
+	window := aWindow.
 ]
 
 { #category : #'data query' }
@@ -94,21 +128,22 @@ ZoaBriefWidget >> nameLabel [
 	^ nameLabel
 ]
 
-{ #category : #accessors }
-ZoaBriefWidget >> onDelete: aBlock [
-	onDelete := aBlock
-]
-
-{ #category : #accessors }
-ZoaBriefWidget >> onSave: aBlock [
-	onSave := aBlock
-]
-
 { #category : #actions }
-ZoaBriefWidget >> saveBrief [
-	brief text: text text. 
+ZoaBriefWidget >> pushChanges [
+	brief order: order text asInteger. 
+	brief text: text text.
+	brief name: name text.
+	addedTags do: [ :t | brief addTag: t ].
+	removedTags do: [ :t | brief removeTag: t ].
 	
-	onSave ifNotNil: [ onSave cull: brief ].
+]
+
+{ #category : #initialization }
+ZoaBriefWidget >> removeTag: aTag [
+
+	(addedTags includes: aTag)
+		ifTrue: [ addedTags remove: aTag ]
+		ifFalse: [ removedTags add: aTag ]
 ]
 
 { #category : #actions }
@@ -119,12 +154,19 @@ ZoaBriefWidget >> toggleIncludeText [
 
 { #category : #'update and set' }
 ZoaBriefWidget >> updateBrief [
-	nameLabel label: brief name.
+
+	brief ifNil: [ 
+		name text: ''.
+		text text: ''.
+		tags items: {  }.
+		^ self ].
+	name text: brief name.
 	text text: brief text.
-	tags items: brief tags.
-	includeInText
-		label:
-			(brief includeInText
-				ifTrue: [ 'Exclude from text' ]
-				ifFalse: [ 'Include in text' ])
+	order number: brief order. 
+	tags items:
+		(brief tags , addedTags reject: [ :t | removedTags includes: t ]).
+	includeInText label: (brief includeInText
+			 ifTrue: [ 'Exclude' ]
+			 ifFalse: [ 'Include' ]).
+	
 ]

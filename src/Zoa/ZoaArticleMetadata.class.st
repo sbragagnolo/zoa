@@ -29,8 +29,6 @@ Class {
 ZoaArticleMetadata class >> defaultSpec [
 
 	^ SpBoxLayout newVertical
-	
-		 
 		  add: (SpBoxLayout newHorizontal
 				   add: (SpBoxLayout newVertical
 						    add: #titleLabel expand: false fill: false padding: 0;
@@ -149,6 +147,12 @@ ZoaArticleMetadata >> currentKeywords [
 ]
 
 { #category : #initialization }
+ZoaArticleMetadata >> extent [
+
+	^ 720.0 @ 578.0
+]
+
+{ #category : #initialization }
 ZoaArticleMetadata >> initializeLabels [
 
 	titleLabel := self newLabel.
@@ -202,7 +206,13 @@ ZoaArticleMetadata >> initializeWidgets [
 	publisher := self newTextInput . 
 	link := self newTextInput. 
 	date := self newTextInput. 
+	self extent: (720.0@578.0).
 "	 #title . #date . #doi . #authors . #keywords . #abstract . #metadata . #link . #publisher"
+]
+
+{ #category : #initialization }
+ZoaArticleMetadata >> initializeWindow: aWindow [
+	super initializeWindow: aWindow. 
 ]
 
 { #category : #initialization }

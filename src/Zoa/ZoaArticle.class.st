@@ -58,7 +58,9 @@ ZoaArticle >> addAuthorReference: aZoaArticleAuthorReference [
 
 { #category : #accessing }
 ZoaArticle >> addBrief: aBrief [
-	briefs add: aBrief
+
+	briefs add: aBrief.
+	aBrief order: (aBrief order ifNil: [ briefs size ])
 ]
 
 { #category : #accessing }
@@ -428,7 +430,7 @@ ZoaArticle >> microdownBriefUsing: aZoa [
 		  (self citesUsing: aZoa) do: [ :r | 
 			  str
 				  nextPutAll: ' ';
-				  nextPutAll: (r referenceEntryInRelationWith: self zoa: aZoa);
+				  nextPutAll:( (r referenceEntryInRelationWith: self zoa: aZoa) readStream next:40);
 				  cr ].
 
 		  str
@@ -512,6 +514,13 @@ ZoaArticle >> publisher: aPublisherSymbol [
 { #category : #accessing }
 ZoaArticle >> references [
 	^ references
+]
+
+{ #category : #accessing }
+ZoaArticle >> removeBrief: aBrief [
+	
+	briefs remove: aBrief.
+
 ]
 
 { #category : #accessing }

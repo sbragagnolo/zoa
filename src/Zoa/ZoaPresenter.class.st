@@ -24,8 +24,41 @@ ZoaPresenter >> newAuthorList [
 		| author |
 		author := self instantiate: ZoaAuthorWidget.
 		author author: selection selectedItem.
-		author openDialogWithSpec okAction: [ author pushChanges ] ].
+		author
+			okAction: [ author pushChanges ];
+			title: selection selectedItem fullName;
+			openModalWithSpec ].
 	^ widget
+]
+
+{ #category : #initialization }
+ZoaPresenter >> newBriefsList [
+
+	| table |
+	table := self newTable.
+
+	table
+		sortingBlock: [ :a :b | a order < b order ];
+		addColumn:
+			((SpStringTableColumn title: '#' evaluated: [ :item | item order ])
+				 width: 30;
+				 yourself);
+		addColumn:
+			((SpStringTableColumn
+				  title: 'Name'
+				  evaluated: [ :item | item name ])
+				 width: 100;
+				 yourself);
+		addColumn: ((SpStringTableColumn
+				  title: 'Content'
+				  evaluated: [ :item | item text readStream next: 50 ])
+				 width: 100;
+				 yourself);
+		activateOnDoubleClick;
+		whenActivatedDo: [ :selection | 
+		self openBrief: selection selectedItem ];
+		beResizable.
+	^ table
 ]
 
 { #category : #initialization }
@@ -70,6 +103,16 @@ ZoaPresenter >> newTagsList [
 				name: name;
 				yourself ] ].
 	^ widget
+]
+
+{ #category : #initialization }
+ZoaPresenter >> openBrief: aBrief [
+
+	((self instantiate: ZoaBriefWidget)
+		 brief: aBrief;
+		 openWithSpec)
+		extent: 1143.0 @ 424.0;
+		title: aBrief name
 ]
 
 { #category : #initialization }

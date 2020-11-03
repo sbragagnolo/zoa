@@ -95,6 +95,14 @@ ZoaArticleArticleReference >> key [
 	^ text
 ]
 
+{ #category : #'as yet unclassified' }
+ZoaArticleArticleReference >> oppositeArticleTo: article using: aZoa [
+
+	^ aZoa findArticleByReference: ((toReference refersTo: article)
+			   ifTrue: [ fromReference ]
+			   ifFalse: [ toReference ])
+]
+
 { #category : #accessing }
 ZoaArticleArticleReference >> printOn: aStream [
 	aStream

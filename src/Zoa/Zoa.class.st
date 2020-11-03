@@ -162,6 +162,11 @@ Zoa >> findArticleByDoi: aDoi [
 ]
 
 { #category : #find }
+Zoa >> findArticleByReference: aReference [
+	^ self findArticleByDoi: aReference reference .
+]
+
+{ #category : #find }
 Zoa >> findAuthorByExampleOrStore: anAuthor [
 
 	

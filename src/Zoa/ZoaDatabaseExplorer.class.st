@@ -41,7 +41,7 @@ ZoaDatabaseExplorer class >> worldMenuOn: aBuilder [
 	<worldMenu>
 	(aBuilder item: #'DB Explorer')
 		parent: #Zoa;
-		action: [ self new openWithSpec title: 'Zoa' ];
+		action: [ (self new openWithSpec title: 'Zoa') extent: 1200@750];
 		order: 0;
 		help: 'System browser to browse and edit code.';
 		iconName: #databaseAdd.
@@ -256,14 +256,22 @@ ZoaDatabaseExplorer >> newArticleView [
 
 { #category : #'widget creation' }
 ZoaDatabaseExplorer >> newAuthorsView [
+
 	| table |
 	table := self newTable.
 
 	table
 		sortingBlock: [ :a :b | a fullName < b fullName ];
-		addColumn: (SpStringTableColumn title: 'CiteName' evaluated: [ :item | item citeName asString ]);
-		addColumn: (SpStringTableColumn title: 'Articles' evaluated: [ :item | item articles size asString ]);
-		addColumn: (SpStringTableColumn title: 'Keywords' evaluated: [ :item |  ';' join: (item articles flatCollect: [ :a | a article keywords ]) ]);
+		addColumn: (SpStringTableColumn
+				 title: 'Author'
+				 evaluated: [ :item | item fullName asString ]);
+		addColumn: ((SpStringTableColumn
+				  title: 'Articles'
+				  evaluated: [ :item | item articles size asString ])
+				 width: 100;
+				 yourself);
+		
+	
 		beResizable.
 	^ table
 ]
@@ -305,9 +313,11 @@ ZoaDatabaseExplorer >> newNotebookPageWith: aProvider and: aTitle [
 { #category : #'widget creation' }
 ZoaDatabaseExplorer >> openArticleMetadata: anArticle [
 
-	(self instantiate: ZoaArticleMetadata)
-		article: anArticle;
-		openWithSpec
+	((self instantiate: ZoaArticleMetadata)
+		 article: anArticle;
+		 openWithSpec)
+		extent: 720.0 @ 578.0;
+		title: (anArticle title readStream next: 50)
 ]
 
 { #category : #'as yet unclassified' }

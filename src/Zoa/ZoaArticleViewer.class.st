@@ -56,20 +56,6 @@ ZoaArticleViewer >> article: anArticle [
 	self updateArticle .
 ]
 
-{ #category : #'data query' }
-ZoaArticleViewer >> currentBriefs [
-
-	article briefs ifEmpty: [ 
-		article briefs add: (ZoaBrief new
-				 name: #Motivation;
-				 yourself) ].
-	^ article briefs collect: [ :b | 
-		  ZoaBriefWidget new
-			  brief: b;
-			  onDelete: [ :br | self deleteBrief: br ];
-			  yourself ]
-]
-
 { #category : #actions }
 ZoaArticleViewer >> deleteArticle [
 	zoa delete: article.
@@ -79,8 +65,9 @@ ZoaArticleViewer >> deleteArticle [
 
 { #category : #actions }
 ZoaArticleViewer >> deleteBrief: aBrief [
-	article briefs remove: aBrief.
-	self updateArticle.
+
+	article removeBrief: aBrief.
+	self updateArticle
 ]
 
 { #category : #'data query' }
@@ -180,7 +167,7 @@ ZoaArticleViewer >> initializeWidgets [
 	self initializeToolbar.
 
 
-	view := self instantiate: SpComponentListPresenter.
+	view := self newBriefsList.
 
 	preview := self newText.
 	htmlRefs := self newText.
@@ -204,7 +191,7 @@ ZoaArticleViewer >> loadOrRead: item [
 
 	(item hasResolvedReferenceIn: zoa)
 		ifTrue: [ 
-			[ owner readPdf: (item oppositeArticleTo: article) ]
+			[ owner readPdf: (item oppositeArticleTo: article using: zoa ) ]
 				on: Error
 				do: [ :e | self inform: e messageText ] ]
 		ifFalse: [ "] on: Error do: [ :e | self inform: e messageText  ]" 
@@ -292,7 +279,7 @@ ZoaArticleViewer >> updateArticle [
 
 	article ifNotNil: [ 
 		references items: article getAllReferences.
-		view items: self currentBriefs.
+		view items: article briefs.
 		preview text:
 			(MicroDownParser asText: (article microdownBriefUsing: zoa)) ]
 ]

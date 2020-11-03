@@ -5,6 +5,7 @@ Class {
 	#name : #ZoaBrief,
 	#superclass : #Object,
 	#instVars : [
+		'order',
 		'name',
 		'text',
 		'tags',
@@ -12,6 +13,12 @@ Class {
 	],
 	#category : #'Zoa-Model'
 }
+
+{ #category : #adding }
+ZoaBrief >> addTag: aZoaTag [
+
+	tags add: aZoaTag
+]
 
 { #category : #accessing }
 ZoaBrief >> includeInText [
@@ -33,6 +40,22 @@ ZoaBrief >> name [
 { #category : #accessing }
 ZoaBrief >> name: aString [ 
 	name := aString
+]
+
+{ #category : #accessing }
+ZoaBrief >> order [
+	^ order
+]
+
+{ #category : #accessing }
+ZoaBrief >> order: anOrder [
+	order := anOrder
+]
+
+{ #category : #removing }
+ZoaBrief >> removeTag: aZoaTag [
+
+	tags remove: aZoaTag
 ]
 
 { #category : #initialization }

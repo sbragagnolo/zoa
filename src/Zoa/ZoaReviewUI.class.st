@@ -72,7 +72,7 @@ ZoaReviewUI >> addBrief [
 		        initialAnswer: 'New'
 		        title: ''.
 	name ifNil: [ ^ self ].
-	review briefs add: (ZoaBrief new
+	review addBrief: (ZoaBrief new
 			 name: name;
 			 yourself).
 	self updateReview
@@ -167,16 +167,6 @@ ZoaReviewUI >> askAndSaveIfNeeded [
 		        'You are about to open an other review. Do you want to save  '
 		        , review title , ' before closing? '.
 	save ifTrue: [ zoa saveReview: review ]
-]
-
-{ #category : #'data query' }
-ZoaReviewUI >> briefWidgets [
-
-	^ review briefs collect: [ :b | 
-		  ZoaBriefWidget new
-			  brief: b;
-			  onDelete: [ :br | review briefs remove: br ];
-			  yourself ]
 ]
 
 { #category : #actions }
@@ -543,5 +533,5 @@ ZoaReviewUI >> updateReview [
 	publisher items: review publishers.
 	affiliations items: review affiliations.
 	abstractTags items: review abstractKeywords associations.
-	edition items: self briefWidgets
+	edition items: review briefs
 ]
