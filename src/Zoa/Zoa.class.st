@@ -349,11 +349,17 @@ Zoa >> privateGetUrlFor: doc [
 	doc pdfUrl ifNil: [ 
 		doc pdfUrl: (UIManager default
 				 request: 'Could you please give an url for the pdf?'
-				 initialAnswer: doc doi
+				 initialAnswer: doc link
 				 title: 'Loading PDF') ].
 	doc pdfUrl ifNil: [ self error: 'Cannot download pdf ' ].
 	
 	^ doc pdfUrl
+]
+
+{ #category : #accesing }
+Zoa >> readArticle: anArticle [
+
+	LibC system: 'open  ' , (anArticle pdfFileUsing: self) fullName
 ]
 
 { #category : #read }

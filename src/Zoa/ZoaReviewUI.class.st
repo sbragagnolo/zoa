@@ -122,10 +122,7 @@ ZoaReviewUI >> articleContextMenuUsing: aZoa [
 				  addItem: [ :anItem | 
 					  anItem
 						  name: 'Read!';
-						  action: [ 
-							  (#open command arguments:
-									   { (articles selectedItem article pdfFileUsing: aZoa)
-										   fullName }) schedule ] ] ];
+						  action: [ zoa readArticle: articles selectedItem article ] ] ];
 		  yourself
 ]
 

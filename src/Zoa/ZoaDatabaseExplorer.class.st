@@ -351,15 +351,16 @@ ZoaDatabaseExplorer >> openInBrowser: anArticle [
 ]
 
 { #category : #actions }
-ZoaDatabaseExplorer >> readPdf: anArticle [ 
+ZoaDatabaseExplorer >> readPdf: anArticle [
 
-	(#open command arguments: { (anArticle pdfFileUsing: zoa ) fullName }) schedule
+	zoa readArticle: anArticle 
 ]
 
 { #category : #actions }
 ZoaDatabaseExplorer >> readPdf: anArticle using: aZoa [
 
-	(#open command arguments: { (anArticle pdfFileUsing: aZoa) fullName }) schedule
+	zoa readArticle: anArticle.
+	
 ]
 
 { #category : #actions }

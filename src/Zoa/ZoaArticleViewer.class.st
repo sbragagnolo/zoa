@@ -250,8 +250,7 @@ ZoaArticleViewer >> onArticleReloadClicked: aBlock [
 
 { #category : #actions }
 ZoaArticleViewer >> openArticlePdf [
-	article pdfUrl ifNil: [ self inform:  ' must download pdf first '. ^ self  ].
-	(#open command arguments: {article pdfUrl asString }) schedule.
+	zoa readArticle: article
 ]
 
 { #category : #'data query' }
