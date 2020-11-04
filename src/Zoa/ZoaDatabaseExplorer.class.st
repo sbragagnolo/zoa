@@ -49,6 +49,12 @@ ZoaDatabaseExplorer class >> worldMenuOn: aBuilder [
 ]
 
 { #category : #'widget creation' }
+ZoaDatabaseExplorer >> articlesFor: aTag [
+
+	^ queryModel articles select: [ :a | a keywords includes: aTag ]
+]
+
+{ #category : #'widget creation' }
 ZoaDatabaseExplorer >> contextMenuForArticle [
 
 	^ self newMenu
@@ -285,32 +291,6 @@ ZoaDatabaseExplorer >> newAuthorsView [
 ]
 
 { #category : #'widget creation' }
-ZoaDatabaseExplorer >> newAuthorsView [
-
-	| table |
-	
-	table := self newTable.
-
-	table
-		sortingBlock: [ :a :b | a fullName < b fullName ];
-		addColumn: ((SpStringTableColumn
-				  title: 'Articles'
-				  evaluated: [ :item | item articles size asString ])
-				 width: 50;
-				 beSortable;
-				 yourself);
-		addColumn: ((SpStringTableColumn
-				  title: 'Author'
-				  evaluated: [ :item | item fullName asString ])
-				 beSortable;
-				 yourself);
-		activateOnDoubleClick;
-		whenActivatedDo: [ :l | self openAuthorEditingDialog: l selectedItem ];
-		beResizable.
-	^ table
-]
-
-{ #category : #'widget creation' }
 ZoaDatabaseExplorer >> newKeywordsView [
 
 	| table |
@@ -327,7 +307,7 @@ ZoaDatabaseExplorer >> newKeywordsView [
 		roots: {  };
 		children: [ :aTag | 
 			(aTag isKindOf: ZoaTag)
-				ifTrue: [ zoa findAllArticlesWithKeyword: aTag  ]
+				ifTrue: [ self articlesFor: aTag. ]
 				ifFalse: [ {  } ] ];
 		beResizable.
 	
