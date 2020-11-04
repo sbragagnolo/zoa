@@ -13,10 +13,7 @@ BaselineOfZoa >> baseline: spec [
 		spec baseline: 'XMLParserHTML' with: [ 
 			spec repository:
 				'github://pharo-contributions/XML-XMLParserHTML/src' ].
-		spec
-			baseline: 'TaskItShell'
-			with: [ 
-			spec repository: 'github://pharo-contributions/taskit-shell/src' ].
+		
 		spec
 			baseline: 'Clap'
 			with: [ spec repository: 'github://sbragagnolo/clap-st/src' ].
@@ -29,5 +26,5 @@ BaselineOfZoa >> baseline: spec [
 				loads: 'mongo tests' ].
 		spec
 			package: #Zoa
-			with: [ spec requires: #( TaskItShell Clap XMLParserHTML Voyage) ] ]
+			with: [ spec requires: #( Clap XMLParserHTML Voyage) ] ]
 ]
