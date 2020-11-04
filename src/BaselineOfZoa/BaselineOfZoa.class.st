@@ -13,10 +13,6 @@ BaselineOfZoa >> baseline: spec [
 		spec baseline: 'XMLParserHTML' with: [ 
 			spec repository:
 				'github://pharo-contributions/XML-XMLParserHTML/src' ].
-		
-		spec
-			baseline: 'Clap'
-			with: [ spec repository: 'github://sbragagnolo/clap-st/src' ].
 		spec
 			baseline: 'Clap'
 			with: [ spec repository: 'github://sbragagnolo/clap-st/src' ].
