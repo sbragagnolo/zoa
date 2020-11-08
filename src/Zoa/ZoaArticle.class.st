@@ -65,7 +65,7 @@ ZoaArticle >> addBrief: aBrief [
 
 { #category : #accessing }
 ZoaArticle >> addKeyword: aKeyword [
- 	keywords add: aKeyword .
+ 	self keywords add: aKeyword .
 "	aKeyword addArticle: self"
 ]
 
@@ -163,7 +163,7 @@ ZoaArticle >> children [
 
 { #category : #'as yet unclassified' }
 ZoaArticle >> cite [
-	^ (self firstAuthorCiteName) , (self date year \\ 1000) asString
+	^ (self firstAuthor) asString , (self date year \\ 1000) asString
 ]
 
 { #category : #accessing }
@@ -232,7 +232,7 @@ ZoaArticle >> fileBasename [
 ZoaArticle >> firstAuthor [
 
 	^ authorsReference
-		  ifEmpty: [ 'None Author found' ]
+		  ifEmpty: [ nil ]
 		  ifNotEmpty: [ authorsReference first ]
 ]
 
@@ -323,7 +323,8 @@ ZoaArticle >> journal: aString [
 
 { #category : #accessing }
 ZoaArticle >> keywords [
-	^ keywords ifNil: [ ^ {} ]
+
+	^ keywords ifNil: [ keywords := Set new ]
 ]
 
 { #category : #accessing }
@@ -368,33 +369,31 @@ ZoaArticle >> microdownBriefUsing: aZoa [
 
 	| authors |
 	^ String streamContents: [ :str | 
-		  str
+		  str newLine
 			  nextPutAll: '#';
 			  nextPutAll: self title;
-			  cr.
+			  newLine.
 		  str
 			  nextPutAll: '##Citing';
-			  cr;
+			  newLine;
 			  nextPutAll: self cite;
-			  cr.
+			  newLine.
 		  str
-			  cr;
+			  newLine;
 			  nextPutAll: '##Authors';
-			  cr.
+			  newLine.
 
 		  authorsReference do: [ :ar | 
 			  str
 				  nextPutAll: 'Auhor Name: ';
-				  nextPutAll:
-					  (aZoa findAuthorByIds: ar authorIds)
-						  fullName;
-				  cr.
+				  nextPutAll: (aZoa findAuthorByIds: ar authorIds) fullName;
+				  newLine.
 			  str nextPutAll: 'Auhor ID: '.
 			  ar authorIds do: [ :id | 
 				  str
 					  nextPutAll: id asString;
 					  nextPutAll: '; ' ].
-			  str cr.
+			  str newLine.
 			  str nextPutAll: 'Auhor Affiliations:  '.
 			  ar affiliation do: [ :a | 
 				  str
@@ -403,69 +402,69 @@ ZoaArticle >> microdownBriefUsing: aZoa [
 
 
 
-			  str cr ].
+			  str newLine ].
 
 		  self abstract ifNotNil: [ 
 			  str
-				  cr;
+				  newLine;
 				  nextPutAll: '##Abstract';
-				  cr;
+				  newLine;
 				  nextPutAll: self abstract;
-				  cr ].
+				  newLine ].
 
 		  str
 			  nextPutAll: '##Keywords';
-			  cr.
+			  newLine.
 		  str nextPutAll:
 			  (';' join: (self keywords collect: [ :k | k name ])).
-
+		  str newLine.
 		  self briefs do: [ :b | 
 			  b includeInText ifTrue: [ 
 				  str
 					  nextPutAll: '##';
 					  nextPutAll: b name;
-					  cr;
+					  newLine;
 					  nextPutAll: b text;
-					  cr.
+					  newLine.
 
 				  b tags ifNotEmpty: [ 
 					  str
 						  nextPutAll: '###Tags';
 						  nextPutAll: (';' join: (b tags collect: [ :k | k name ]));
-						  cr ] ] ].
+						  newLine ] ] ].
 		  str
-			  cr;
+			  newLine;
 			  nextPutAll: '##References';
-			  cr.
+			  newLine.
 		  str
 			  nextPutAll: '###This article is cited by';
-			  cr.
+			  newLine.
 		  (self citedByUsing: aZoa) do: [ :r | 
 			  str
 				  nextPutAll: ' ';
 				  nextPutAll: (r referenceEntryInRelationWith: self zoa: aZoa);
-				  cr ].
+				  newLine ].
 		  str
 			  nextPutAll: '###This article Cites';
-			  cr.
+			  newLine.
 		  (self citesUsing: aZoa) do: [ :r | 
 			  str
 				  nextPutAll: ' ';
 				  nextPutAll:
 					  ((r referenceEntryInRelationWith: self zoa: aZoa) readStream 
 						   next: 40);
-				  cr ].
+				  newLine ].
 
 		  str
-			  cr;
+			  newLine;
 			  nextPutAll: '##Article Metadata';
-			  cr.
+			  newLine.
 		  data associationsDo: [ :a | 
 			  str
 				  nextPutAll: a key asString;
 				  nextPutAll: ' ';
 				  nextPutAll: a value asString;
-				  cr ] ]
+				  newLine ] ]
 ]
 
 { #category : #acessing }
@@ -549,7 +548,6 @@ ZoaArticle >> removeBrief: aBrief [
 { #category : #accessing }
 ZoaArticle >> removeKeyword: aKeyword [
  	keywords remove: aKeyword .
-	aKeyword removeArticle: self
 ]
 
 { #category : #accessing }

@@ -62,6 +62,12 @@ ZoaAuthorID class >> unknown: anId [
 	^ self authority: #UNKNOWN id: anId
 ]
 
+{ #category : #'as yet unclassified' }
+ZoaAuthorID class >> wiley: anId [
+
+	^ self authority: #WILEY id: anId
+]
+
 { #category : #accessing }
 ZoaAuthorID >> = otherId [
 

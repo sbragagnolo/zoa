@@ -31,10 +31,10 @@ ZoaReview >> = anOtherReview [
 ZoaReview >> abstractKeywords [
 
 	^ (((((String space split: ((String space join:
-			         ((self articles collect: [ :a | a article abstract ]) collect: [ 
+			         ((self articles collect: [ :a | a article abstract ]) reject:#isNil thenCollect: [ 
 				          :a | 
 				          String space join:
-					          (String space split: a asLowercase) asSet
+					          (String space split: a asString asLowercase) asSet
 						          asOrderedCollection ])) asLowercase select: [ :i | 
 			        i isLetter or: [ i = Character space ] ])) select: [ :i | 
 		      i size > 5 ]) groupedBy: [ :s | s asSymbol ]) associations 
@@ -119,11 +119,22 @@ ZoaReview >> microdownBriefUsing: aZoa [
 			  nextPutAll: '# Systematic Review: ';
 			  nextPutAll: self title;
 			  cr.
-		  str
-			  nextPutAll: '## Query ';
-			  cr;
-			  nextPutAll: self query;
-			  cr.
+
+		(  self briefs sorted: [ : a : b | a order < b order  ]) do: [ :b | 
+			  b includeInText ifTrue: [ 
+				  str
+					  nextPutAll: '##';
+					  nextPutAll: b name;
+					  cr;
+					  nextPutAll: b text;
+					  cr.
+
+				  b tags ifNotEmpty: [ 
+					  str
+						  nextPutAll: '###Tags';
+						  nextPutAll: (';' join: (b tags collect: [ :k | k name ]));
+						  cr ] ] ].
+
 		  str
 			  nextPutAll: '## Affiliations ';
 			  cr.
@@ -134,7 +145,7 @@ ZoaReview >> microdownBriefUsing: aZoa [
 				  cr ].
 
 		  str
-			  nextPutAll: '## Keywords ';
+			  nextPutAll: '##Keywords ';
 			  cr.
 		  (self keywords sort: [ :a :b | a name < b name ]) do: [ :tag | 
 			  str
@@ -171,23 +182,7 @@ ZoaReview >> microdownBriefUsing: aZoa [
 					  nextPutAll: a article cite;
 					  nextPutAll: ')';
 					  nextPutAll: a article title;
-					  cr ] ].
-
-
-		  self briefs do: [ :b | 
-			  b includeInText ifTrue: [ 
-				  str
-					  nextPutAll: '##';
-					  nextPutAll: b name;
-					  cr;
-					  nextPutAll: b text;
-					  cr.
-
-				  b tags ifNotEmpty: [ 
-					  str
-						  nextPutAll: '###Tags';
-						  nextPutAll: (';' join: (b tags collect: [ :k | k name ]));
-						  cr ] ] ] ]
+					  cr ] ] ]
 ]
 
 { #category : #accessing }

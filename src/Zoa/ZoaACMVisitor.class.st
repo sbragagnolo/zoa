@@ -72,25 +72,25 @@ ZoaACMVisitor >> ifIsAReference: anElement then: aBlock [
 
 { #category : #visiting }
 ZoaACMVisitor >> ifIsAnAuthor: anElement then: aBlock [
-	^( anElement name = 'li'
-		and: [ (anElement attributeAt: 'class') = 'loa__item' ]) ifTrue: [ aBlock value ]
+
+	^ (self element: anElement isType: 'li' andClass: 'loa__item') 
+		  ifTrue: [ aBlock value ]
 ]
 
 { #category : #visiting }
 ZoaACMVisitor >> isAReference: anElement [
-	^  anElement name = 'li'
-		and: [ ((anElement attributeAt: 'class' ifAbsent: [ '' ])
-				includesSubstring: 'references__item')
-				and: [ (anElement attributeAt: 'id' ifAbsent: [ '' ]) beginsWith: 'ref-' ] ] 
+
+	^ (self element: anElement isType: 'li' andClass: 'references__item') 
+		  and: [ self element: anElement hasId: 'ref-' ]
 ]
 
 { #category : #'as yet unclassified' }
 ZoaACMVisitor >> isAbstract: anElement [
-	^ anElement name = 'div'
-		and: [ ((anElement attributeAt: 'class')
-				includesSubstring: 'article__section')
-				and: [ (anElement attributeAt: 'class')
-						includesSubstring: 'article__abstract' ] ]
+
+	^ self
+		  element: anElement
+		  isType: 'div'
+		  andClasses: { 'article__section'. 'article__abstract' }
 ]
 
 { #category : #'as yet unclassified' }
@@ -111,12 +111,4 @@ ZoaACMVisitor >> processElement: anElement [
 ZoaACMVisitor >> setAbstractUsing: anElement [
 	article abstract:  (' ' join: (self detectStringElement: anElement ) ).
 	
-]
-
-{ #category : #visiting }
-ZoaACMVisitor >> visitElement: anElement [
-	self processElement: anElement. 
-	super visitElement: anElement.
-
-
 ]

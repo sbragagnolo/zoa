@@ -10,46 +10,45 @@ Class {
 { #category : #visiting }
 ZoaSpringerVisitor >> isAbstract: anElement [
 
-	^ anElement name = 'section' and: [ 
-		  (anElement attributeAt: 'class' ifAbsent: '') includesSubstring:
-			  'Abstract' ]
+	^ self element: anElement isType: 'section' andClass: 'Abstract'
 ]
 
 { #category : #visiting }
 ZoaSpringerVisitor >> isContributorArea: anElement [
 
-	^ anElement name = 'div' and: [ 
-		  (anElement attributeAt: 'class' ifAbsent: '') includesSubstring:
-			  'authors-affiliations u-interface' ]
+	^ self
+		  element: anElement
+		  isType: 'div'
+		  andClass: 'authors-affiliations u-interface'
 ]
 
 { #category : #testing }
-ZoaSpringerVisitor >> isDateReference: aXMLElement [
+ZoaSpringerVisitor >> isDateReference: anElement [
 
-	^ aXMLElement name = 'span' and: [ 
-		  (aXMLElement attributeAt: 'class' ifAbsent: '') 
-			  includesSubstring: 'article-dates__first-online' ]
+	^ self
+		  element: anElement
+		  isType: 'span'
+		  andClass: 'article-dates__first-online'
 ]
 
 { #category : #visiting }
 ZoaSpringerVisitor >> isKeywordsArea: anElement [
 
-	^ anElement name = 'div' and: [ 
-		  (anElement attributeAt: 'class' ifAbsent: '') includesSubstring:
-			  'KeywordGroup' ]
+	^ self element: anElement isType: 'div' andClass: 'KeywordGroup'
 ]
 
 { #category : #visiting }
 ZoaSpringerVisitor >> isReference: anElement [
 
-	^ anElement name = 'div' and: [ 
-		  (anElement attributeAt: 'class' ifAbsent: '') includesSubstring:
-			  'CitationContent' ]
+	^ self element: anElement isType: 'div' andClass: 'CitationContent'
+	
 ]
 
 { #category : #visiting }
 ZoaSpringerVisitor >> isTitle: anElement [
-	^ (anElement name = 'h1') and: [( anElement attributeAt:'class' ifAbsent: '') includesSubstring: 'ChapterTitle' ]
+
+	^ self element: anElement isType: 'h1' andClass: 'ChapterTitle'
+
 ]
 
 { #category : #visiting }

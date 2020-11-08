@@ -9,7 +9,8 @@ Class {
 		'article',
 		'included',
 		'reason',
-		'codification'
+		'codification',
+		'state'
 	],
 	#category : #'Zoa-Model'
 }
@@ -87,7 +88,7 @@ ZoaReviewArticleReference >> isIncluded [
 
 { #category : #accessing }
 ZoaReviewArticleReference >> keywords [
-	^ article keywords 
+	^article keywords 
 ]
 
 { #category : #accessing }
@@ -98,6 +99,17 @@ ZoaReviewArticleReference >> reason [
 { #category : #accessing }
 ZoaReviewArticleReference >> reason: aString [ 
 	reason := aString
+]
+
+{ #category : #accessing }
+ZoaReviewArticleReference >> state [
+
+	^ state ifNil: [ #'WhatPaper?' ]
+]
+
+{ #category : #accessing }
+ZoaReviewArticleReference >> state: aState [ 
+	^ state := aState . 
 ]
 
 { #category : #accessing }

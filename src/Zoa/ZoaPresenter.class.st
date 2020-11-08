@@ -27,6 +27,19 @@ ZoaPresenter >> newAuthorList [
 		author openDialogWithSpec
 			okAction: [ author pushChanges ];
 			title: selection selectedItem fullName ].
+	widget addNewItemRoutine: [ 
+		| input name lastname  |
+		input := UIManager default request:
+			         'Enter author last name, first name'.
+		
+		name := ',' split: input.
+		lastname := name first.
+		name := name second.
+		name ifNotNil: [ 
+			ZoaAuthor new
+				name: name;
+				lastname: lastname;
+				yourself ] ].
 	^ widget
 ]
 
@@ -117,7 +130,7 @@ ZoaPresenter >> openBrief: aBrief [
 	((self instantiate: ZoaBriefWidget)
 		 brief: aBrief;
 		 openWithSpec)
-		extent: 1143.0 @ 424.0;
+		extent: 1143.0 @ 624.0;
 		title: aBrief name
 ]
 

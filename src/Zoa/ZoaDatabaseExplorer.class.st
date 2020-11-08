@@ -9,7 +9,8 @@ Class {
 		'articles',
 		'authors',
 		'keywords',
-		'queryModel'
+		'queryModel',
+		'window'
 	],
 	#category : #'Zoa-UI'
 }
@@ -84,6 +85,18 @@ ZoaDatabaseExplorer >> contextMenuForArticle [
 		  yourself
 ]
 
+{ #category : #'as yet unclassified' }
+ZoaDatabaseExplorer >> createNewArticle [
+	| doi article |
+	
+	doi := UIManager default request:'Please enter a valid DOI'. 
+	doi ifNil: [ ^ self ].
+	article := ZoaArticle new .
+	article doi: doi. 
+	self openArticleMetadata: article.
+	
+]
+
 { #category : #'data query' }
 ZoaDatabaseExplorer >> defaultQueryText [
 	^ '
@@ -96,8 +109,11 @@ ZoaDatabaseExplorer >> defaultQueryText [
 ]
 
 { #category : #'as yet unclassified' }
-ZoaDatabaseExplorer >> focusOn: aZoaArticle [ 
-	articles selectItems: { aZoaArticle  }
+ZoaDatabaseExplorer >> focusOn: aZoaArticle [
+
+	articles selectItems: { aZoaArticle }.
+
+	self selectArticle: articles selection
 ]
 
 { #category : #actions }
@@ -230,6 +246,12 @@ ZoaDatabaseExplorer >> initializeWidgets [
 		addPage: (self newNotebookPageWith: keywords and: 'Keywords')
 ]
 
+{ #category : #actions }
+ZoaDatabaseExplorer >> initializeWindow: aWindow [
+	super initializeWindow: aWindow.
+	window := aWindow 
+]
+
 { #category : #'widget creation' }
 ZoaDatabaseExplorer >> newArticleView [
 
@@ -244,10 +266,13 @@ ZoaDatabaseExplorer >> newArticleView [
 				 width: 50;
 				 beSortable;
 				 yourself);
-		addColumn: ((SpStringTableColumn
-				  title: 'Author'
-				  evaluated: [ :item | 
-					  zoa findAuthorByIds: item firstAuthor authorIds ])
+		addColumn:
+			((SpStringTableColumn title: 'Author' evaluated: [ :item | 
+					  | fa |
+					  fa := item firstAuthor.
+					  fa
+						  ifNil: [ 'Unknown Author' ]
+						  ifNotNil: [ zoa findAuthorByIds: fa authorIds ] ])
 				 width: 100;
 				 beSortable;
 				 yourself);
@@ -377,7 +402,9 @@ ZoaDatabaseExplorer >> removeAll [
 { #category : #actions }
 ZoaDatabaseExplorer >> selectArticle: aSelection [
 
-	aSelection selectedItem ifNotNil: [ :val | preview article: val ]
+	aSelection selectedItem ifNotNil: [ :val | 
+		preview article: val.
+		window ifNotNil: [ window title: val title ] ]
 ]
 
 { #category : #'as yet unclassified' }

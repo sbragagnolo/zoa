@@ -105,3 +105,8 @@ ZoaACMLoader >> setKeywords: aString into: anArticle [
 	keys := (([ :c | c = $; or: [ c = $, ] ] split: aString) collect: #trimBoth).
 	super setKeywords: keys into: anArticle
 ]
+
+{ #category : #initialization }
+ZoaACMLoader >> setSource: aString into: aZoaArticle [ 
+	aZoaArticle data at:#Source put: aString
+]

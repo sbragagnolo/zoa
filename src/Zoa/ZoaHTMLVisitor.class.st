@@ -7,19 +7,10 @@ Class {
 	#superclass : #XMLNodeVisitor,
 	#instVars : [
 		'article',
-		'loader',
-		'zoaApi'
+		'loader'
 	],
 	#category : #'Zoa-Loader'
 }
-
-{ #category : #'instance creation' }
-ZoaHTMLVisitor class >> new [
-
-	^ super new
-		  zoaApi: Zoa current;
-		  yourself
-]
 
 { #category : #visiting }
 ZoaHTMLVisitor >> addReferenceFrom: from to: to [
@@ -72,7 +63,40 @@ ZoaHTMLVisitor >> detectStringElement: aNode [
 		  thenReject: [ :s | s isEmpty ]
 ]
 
-{ #category : #accessing }
+{ #category : #testing }
+ZoaHTMLVisitor >> element: anElement hasClass: aClass [
+
+	^ (anElement attributeAt: 'class' ifAbsent: '') includesSubstring:
+		  aClass
+]
+
+{ #category : #testing }
+ZoaHTMLVisitor >> element: anElement hasId: anId [
+
+	^ (anElement attributeAt: 'id' ifAbsent: '') includesSubstring: anId
+]
+
+{ #category : #testing }
+ZoaHTMLVisitor >> element: anElement isType: aTypename [
+
+	^ anElement name = aTypename
+]
+
+{ #category : #testing }
+ZoaHTMLVisitor >> element: anElement isType: aTypename andClass: aClass [
+
+	^ anElement name = aTypename and: [ 
+		  self element: anElement hasClass: aClass ]
+]
+
+{ #category : #testing }
+ZoaHTMLVisitor >> element: anElement isType: aTypename andClasses: classes [
+
+	^ anElement name = aTypename and: [ 
+		  classes allSatisfy: [ :cl | self element: anElement hasClass: cl ] ]
+]
+
+{ #category : #testing }
 ZoaHTMLVisitor >> extractUrlFromHref: aString [
 
 	| upToAll |
@@ -116,6 +140,14 @@ ZoaHTMLVisitor >> isUrlToResearchEngine: aString [
 { #category : #accessing }
 ZoaHTMLVisitor >> loader: aLoader [
 	loader := aLoader
+]
+
+{ #category : #visiting }
+ZoaHTMLVisitor >> visitElement: anElement [
+	self processElement: anElement. 
+	super visitElement: anElement.
+
+
 ]
 
 { #category : #visiting }

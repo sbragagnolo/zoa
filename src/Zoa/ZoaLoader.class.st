@@ -4,6 +4,9 @@ Loader is an abstract class that fetches a Zoa document
 Class {
 	#name : #ZoaLoader,
 	#superclass : #Object,
+	#instVars : [
+		'zoa'
+	],
 	#category : #'Zoa-Loader'
 }
 
@@ -26,7 +29,7 @@ ZoaLoader class >> loaderFor: aString [
 { #category : #accessing }
 ZoaLoader class >> publisher [
 
-	^ self subclassResponsibility
+	^ #Wiley
 ]
 
 { #category : #settings }
@@ -37,7 +40,7 @@ ZoaLoader >> addTo: anArticle authorFirstNamed: firstname lastName: lastname id:
 	author name: firstname.
 	author lastname: lastname.
 	author addId: userId.
-	author := Zoa current findAuthorByExampleOrStore: author.
+	author := zoa findAuthorByExampleOrStore: author.
 
 	anArticle authorsReferences
 		detect: [ :a | author ids includesAny: a authorIds ]
@@ -52,10 +55,8 @@ ZoaLoader >> addTo: anArticle authorFirstNamed: firstname lastName: lastname id:
 					 title: anArticle title;
 					 yourself).
 			anArticle addAuthorReference: articleRef.
-			Zoa current saveAuthor: author. 
-			articleRef. 
-		
-			]
+			Zoa current saveAuthor: author.
+			articleRef ]
 ]
 
 { #category : #'as yet unclassified' }
@@ -230,7 +231,7 @@ ZoaLoader >> setJsonData: aDictionary into: aZoaArticle [
 ZoaLoader >> setKeywords: anArrayOfkeywords into: anArticle [
 
 	| existing keywords |
-	existing := Zoa current findAllTags.
+	existing := zoa findAllTags.
 	keywords := anArrayOfkeywords collect: [ :k | 
 		            existing
 			            detect: [ :a | a name sameAs: k ]
@@ -345,4 +346,10 @@ ZoaLoader >> setYear: aString into: aZoaDocument [
 				year: aString trimBoth asNumber
 				month: current monthIndex
 				day: current day)
+]
+
+{ #category : #'as yet unclassified' }
+ZoaLoader >> zoa [
+
+	^ zoa
 ]

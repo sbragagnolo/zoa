@@ -155,6 +155,6 @@ ZoaAuthorWidget >> updateAuthor [
 
 	firstName text: author firstname.
 	lastName text: author lastname.
-	ids items: (author ids , newId collect: [ :id | 
+	ids items: (author ids asOrderedCollection , newId collect: [ :id | 
 			 idModification at: id ifAbsent: [ id ] ])
 ]

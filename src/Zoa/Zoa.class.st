@@ -9,7 +9,9 @@ Class {
 		'repository'
 	],
 	#classInstVars : [
-		'zoa'
+		'zoa',
+		'dois',
+		'links'
 	],
 	#category : #'Zoa-API'
 }
@@ -29,6 +31,31 @@ Zoa class >> current: anObject [
 { #category : #'as yet unclassified' }
 Zoa class >> defaultFolder [
 	^ (FileLocator home / '.zoa') ensureCreateDirectory 
+]
+
+{ #category : #'as yet unclassified' }
+Zoa class >> regenerate [
+
+	| errors |
+	self assert: zoa isNotNil.
+	errors := Dictionary new.
+	links := zoa findAllArticles asSet  collect: [ :a | 
+		         a link asZnUrl -> a briefs ].
+	zoa dropDatabase.
+	links do: [ :assoc | 
+		| article link briefs |
+		link := assoc key.
+		briefs := assoc value.
+		link = 'http://ieeexplore.ieee.org/document/991506/' ifTrue: [ self halt ].
+		[ 
+		article := self current load: link.
+		briefs do: [ :tb | article addBrief: tb ].
+		self current saveArticle: article ]
+			on: Error
+			do: [ :err | errors at: links put: err ] ].
+	errors ifNotEmpty: [ 
+		self error: 'Errors happened during the regeneration ' ].
+	links := nil
 ]
 
 { #category : #public }
@@ -136,9 +163,15 @@ Zoa >> findAllArticleReferences [
 	^ (self repository findAllArticleReferences flatCollect: [ :a | a getAllReferences ]) asSet.
 ]
 
+{ #category : #accesing }
+Zoa >> findAllArticleStates [
+
+	^ { #'WhatPaper?'. #Skimmed. #Reading .#Read.#QuicklyReviewed . #Reviewed. #Forgoten }
+]
+
 { #category : #find }
 Zoa >> findAllArticles [
-	^ self repository selectAll: ZoaArticle
+	^ (self repository selectAll: ZoaArticle) asSet
 ]
 
 { #category : #find }
@@ -190,9 +223,9 @@ Zoa >> findAuthorByExampleOrStore: anAuthor [
 ]
 
 { #category : #find }
-Zoa >> findAuthorByIds: aSet [
+Zoa >> findAuthorByIds: aSet [ 
 
-	^ self findAllAuthors detect: [ :a | aSet includesAny: a ids ]
+	^ self findAllAuthors detect: [ :a |a ids includesAny: aSet ]
 ]
 
 { #category : #find }
@@ -271,7 +304,10 @@ Zoa >> listAllArticles [
 
 { #category : #load }
 Zoa >> load: anUrl [
-	^ (ZoaLoader loaderFor: anUrl host) new loadDocument: anUrl
+
+	^ (ZoaLoader loaderFor: anUrl host) new
+		  zoa: self;
+		  loadDocument: anUrl
 ]
 
 { #category : #public }

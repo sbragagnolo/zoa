@@ -44,8 +44,7 @@ ZoaBriefWidget class >> defaultSpec [
 			  constraints
 				  expand: true;
 				  fill: true;
-				  padding: 20;
-				  height: 300 ];
+				  padding: 20; height: 500 ];
 		  add: (SpBoxLayout newHorizontal
 				   add: #ok width: 150;
 				   add: #cancel width: 150;

@@ -35,9 +35,8 @@ ZoaACMReferencedByVisitor >> createReferenceToElement: anElement [
 
 { #category : #visiting }
 ZoaACMReferencedByVisitor >> isAReference: anElement [
-	^ anElement name = 'li' and: [ 
-		  (anElement attributeAt: 'class' ifAbsent: [ '' ]) 
-			  includesSubstring: 'references__item' ]
+
+	^ self element: anElement isType: 'li' andClass: 'references__item'
 ]
 
 { #category : #visiting }

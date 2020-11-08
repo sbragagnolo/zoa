@@ -14,7 +14,10 @@ Class {
 		'review',
 		'preview',
 		'abstractTags',
-		'codifications'
+		'codifications',
+		'keywords',
+		'keywordsToArticle',
+		'currentAuthors'
 	],
 	#category : #'Zoa-UI'
 }
@@ -59,9 +62,11 @@ ZoaReviewUI >> addArticles [
 	| dialog |
 	review ifNil: [ ^ self ].
 	dialog := ZoaArticleDialog new.
-	dialog filterArticles: (review articles collect: [: a |a article ]).
+	dialog filterArticles: (review articles collect: [ :a | a article ]).
 	dialog openDialogWithSpec
-		okAction: [ dialog chosenArticles do: [:article | review addArticle: article ]. self updateReview ];
+		okAction: [ 
+			dialog chosenArticles do: [ :article | review addArticle: article ].
+			self refresh ];
 		title: 'Add articles into the review';
 		yourself
 ]
@@ -77,7 +82,8 @@ ZoaReviewUI >> addBrief [
 	review addBrief: (ZoaBrief new
 			 name: name;
 			 yourself).
-	self updateReview
+	zoa saveReview: review .
+	edition items: review briefs
 ]
 
 { #category : #'data query' }
@@ -107,10 +113,7 @@ ZoaReviewUI >> articleContextMenuUsing: aZoa [
 					  anItem
 						  name: 'Edit comments';
 						  action: [ 
-							  | viewer |
-							  viewer := ZoaArticleViewer new.
-							  viewer article: articles selectedItem article.
-							  viewer openDialogWithSpec ] ];
+							  self openArticleViewerOn: articles selectedItem article ] ];
 				  addItem: [ :anItem | 
 					  anItem
 						  name: 'View in article database';
@@ -118,11 +121,16 @@ ZoaReviewUI >> articleContextMenuUsing: aZoa [
 							  | viewer |
 							  viewer := ZoaDatabaseExplorer new.
 							  viewer focusOn: articles selectedItem article.
-							  viewer openDialogWithSpec ] ];
+							  viewer openDialogWithSpec title:
+									  articles selectedItem article title ] ];
 				  addItem: [ :anItem | 
 					  anItem
 						  name: 'Read!';
-						  action: [ zoa readArticle: articles selectedItem article ] ] ];
+						  action: [ zoa readArticle: articles selectedItem article ] ];
+				  addItem: [ :anItem | 
+					  anItem
+						  name: 'Update state';
+						  action: [ self updateStateArticle: articles selectedItem ] ] ];
 		  yourself
 ]
 
@@ -138,9 +146,8 @@ ZoaReviewUI >> articlesExcludedFromAuthor: anAuthor [
 { #category : #'data query' }
 ZoaReviewUI >> articlesExcludedFromTag: aTag [
 
-	^ (review articles select: [ :ref | 
-		   (ref article keywords includes: aTag) and: [ ref isIncluded not ] ])
-		  size
+	^ (self keywordsToArticle at: aTag) select: [ :ref | 
+		  ref isIncluded not ]
 ]
 
 { #category : #'data query' }
@@ -154,10 +161,8 @@ ZoaReviewUI >> articlesIncludedFromAuthor: anAuthor [
 
 { #category : #'data query' }
 ZoaReviewUI >> articlesIncludedFromTag: aTag [
+	^ (self keywordsToArticle at: aTag ) select: [ :ref | ref isIncluded ].
 
-	^ (review articles select: [ :ref | 
-		   (ref article keywords includes: aTag) and: [ ref isIncluded ] ])
-		  size
 ]
 
 { #category : #actions }
@@ -174,9 +179,17 @@ ZoaReviewUI >> askAndSaveIfNeeded [
 ZoaReviewUI >> currentAuthors [
 
 	| authorsIds |
-	authorsIds := review authorsReference flatCollect: [ :a | 
-		              a authorIds ].
-	^ zoa findAllAuthors select: [ :a | authorsIds includesAny: a ids ]
+	^ currentAuthors ifNil: [ 
+		  authorsIds := review authorsReference flatCollect: [ :a | 
+			                a authorIds ].
+		  currentAuthors := zoa findAllAuthors select: [ :a | 
+			                    authorsIds includesAny: a ids ] ]
+]
+
+{ #category : #'update and set' }
+ZoaReviewUI >> currentKeywords [
+
+	^ keywords ifNil: [ keywords := review keywords ]
 ]
 
 { #category : #actions }
@@ -216,8 +229,9 @@ ZoaReviewUI >> excludeArticleFromReview: anArticleRef [
 { #category : #accessing }
 ZoaReviewUI >> firstAuthorName: aZoaReviewArticleReference [
 
-	^ (zoa findAuthorByIds:
-		   aZoaReviewArticleReference firstAuthor authorIds) citeName
+	^ (self currentAuthors detect: [ :a | 
+		   a ids includesAny:
+			   aZoaReviewArticleReference firstAuthor authorIds ]) citeName
 ]
 
 { #category : #initialization }
@@ -248,6 +262,11 @@ ZoaReviewUI >> initializeToolbar [
 
 	toolbar
 		addItemLeft: (self newToolbarButton
+				 label: 'Refresh';
+				 icon: (Smalltalk ui icons iconNamed: #glamorousRefresh);
+				 action: [ self refresh ];
+				 yourself);
+		addItemLeft: (self newToolbarButton
 				 label: 'Save';
 				 icon: (Smalltalk ui icons iconNamed: #glamorousSave);
 				 action: [ self saveReview ];
@@ -276,6 +295,12 @@ ZoaReviewUI >> initializeToolbar [
 				 label: 'Comment';
 				 icon: (Smalltalk ui icons iconNamed: #announcement);
 				 action: [ self addBrief ];
+				 yourself);
+		addItemLeft: (self newToolbarButton
+				 label: 'Export';
+				 icon: (self iconNamed: #smallExport);
+				 help: 'Export review';
+				 action: [ self exportReview ];
 				 yourself)
 ]
 
@@ -295,6 +320,20 @@ ZoaReviewUI >> initializeWidgets [
 	affiliations := self newAffiliationTable.
 	edition := self newBriefsList.
 	self initializeNotebook
+]
+
+{ #category : #'data query' }
+ZoaReviewUI >> keywordsToArticle [
+
+	^ keywordsToArticle ifNil: [ 
+		  keywordsToArticle := Dictionary new.
+		  self currentKeywords do: [ :k | 
+			  keywordsToArticle
+				  at: k
+				  put:
+				  (review articles select: [ :ref | 
+					   ref article keywords includes: k ]) ].
+		  keywordsToArticle ]
 ]
 
 { #category : #initialization }
@@ -360,6 +399,13 @@ ZoaReviewUI >> newArticleTableUsing: aZoa [
 					 self excludeArticleFromReview: articleRef ];
 				 width: 20;
 				 yourself);
+		addColumn:
+			((SpStringTableColumn
+				  title: 'State'
+				  evaluated: [ :item | item state ])
+				 width: 50;
+				 beSortable;
+				 yourself);
 		addColumn: ((SpStringTableColumn
 				  title: 'Date'
 				  evaluated: [ :item | item date year asString ])
@@ -387,6 +433,9 @@ ZoaReviewUI >> newArticleTableUsing: aZoa [
 							  (item codification ifNil: [ 'NIL' ]) , ': ' , item reason ] ])
 				 beSortable;
 				 yourself);
+		activateOnDoubleClick;
+		whenActivatedDo: [ :selection | 
+			self openArticleViewerOn: selection selectedItem article ];
 		beResizable.
 	table contextMenu: (self articleContextMenuUsing: aZoa).
 	^ table
@@ -477,14 +526,14 @@ ZoaReviewUI >> newTagTable [
 		addColumn:
 			((SpStringTableColumn title: '(I) Included' evaluated: [ :aTag | 
 					  (aTag isKindOf: ZoaTag)
-						  ifTrue: [ self articlesIncludedFromTag: aTag ]
+						  ifTrue: [ (self articlesIncludedFromTag: aTag) size ]
 						  ifFalse: [ '' ] ])
 				 width: 30;
 				 yourself);
 		addColumn:
 			((SpStringTableColumn title: '(X) Excluded' evaluated: [ :aTag | 
 					  (aTag isKindOf: ZoaTag)
-						  ifTrue: [ self articlesExcludedFromTag: aTag ]
+						  ifTrue: [ (self articlesExcludedFromTag: aTag) size  ]
 						  ifFalse: [ '' ] ])
 				 width: 30;
 				 yourself);
@@ -507,6 +556,15 @@ ZoaReviewUI >> newTagTable [
 	^ table
 ]
 
+{ #category : #initialization }
+ZoaReviewUI >> openArticleViewerOn: article [
+
+	| viewer |
+	viewer := ZoaArticleViewer new.
+	viewer article: article.
+	viewer openDialogWithSpec title: article title
+]
+
 { #category : #actions }
 ZoaReviewUI >> openReview [
 
@@ -526,6 +584,15 @@ ZoaReviewUI >> previewTextModel [
 ]
 
 { #category : #'update and set' }
+ZoaReviewUI >> refresh [
+
+	keywords := nil.
+	keywordsToArticle := nil.
+	currentAuthors := nil .
+	self updateReview
+]
+
+{ #category : #'update and set' }
 ZoaReviewUI >> review: aZoaReview [ 
 	review ifNotNil: [  
 		self askAndSaveIfNeeded.	
@@ -539,7 +606,7 @@ ZoaReviewUI >> saveReview [
 
 	review ifNotNil: [ 
 		zoa saveReview: review.
-		self updateReview ]
+		self inform: 'The review has been saved in the DB..' ]
 ]
 
 { #category : #'update and set' }
@@ -556,9 +623,7 @@ ZoaReviewUI >> updateReview [
 		query text: ''.
 		preview text: ''.
 		^ self ].
-	tags roots: (review keywords sort: [ :a :b | 
-			 (self articlesIncludedFromTag: a) 
-			 > (self articlesIncludedFromTag: b)  ]).
+	tags roots: self currentKeywords.
 	articles items: review articles.
 	authors items: self currentAuthors.
 	query text: (review query ifNil: [ '' ]).
@@ -567,4 +632,15 @@ ZoaReviewUI >> updateReview [
 	affiliations items: review affiliations.
 	abstractTags items: review abstractKeywords associations.
 	edition items: review briefs
+]
+
+{ #category : #initialization }
+ZoaReviewUI >> updateStateArticle: anArticleRef [
+
+	| state |
+	state := UIManager default
+		         chooseFrom: zoa findAllArticleStates
+		         values: zoa findAllArticleStates
+		         title: 'New state'.
+	state ifNotNil: [ anArticleRef state: state ]
 ]

@@ -20,7 +20,8 @@ Class {
 		'#abstractLabel',
 		'#metadataLabel',
 		'#linkLabel',
-		'#publisherLabel'
+		'#publisherLabel',
+		'#toolbar'
 	],
 	#category : #'Zoa-UI'
 }
@@ -29,6 +30,7 @@ Class {
 ZoaArticleMetadata class >> defaultSpec [
 
 	^ SpBoxLayout newVertical
+		  add: #toolbar height: self toolbarHeight *1.5;
 		  add: (SpBoxLayout newHorizontal
 				   add: (SpBoxLayout newVertical
 						    add: #titleLabel expand: false fill: false padding: 0;
@@ -193,28 +195,57 @@ ZoaArticleMetadata >> initializePrivateAnnouncements [
 ]
 
 { #category : #initialization }
+ZoaArticleMetadata >> initializeToolbar [
+
+	toolbar addItemLeft: (self newToolbarButton
+			 label: 'Save';
+			 icon: (Smalltalk ui icons iconNamed: #glamorousSave);
+			 action: [ self saveArticle  ];
+			 yourself)
+]
+
+{ #category : #initialization }
 ZoaArticleMetadata >> initializeWidgets [
 
 	super initializeWidgets.
 	self initializeLabels.
+	toolbar := self newToolbar.
+	self initializeToolbar.
 	authors := self newAuthorList.
 	abstract := self newText.
 	keywords := self newTagsList.
 	keywords onDelete: [ :t | article removeKeyword: t ].
 	keywords onAdd: [ :t | article addKeyword: t ].
+	authors onAdd: [ :a | self linkAuthorToArticle: a ].
+
 	metadata := self newDataTable.
-	title := self newTextInput .
-	doi := self newTextInput . 
-	publisher := self newTextInput . 
-	link := self newTextInput. 
-	date := self newTextInput. 
-	self extent: (720.0@578.0).
-"	 #title . #date . #doi . #authors . #keywords . #abstract . #metadata . #link . #publisher"
+	title := self newTextInput.
+	doi := self newTextInput.
+	publisher := self newTextInput.
+	link := self newTextInput.
+	date := self newTextInput.
+	self extent: 720.0 @ 578.0
+	"	 #title . #date . #doi . #authors . #keywords . #abstract . #metadata . #link . #publisher"
 ]
 
 { #category : #initialization }
 ZoaArticleMetadata >> initializeWindow: aWindow [
 	super initializeWindow: aWindow. 
+]
+
+{ #category : #initialization }
+ZoaArticleMetadata >> linkAuthorToArticle: author [
+
+	| articleRef  |
+	articleRef := ZoaArticleAuthorReference new.
+	articleRef authorIds: author ids.
+	author addArticle: articleRef.
+	articleRef articleReference: (ZoaArticleReference new
+			 reference: article doi;
+			 title: article title;
+			 yourself).
+	article addAuthorReference: articleRef.
+	Zoa current saveAuthor: author
 ]
 
 { #category : #initialization }
@@ -224,6 +255,17 @@ ZoaArticleMetadata >> newDataTable [
 		  addColumn: (SpStringTableColumn evaluated: #key);
 		  addColumn: (SpStringTableColumn evaluated: #value);
 		  yourself
+]
+
+{ #category : #initialization }
+ZoaArticleMetadata >> saveArticle [
+	article date: date text asDate. 
+	article publisher: publisher text. 
+	article link: link text. 
+	article title: title text.
+	article abstract: abstract text.  
+	
+	zoa saveArticle: article 
 ]
 
 { #category : #initialization }

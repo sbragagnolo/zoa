@@ -97,9 +97,10 @@ ZoaArticleViewer >> initialize [
 { #category : #initialization }
 ZoaArticleViewer >> initializeNotebook [
 
+	tabs addPage: (self newNotebookPageWith: view and: 'Briefs Editor').
 	tabs addPage:
 		(self newNotebookPageWith: [ references ] and: 'References').
-	tabs addPage: (self newNotebookPageWith: view and: 'Briefs Editor').
+
 	tabs addPage: (self newNotebookPageWith: preview and: 'Text preview')
 ]
 
@@ -264,6 +265,7 @@ ZoaArticleViewer >> referencesFor: anArticle [
 { #category : #actions }
 ZoaArticleViewer >> reloadArticle [
 	onArticleReloadClicked value.
+	self updateArticle. 
 ]
 
 { #category : #actions }
