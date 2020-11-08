@@ -18,7 +18,7 @@ ZoaWileyVisitor >> attribute: att inElement: anElement [
 { #category : #visiting }
 ZoaWileyVisitor >> attribute: att inElement: anElement beginsWith: string [
 
-	^ (anElement attributeAt: att ifAbsent: '') beginsWith: string
+	^ (anElement attributeAt: att ifAbsent: '') includesSubstring:  string
 ]
 
 { #category : #visiting }
@@ -37,7 +37,7 @@ ZoaWileyVisitor >> isACite: anElement [
 { #category : #visiting }
 ZoaWileyVisitor >> isAReference: anElement [
 
-	^ self element: anElement isType: 'cite'
+	^ self element: anElement hasClass: 'creative-work'
 ]
 
 { #category : #visiting }
@@ -58,7 +58,7 @@ ZoaWileyVisitor >> isArticleMetadata: anElement [
 		  name := self attribute: 'name' inElement: anElement.
 		  (name beginsWith: 'citation') and: [ 
 			  (name includesSubstring: 'author') not and: [ 
-				  name includesSubstring: 'keywords' ] ] ]
+				  (name includesSubstring: 'keywords') not  ] ] ]
 ]
 
 { #category : #visiting }
@@ -93,11 +93,24 @@ ZoaWileyVisitor >> processAbstract: anElement [
 ZoaWileyVisitor >> processArticleMetadata: anElement [
 
 	| selector data |
-	selector := (((self attribute: 'name' inElement: anElement)
-		              copyReplaceAll: 'citation_'
-		              with: '') , ':') asSymbol.
+	selector := ((self attribute: 'name' inElement: anElement)
+		             copyReplaceAll: 'citation_'
+		             with: '') , ':'.
+	selector := '_' split: selector.
+	selector := (selector first
+	             ,
+	             ('' join:
+		              (selector allButFirst collect: [ :s | s capitalized ])))
+		            asSymbol.
 	data := self attribute: 'content' inElement: anElement.
-	article perform: selector withArguments: { data }
+	(article respondsTo: selector)
+		ifTrue: [ article perform: selector withArguments: { data } ]
+		ifFalse: [ 
+			loader
+				perform: ('set{1}into:' format: { selector capitalized }) asSymbol
+				withArguments: { 
+						data.
+						article } ]
 ]
 
 { #category : #visiting }
@@ -119,39 +132,37 @@ ZoaWileyVisitor >> processAuthorOrAuthorAffiliation: anElement [
 ZoaWileyVisitor >> processCite: anElement [
 
 	| text reference fromReference toReference |
-	text := anElement nodes
-		        select: [ :n | n name = 'span' ]
-		        thenCollect: [ :n | self detectStringElement: n ].
-	text := ' ' join: text. 
+	text := ' ' join: (self detectStringElement: anElement).
 	reference := self detectHrefToArticle: anElement.
 	reference ifNil: [ ^ self ].
 
 	toReference := ZoaArticleReference new
-		                 reference: article doi;
-		                 title: article title;
-		                 yourself.
+		               reference: article doi;
+		               title: article title;
+		               yourself.
 
 	fromReference := ZoaArticleReference new
-		               reference: reference;
-		               title: text;
-		               yourself.
+		                 reference: reference;
+		                 title: text;
+		                 yourself.
 
 
 	^ self addReferenceFrom: fromReference to: toReference
 ]
 
 { #category : #visiting }
-ZoaWileyVisitor >> processElement: anElement [
-
+ZoaWileyVisitor >> processElement: anElement [ 
 	(self isArticleMetadata: anElement) ifTrue: [ 
 		self processArticleMetadata: anElement ].
 	(self isAuthorMetadata: anElement) ifTrue: [ 
 		self processAuthorOrAuthorAffiliation: anElement ].
 	(self isKeywordMetadata: anElement) ifTrue: [ 
 		self processKeyword: anElement ].
-	(self isAbstract: anElement) ifTrue: [ self processAbstract: anElement  ].
-	(self isAReference: anElement) ifTrue: [ self processReference: anElement  ]. 
-	(self isACite: anElement) ifTrue: [ self processCite: anElement  ].
+	(self isAbstract: anElement) ifTrue: [ 
+		self processAbstract: anElement ].
+	(self isAReference: anElement) ifTrue: [ 
+		self processReference: anElement ].
+	(self isACite: anElement) ifTrue: [ self processCite: anElement ]
 ]
 
 { #category : #visiting }
@@ -173,13 +184,13 @@ ZoaWileyVisitor >> processKeyword: anElement [
 ZoaWileyVisitor >> processReference: anElement [
 
 	| text reference fromReference toReference |
-	text := anElement nodes
-		        select: [ :n | n name = 'span' ]
-		        thenCollect: [ :n | self detectStringElement: n ].
-	text := ' ' join: text. 
-	reference := self detectHrefToArticle: anElement.
-	reference ifNil: [ ^ self ].
 
+	text := ' ' join: (self detectStringElement: anElement).
+	reference := self detectHrefToArticle: anElement.
+
+	reference ifNil: [ ^ self ].
+	(reference beginsWith: 'full/') ifTrue: [ 
+		reference := reference copyReplaceAll: 'full/' with: '' ].
 	fromReference := ZoaArticleReference new
 		                 reference: article doi;
 		                 title: article title;
@@ -208,4 +219,9 @@ ZoaWileyVisitor >> pushAuthor [
 		affiliations: { affiliations }.
 	author := nil.
 	affiliations := nil
+]
+
+{ #category : #'as yet unclassified' }
+ZoaWileyVisitor >> setJournalTitle: aString into: aZoaArticle [ 
+	self shouldBeImplemented.
 ]

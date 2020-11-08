@@ -29,7 +29,7 @@ ZoaLoader class >> loaderFor: aString [
 { #category : #accessing }
 ZoaLoader class >> publisher [
 
-	^ #Wiley
+	^ self subclassResponsibility
 ]
 
 { #category : #settings }
@@ -121,6 +121,11 @@ ZoaLoader >> setAbstract: aString into: aZoaDocument [
 	aZoaDocument abstract: aString
 ]
 
+{ #category : #initialization }
+ZoaLoader >> setAbstractHtmlUrl: aString into: aZoaArticle [ 
+	aZoaArticle data at:#AbstractUrl put: aString 
+]
+
 { #category : #'as yet unclassified' }
 ZoaLoader >> setAccessed: aCollection into: aZoaDocument [ 
 	" Date when the article information was accessed "
@@ -162,6 +167,17 @@ ZoaLoader >> setDoi: aString into: aZoaDocument [
 ZoaLoader >> setEventPlace: aString into: aZoaDocument [
 
 	aZoaDocument data at: #EventCity put: aString
+]
+
+{ #category : #initialization }
+ZoaLoader >> setFirstpage: aString into: aZoaArticle [
+
+	aZoaArticle pages: { aString trimBoth asNumber }
+]
+
+{ #category : #initialization }
+ZoaLoader >> setFulltextHtmlUrl: aString into: aZoaArticle [ 
+	" This is the link. Is setted up before "
 ]
 
 { #category : #'as yet unclassified' }
@@ -208,8 +224,13 @@ ZoaLoader >> setIssued: aCollection into: aZoaDocument [
 ]
 
 { #category : #accessing }
-ZoaLoader >> setJournal: aString into: aZoaDocument [
+ZoaLoader >> setJournal:aString into: aZoaDocument [
 	aZoaDocument journal: aString
+]
+
+{ #category : #'as yet unclassified' }
+ZoaLoader >> setJournalTitle:aString into: aZoaArticle [
+	self setJournal: aString into: aZoaArticle
 ]
 
 { #category : #'as yet unclassified' }
@@ -241,6 +262,17 @@ ZoaLoader >> setKeywords: anArrayOfkeywords into: anArticle [
 					            name: k;
 					            yourself ] ].
 	anArticle keywords: keywords
+]
+
+{ #category : #initialization }
+ZoaLoader >> setLanguage: aString into: aZoaArticle [ 
+	aZoaArticle data at:#Language put: aString 
+]
+
+{ #category : #initialization }
+ZoaLoader >> setLastpage: aString into: aZoaArticle [
+
+	self setFirstpage: aString into: aZoaArticle
 ]
 
 { #category : #'as yet unclassified' }
@@ -299,6 +331,12 @@ ZoaLoader >> setPages: aString into: aZoaDocument [
 				thenCollect: [ : v | v trimBoth asNumber])
 ]
 
+{ #category : #initialization }
+ZoaLoader >> setPublicationDate: aString into: aZoaArticle [
+
+	self setDate: aString into: aZoaArticle
+]
+
 { #category : #setting }
 ZoaLoader >> setPublisher: aString into: aZoaDocument [ 
 	aZoaDocument publisher: aString
@@ -352,4 +390,9 @@ ZoaLoader >> setYear: aString into: aZoaDocument [
 ZoaLoader >> zoa [
 
 	^ zoa
+]
+
+{ #category : #accessing }
+ZoaLoader >> zoa: aZoa [ 
+	zoa := aZoa
 ]

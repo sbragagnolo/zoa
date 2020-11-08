@@ -16,6 +16,12 @@ ZoaWileyLoader class >> loads: aString [
 	^ aString = 'onlinelibrary.wiley.com'
 ]
 
+{ #category : #accessing }
+ZoaWileyLoader class >> publisher [
+
+	^ #Wiley
+]
+
 { #category : #'as yet unclassified' }
 ZoaWileyLoader >> createVisitor [ 
 	^ ZoaWileyVisitor new 
@@ -26,23 +32,6 @@ ZoaWileyLoader >> idFor: aZnUrl [
 
 	self assert: aZnUrl segments first = #doi.
 	^ '/' join: (aZnUrl segments last: 2)
-]
-
-{ #category : #'as yet unclassified' }
-ZoaWileyLoader >> loadDocument: aDocument [
-
-	| article references visitor |
-	article := super loadDocument: aDocument.
-	references := (ZnEasy get: (self referencesUrl: article doi)) entity
-		              contents.
-	(references includesSubstring:
-		 '<div class=NoContentMessage>This article does not include References</div>') 
-		ifTrue: [ ^ article ].
-	visitor := self createVisitor.
-	visitor loader: self.
-	visitor article: article.
-	references parseHTML acceptNodeVisitor: visitor.
-	^ article
 ]
 
 { #category : #'as yet unclassified' }

@@ -287,6 +287,16 @@ ZoaArticle >> isEmptyOrNil [
 ]
 
 { #category : #accessing }
+ZoaArticle >> isIEEE [
+	^ publisher = #IEEE or: [ publisher includesSubstring: 'IEEE' caseSensitive: false  ]
+]
+
+{ #category : #accessing }
+ZoaArticle >> isWiley [
+	^ publisher = #Wiley or: [ publisher includesSubstring: 'Wiley' caseSensitive: false  ]
+]
+
+{ #category : #accessing }
 ZoaArticle >> isbn [
 	^ data at:#isbn
 ]
@@ -484,8 +494,10 @@ ZoaArticle >> number: anInteger [
 
 { #category : #accessing }
 ZoaArticle >> pages: aCollection [
+	| pgs | 
 	aCollection ifEmpty: [ ^ self ].
-	data at: #pages put: (aCollection min to: aCollection max)
+	pgs := aCollection, (data at: #pages ifAbsent: [ {  } ]).
+	data at: #pages put: (pgs min to: pgs max)
 ]
 
 { #category : #accessing }

@@ -146,12 +146,17 @@ ZoaDatabaseExplorer >> importArticleUrl [
 ZoaDatabaseExplorer >> importCitationsAndReferences: anArticle [
 
 	| html visitor text |
+	anArticle isIEEE ifTrue: [ visitor := ZoaIEEEVisitor new ].
+	anArticle isWiley ifTrue: [ visitor := ZoaWileyVisitor new ].
+	visitor ifNil: [ 
+		self error:
+			' No HTML Reference loader for ' , anArticle publisher asString ].
 	text := self newText.
 	(text
 		 autoAccept: true;
 		 yourself) openDialogWithSpec okAction: [ 
-		html := text text asString parseHTML. 
-		visitor := ZoaIEEEVisitor new.
+		html := text text asString parseHTML.
+
 		visitor article: anArticle.
 		html acceptNodeVisitor: visitor.
 		zoa saveArticle: anArticle ]
