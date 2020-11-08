@@ -10,7 +10,8 @@ Class {
 		'articles',
 		'briefs',
 		'title',
-		'id'
+		'id',
+		'questions'
 	],
 	#category : #'Zoa-Model'
 }
@@ -201,6 +202,11 @@ ZoaReview >> query [
 { #category : #accessing }
 ZoaReview >> query: aCollection [ 
 	query := aCollection asString 
+]
+
+{ #category : #accessing }
+ZoaReview >> questions [
+	^ questions ifNil: [ questions := OrderedCollection new ]
 ]
 
 { #category : #accessing }

@@ -5,6 +5,8 @@ Class {
 		'tabs',
 		'tags',
 		'articles',
+		'questions',
+		'responses',
 		'authors',
 		'affiliations',
 		'publisher',
@@ -247,12 +249,17 @@ ZoaReviewUI >> initializeNotebook [
 		addPage: (self newNotebookPageWith: tags and: 'Keywords');
 		addPage:
 			(self newNotebookPageWith: abstractTags and: 'Abstract Keywords');
-		addPage: (self newNotebookPageWith: query and: 'Query');
-		addPage: (self newNotebookPageWith: articles and: 'Articles');
-		addPage: (self newNotebookPageWith: authors and: 'Authors');
 		addPage: (self newNotebookPageWith: publisher and: 'Publishers');
 		addPage:
 			(self newNotebookPageWith: affiliations and: 'Affiliations');
+		addPage: (self newNotebookPageWith: query and: 'Query');
+		
+		addPage: (self newNotebookPageWith: articles and: 'Articles');
+		addPage: (self newNotebookPageWith: authors and: 'Authors');
+		
+		addPage: (self newNotebookPageWith: questions and: 'RQs');
+		
+		
 		addPage: (self newNotebookPageWith: edition and: 'Edition');
 		addPage: (self newNotebookPageWith: preview and: 'Preview')
 ]
@@ -319,6 +326,8 @@ ZoaReviewUI >> initializeWidgets [
 	publisher := self newPublisherTable.
 	affiliations := self newAffiliationTable.
 	edition := self newBriefsList.
+	questions := self newQuestionsWidget. 
+
 	self initializeNotebook
 ]
 
@@ -500,6 +509,11 @@ ZoaReviewUI >> newQuery [
 	^ comp
 ]
 
+{ #category : #'instance creation' }
+ZoaReviewUI >> newQuestionsWidget [
+	^ self instantiate: ZoaReviewQuestionsWidget 
+]
+
 { #category : #actions }
 ZoaReviewUI >> newReview [
 
@@ -622,7 +636,9 @@ ZoaReviewUI >> updateReview [
 		edition items: {  }.
 		query text: ''.
 		preview text: ''.
+		questions reset. 
 		^ self ].
+	questions review: review. 
 	tags roots: self currentKeywords.
 	articles items: review articles.
 	authors items: self currentAuthors.

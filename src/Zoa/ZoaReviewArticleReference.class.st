@@ -10,7 +10,8 @@ Class {
 		'included',
 		'reason',
 		'codification',
-		'state'
+		'state',
+		'responses'
 	],
 	#category : #'Zoa-Model'
 }
@@ -99,6 +100,12 @@ ZoaReviewArticleReference >> reason [
 { #category : #accessing }
 ZoaReviewArticleReference >> reason: aString [ 
 	reason := aString
+]
+
+{ #category : #accessing }
+ZoaReviewArticleReference >> responses [
+
+	^ responses ifNil: [ responses := Dictionary new ]
 ]
 
 { #category : #accessing }

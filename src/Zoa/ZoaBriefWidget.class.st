@@ -29,7 +29,6 @@ Class {
 ZoaBriefWidget class >> defaultSpec [
 
 	^ SpBoxLayout newVertical
-		  add: #toolBar height: self toolbarHeight;
 		  add: (SpPanedLayout newHorizontal
 				   add: #name;
 				   add: #order;

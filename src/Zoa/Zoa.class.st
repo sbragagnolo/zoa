@@ -192,6 +192,12 @@ Zoa >> findAllCodifications [
 	  #Other }
 ]
 
+{ #category : #accesing }
+Zoa >> findAllResearchQuestionUnits [
+
+	^ { #String. #Number. #Date }
+]
+
 { #category : #'as yet unclassified' }
 Zoa >> findAllReviews [
 	^ self repository selectAll: ZoaReview
@@ -199,7 +205,7 @@ Zoa >> findAllReviews [
 
 { #category : #'as yet unclassified' }
 Zoa >> findAllTags [
-	^ self repository selectAll: ZoaTag 
+	^ (self repository selectAll: ZoaTag ) asSet 
 ]
 
 { #category : #find }
