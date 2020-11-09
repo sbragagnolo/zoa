@@ -81,9 +81,17 @@ ZoaReviewQuestionsWidget >> initializeWidgets [
 ZoaReviewQuestionsWidget >> newQuestionTable [
 
 	^ self newTable
-		  addColumn: (SpStringTableColumn title: #Question evaluated: #name);
+		  addColumn: ((SpStringTableColumn
+				    title: #Question
+				    evaluated: [ :item | item name , ' ' , item text ])
+				   width: 100;
+				   yourself);
 		  addColumn: (SpStringTableColumn title: #Unit evaluated: #unit);
+		  addColumn: (SpStringTableColumn
+				   title: #Codifications
+				   evaluated: [ :item | ', ' join: item codifications ]);
 		  activateOnDoubleClick;
+		  beResizable;
 		  whenActivatedDo: [ :selection | 
 			  self
 				  openQuestion: selection selectedItem
@@ -137,7 +145,7 @@ ZoaReviewQuestionsWidget >> openResponse: aZoaReviewArticleReference [
 		            { 
 			            (self newLabel label: q name).
 			            (self newTextInput text:
-				             (q readFrom: aZoaReviewArticleReference responses)) } ].
+				             (q readFrom: aZoaReviewArticleReference responses) asString) } ].
 
 
 	(self newStackedComponentWith: elements) openDialogWithSpec
@@ -148,6 +156,11 @@ ZoaReviewQuestionsWidget >> openResponse: aZoaReviewArticleReference [
 					| q |
 					q := review questions detect: [ :qq | qq name = l label ].
 					q write: t text into: aZoaReviewArticleReference responses ] ]
+]
+
+{ #category : #'as yet unclassified' }
+ZoaReviewQuestionsWidget >> registerResultsForArticle [
+	self openResponse: responses selectedItem 
 ]
 
 { #category : #removing }
