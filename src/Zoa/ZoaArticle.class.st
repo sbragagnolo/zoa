@@ -72,6 +72,7 @@ ZoaArticle >> addKeyword: aKeyword [
 { #category : #reference }
 ZoaArticle >> addReference: aZoaArticleArticleReference [ 
 	references add: aZoaArticleArticleReference.
+	references := references asSet. 
 ]
 
 { #category : #accessing }
@@ -254,7 +255,7 @@ ZoaArticle >> firstAuthorName [
 
 { #category : #accessing }
 ZoaArticle >> getAllReferences [
-	^ references
+	^ references asOrderedCollection 
 ]
 
 { #category : #accessing }
@@ -273,7 +274,7 @@ ZoaArticle >> initialize [
 	data := Dictionary new.
 	briefs := OrderedCollection new.
 	authorsReference := OrderedCollection new.
-	references := OrderedCollection new.
+	references := Set new.
 ]
 
 { #category : #accessing }
