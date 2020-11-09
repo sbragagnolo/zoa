@@ -15,15 +15,19 @@ Class {
 { #category : #specs }
 ZoaReviewQuestionsWidget class >> defaultSpec [
 
-	^ SpBoxLayout newVertical
-		  add: #questions;
-		  add: (SpBoxLayout newHorizontal
-				   add: #addQuestion width: 100;
-				   add: #removeQuestion width: 100)
-		  expand: false;
-		  add: #responses;
-		  add: (SpBoxLayout newHorizontal add: #registerResults width: 100)
-		  expand: false
+	^ SpPanedLayout newVertical
+		  position: 30 percent;
+		  add: (SpBoxLayout newHorizontal add: (SpBoxLayout newVertical
+						    add: #questions;
+						    add: (SpBoxLayout newHorizontal
+								     add: #addQuestion width: 100;
+								     add: #removeQuestion width: 100)
+						    expand: false));
+		  add: (SpBoxLayout newHorizontal add: (SpBoxLayout newVertical
+					    add: #responses;
+					    add:
+						    (SpBoxLayout newHorizontal add: #registerResults width: 100)
+					    expand: false))
 ]
 
 { #category : #specs }
@@ -45,10 +49,9 @@ ZoaReviewQuestionsWidget >> addQuestion [
 
 	| question |
 	question := ZoaQuestion new.
-	review questions add: question.
-	(self instantiate: ZoaQuestionWidget)
-		question: question;
-		openWithSpec
+	self openQuestion: question onAccept: [ :q | 
+		review questions add: q.
+		self updateWidget ]
 ]
 
 { #category : #initialization }
@@ -56,7 +59,7 @@ ZoaReviewQuestionsWidget >> initializeWidgets [
 
 	super initializeWidgets.
 	questions := self newQuestionTable .
-	responses := self newTable. 
+	responses := self newResponsesTable. 
 	addQuestion := self newButton
 		               icon: (self iconNamed: #add);
 		               action: [ self addQuestion ];
@@ -78,15 +81,79 @@ ZoaReviewQuestionsWidget >> initializeWidgets [
 ZoaReviewQuestionsWidget >> newQuestionTable [
 
 	^ self newTable
-		
-		  addColumn: (SpStringTableColumn title: #Question evaluated: #text);
+		  addColumn: (SpStringTableColumn title: #Question evaluated: #name);
 		  addColumn: (SpStringTableColumn title: #Unit evaluated: #unit);
+		  activateOnDoubleClick;
+		  whenActivatedDo: [ :selection | 
+			  self
+				  openQuestion: selection selectedItem
+				  onAccept: [ self updateWidget ] ] yourself
+]
+
+{ #category : #initialization }
+ZoaReviewQuestionsWidget >> newResponsesTable [
+
+	| table |
+	table := self newTable.
+	table beResizable.
+	table addColumn: ((SpStringTableColumn
+			  title: #Article
+			  evaluated: [ :item | item title ])
+			 width: 100;
+			 yourself).
+	review ifNil: [ ^ table ].
+	review questions do: [ :q | 
+		table addColumn: (((self selectColumnTypeForUnit: q unit)
+				  title: q name
+				  evaluated: [ :item | q readFrom: item responses ])
+				 width: 50;
+				 yourself) ].
+	^ table
+		  beResizable;
+		  activateOnDoubleClick;
+		  whenActivatedDo: [ :selection | 
+			  self openResponse: selection selectedItem ];
 		  yourself
+]
+
+{ #category : #initialization }
+ZoaReviewQuestionsWidget >> openQuestion: aQuestion onAccept: anAcceptBlock [
+
+	((self instantiate: ZoaQuestionWidget)
+		 question: aQuestion;
+		 onAccept: anAcceptBlock;
+		 openWithSpec) title: 'Question Edition'
+]
+
+{ #category : #'as yet unclassified' }
+ZoaReviewQuestionsWidget >> openResponse: aZoaReviewArticleReference [
+
+	| elements |
+	review questions ifEmpty: [ 
+		self inform: 'There are not question to edit. '.
+		^ self ].
+
+	elements := review questions flatCollect: [ :q | 
+		            { 
+			            (self newLabel label: q name).
+			            (self newTextInput text:
+				             (q readFrom: aZoaReviewArticleReference responses)) } ].
+
+
+	(self newStackedComponentWith: elements) openDialogWithSpec
+		title: 'Responses for '
+			, (aZoaReviewArticleReference title readStream next: 20);
+		okAction: [ 
+			elements pairsDo: [ :l :t | 
+					| q |
+					q := review questions detect: [ :qq | qq name = l label ].
+					q write: t text into: aZoaReviewArticleReference responses ] ]
 ]
 
 { #category : #removing }
 ZoaReviewQuestionsWidget >> removeSelectedQuestion [
-	review questions remove: questions selectedItem 
+	review questions remove: questions selectedItem.
+	self updateWidget 
 ]
 
 { #category : #initialization }
@@ -104,7 +171,18 @@ ZoaReviewQuestionsWidget >> review: aReview [
 ]
 
 { #category : #initialization }
+ZoaReviewQuestionsWidget >> selectColumnTypeForUnit: aUnit [
+
+	^ SpStringTableColumn
+]
+
+{ #category : #initialization }
 ZoaReviewQuestionsWidget >> updateWidget [
+
 	questions items: review questions.
-	responses items: (review articles collect: [ : a | a responses ])
+	" We have one column per question + 1 of the article "
+	(responses columns size = (review questions size  + 1)) ifFalse: [ 
+		responses := self newResponsesTable.
+		self update ].
+	responses items: (review articles)
 ]

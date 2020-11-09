@@ -3,7 +3,8 @@ Class {
 	#superclass : #ZoaPresenter,
 	#instVars : [
 		'question',
-		'idLabel',
+		'nameLabel',
+		'name',
 		'textLabel',
 		'codificationLabel',
 		'unitLabel',
@@ -17,7 +18,8 @@ Class {
 		'cancelButton',
 		'window',
 		'addedCodifications',
-		'deletedCodifications'
+		'deletedCodifications',
+		'onAccept'
 	],
 	#category : #'Zoa-UI'
 }
@@ -26,7 +28,8 @@ Class {
 ZoaQuestionWidget class >> defaultSpec [
 
 	^ SpBoxLayout newVertical
-		  add: #idLabel expand: false;
+		  add: #nameLabel expand: false;
+		  add: #name expand: false;
 		  add: #textLabel expand: false;
 		  add: #text;
 		  add: #codificationLabel expand: false;
@@ -59,18 +62,23 @@ ZoaQuestionWidget class >> open [
 
 { #category : #initialization }
 ZoaQuestionWidget >> acceptChanges [
-	question text: text text asString . 
-	
-	question codifications addAll: addedCodifications. 
-	question codifications removeAll: deletedCodifications. 
-	question unit: unit selectedItem. 
 
+	question text: text text asString.
+
+	question codifications addAll: addedCodifications.
+	question codifications removeAll: deletedCodifications.
+	question unit: unit selectedItem.
+	question name: name text.
+	onAccept ifNotNil: [ onAccept cull: question ].
+	window close
 ]
 
 { #category : #initialization }
 ZoaQuestionWidget >> acceptNewCodification [
-	addedCodifications add: (codification text).
-	codification text:''.
+
+	codification text ifEmpty: [ ^ self ].
+	addedCodifications add: codification text.
+	codification text: ''.
 	self updateCodifications
 ]
 
@@ -92,15 +100,15 @@ ZoaQuestionWidget >> deleteSelectedCodification [
 ZoaQuestionWidget >> initialize [
 
 	super initialize.
-	deletedCodifications := OrderedCollection new.
-	addedCodifications := OrderedCollection new
+	deletedCodifications := Set new.
+	addedCodifications := Set new
 ]
 
 { #category : #initialization }
 ZoaQuestionWidget >> initializeLabels [
 
-	idLabel := self newLabel
-		           label: 'ID';
+	nameLabel := self newLabel
+		           label: 'RQ#';
 		           yourself.
 	textLabel := self newLabel
 		             label: 'Question';
@@ -119,6 +127,7 @@ ZoaQuestionWidget >> initializeWidgets [
 	super initializeWidgets.
 	self initializeLabels.
 	text := self newText.
+	name := self newTextInput .
 	unit := self newDropList.
 	unit items: zoa findAllResearchQuestionUnits.
 	codifications := self newList.
@@ -150,6 +159,12 @@ ZoaQuestionWidget >> initializeWindow: aWindow [
 ]
 
 { #category : #initialization }
+ZoaQuestionWidget >> onAccept: aBlock [
+
+	onAccept := aBlock
+]
+
+{ #category : #initialization }
 ZoaQuestionWidget >> question: aQuestion [ 
 	question := aQuestion .
 	self updateWidget. 
@@ -159,15 +174,15 @@ ZoaQuestionWidget >> question: aQuestion [
 ZoaQuestionWidget >> updateCodifications [
 
 	codifications items:
-		(addedCodifications , question codifications reject: [ :s | 
+		(addedCodifications asOrderedCollection , question codifications reject: [ :s | 
 			 deletedCodifications includes: s ])
 ]
 
 { #category : #initialization }
 ZoaQuestionWidget >> updateWidget [
 
-	text text: question text.
+	text text: question text .
 	self updateCodifications.
-	idLabel label: question id asString.
+	name text: (question name ifNil: [ 'RQ#1' ]).
 	unit selectItem: (question unit ifNil: [ #String ])
 ]

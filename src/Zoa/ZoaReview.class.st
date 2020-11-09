@@ -186,6 +186,80 @@ ZoaReview >> microdownBriefUsing: aZoa [
 					  cr ] ] ]
 ]
 
+{ #category : #reference }
+ZoaReview >> microdownBriefUsing: aZoa keywordsArticles: aDictionaryKeyToArticles [
+
+	^ String streamContents: [ :str | 
+		  str
+			  nextPutAll: '# Systematic Review: ';
+			  nextPutAll: self title;
+			  cr.
+
+		  (self briefs sorted: [ :a :b | a order < b order ]) do: [ :b | 
+			  b includeInText ifTrue: [ 
+				  str
+					  nextPutAll: '##';
+					  nextPutAll: b name;
+					  cr;
+					  nextPutAll: b text;
+					  cr.
+
+				  b tags ifNotEmpty: [ 
+					  str
+						  nextPutAll: '###Tags';
+						  nextPutAll: (';' join: (b tags collect: [ :k | k name ]));
+						  cr ] ] ].
+
+		  str
+			  nextPutAll: '## Affiliations ';
+			  cr.
+		  (self affiliations sort: [ :a :b | a < b ]) do: [ :aff | 
+			  str
+				  nextPutAll: '-';
+				  nextPutAll: aff;
+				  cr ].
+
+		  str
+			  nextPutAll: '##Keywords ';
+			  cr.
+		  (self keywords sort: [ :a :b | a name < b name ]) do: [ :tag | 
+			  str
+				  nextPutAll: '-';
+				  nextPutAll: tag name;
+				  nextPutAll: '(';
+				  nextPutAll: (aDictionaryKeyToArticles at: tag) size asString;
+				  nextPutAll: ')';
+				  cr ].
+		  str
+			  nextPutAll: '## Included Articles';
+			  cr.
+		  articles select: [ :a | a isIncluded ] thenDo: [ :a | 
+			  str
+				  nextPutAll: '-';
+				  nextPutAll: '(';
+				  nextPutAll: a article cite;
+				  nextPutAll: ')';
+				  nextPutAll: a article title;
+				  cr ].
+
+		  str
+			  nextPutAll: '## Excluded Articles';
+			  cr.
+		  ((articles reject: [ :a | a isIncluded ]) groupedBy: [ :a | 
+			   a codification ]) keysAndValuesDo: [ :codification :arts | 
+			  str
+				  nextPutAll: '### ' , codification;
+				  cr.
+			  arts do: [ :a | 
+				  str
+					  nextPutAll: '-';
+					  nextPutAll: '(';
+					  nextPutAll: a article cite;
+					  nextPutAll: ')';
+					  nextPutAll: a article title;
+					  cr ] ] ]
+]
+
 { #category : #accessing }
 ZoaReview >> publishers [
 

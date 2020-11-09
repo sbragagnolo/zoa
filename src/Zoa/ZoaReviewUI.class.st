@@ -593,8 +593,8 @@ ZoaReviewUI >> openReview [
 
 { #category : #'data query' }
 ZoaReviewUI >> previewTextModel [
-
-	^ MicroDownParser asText: (review microdownBriefUsing: zoa)
+	
+	^ MicroDownParser asText: (review microdownBriefUsing: zoa keywordsArticles: self keywordsToArticle )
 ]
 
 { #category : #'update and set' }
