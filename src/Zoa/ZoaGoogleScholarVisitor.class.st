@@ -35,9 +35,18 @@ ZoaGoogleScholarVisitor >> loadDocument [
 	references isEmptyOrNil ifTrue: [ 
 		^ self error: 'The google scholar search leads no where' ].
 	references size > 1 ifTrue: [ 
-		^ self error:
-			  'The google scholar search leads to too many relations! ' ].
-	^ Zoa current load: references first asZnUrl 
+		| ref |
+		ref := UIManager default
+			       chooseFrom: references
+			       values: references
+			       title:
+			       'Many references were found in the google scholar input. Please choose one'.
+		ref ifNil: [ 
+			^ self error:
+				  'The google scholar search leads to too many relations! ' ].
+
+		references := { ref } ].
+	^ Zoa current load: references first asZnUrl
 ]
 
 { #category : #accessing }
