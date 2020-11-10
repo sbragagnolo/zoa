@@ -19,8 +19,8 @@ BaselineOfZoa >> baseline: spec [
 		spec baseline: 'Voyage' with: [ 
 			spec
 				repository: 'github://pharo-nosql/voyage';
-				loads: 'mongo tests' ].
+				loads: #( 'mongo tests' 'memory tests' ) ].
 		spec
 			package: #Zoa
-			with: [ spec requires: #( Clap XMLParserHTML Voyage) ] ]
+			with: [ spec requires: #( Clap XMLParserHTML Voyage ) ] ]
 ]
