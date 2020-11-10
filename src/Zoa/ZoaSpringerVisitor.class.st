@@ -133,10 +133,16 @@ ZoaSpringerVisitor >> processKeywords: anElement [
 { #category : #visiting }
 ZoaSpringerVisitor >> processReference: anElement [
 
-	| reference text fromReference toReference |
-	self assert: anElement nodes first isStringNode.
+	| reference text fromReference toReference node |
+	self assert: (anElement nodes first isStringNode
+		or: [ anElement nodes first nodes first isStringNode ]).
 
-	text := anElement nodes first asString.
+	"Sometimes the title is wrapped in e.g., <em/>"
+	node := anElement nodes first isStringNode
+		ifTrue: [ anElement ]
+		ifFalse: [ anElement nodes first ].
+		
+	text := node nodes first asString.
 
 
 	fromReference := ZoaArticleReference new

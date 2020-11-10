@@ -324,7 +324,7 @@ Zoa >> loadAndSaveArticle: anEntry [
 	   'portal.acm.org'. 'arxiv.org'. 'sciencedirect.com'.
 	   'link.springer.com' } anySatisfy: [ :s | 
 		   (anEntry indexOfSubCollection: s) > 0 ])
-		  ifTrue: [ self loadAndSaveArticleUrl: anEntry asZnUrl]
+		  ifTrue: [ self loadAndSaveArticleUrl: anEntry urlDecoded asZnUrl]
 		  ifFalse: [ self loadAndSaveArticleDoi: anEntry ]
 ]
 

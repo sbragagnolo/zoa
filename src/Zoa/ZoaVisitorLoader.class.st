@@ -32,7 +32,12 @@ ZoaVisitorLoader >> loadDocument: anUrl [
 	article publisher: self class publisher.
 	article link: anUrl.
 	article doi: (self idFor: anUrl).
-	html := (ZnEasy get: anUrl) entity contents parseHTML.
+	html := (ZnClient new
+		beOneShot;
+		url: anUrl;
+		maxNumberOfRedirects: 5; "Override the 3 by default"
+		get;
+		response) entity contents parseHTML.
 	visitor := self createVisitor.
 	visitor article: article.
 	visitor loader: self.
