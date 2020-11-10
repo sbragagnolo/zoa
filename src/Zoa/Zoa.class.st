@@ -212,7 +212,7 @@ Zoa >> findAllTags [
 Zoa >> findArticleByDoi: aDoi [
 	^ self repository
 		selectOne: ZoaArticle
-		where: [ :q | (q fieldNamed: 'doi') = aDoi ]
+		where: [ :q | q doi = aDoi ]
 ]
 
 { #category : #find }
@@ -408,7 +408,7 @@ Zoa >> readArticle: anArticle [
 Zoa >> repository [
 
 	^ repository ifNil: [ 
-		  repository := VOMongoRepository host: 'localhost' database: 'zoa' ]
+		  repository := VOMemoryRepository new ]
 ]
 
 { #category : #save }
