@@ -30,13 +30,3 @@ ZoaArxivLoader >> privateAbstractFor: anUrl [
 	stream upToAll: 'Abstract:</span>'.
 	^ stream upToAll: '</blockquote>'
 ]
-
-{ #category : #accessing }
-ZoaArxivLoader >> setArxivId: aString into: aZoaDocument [ 
-	aZoaDocument arxivId: aString
-]
-
-{ #category : #setting }
-ZoaArxivLoader >> setTwittersite: aString into: aZoaDocument [ 
-  " Nothing to do"
-]

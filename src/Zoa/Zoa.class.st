@@ -10,7 +10,6 @@ Class {
 	],
 	#classInstVars : [
 		'zoa',
-		'dois',
 		'links'
 	],
 	#category : #'Zoa-API'
@@ -31,6 +30,22 @@ Zoa class >> current: anObject [
 { #category : #'as yet unclassified' }
 Zoa class >> defaultFolder [
 	^ (FileLocator home / '.zoa') ensureCreateDirectory 
+]
+
+{ #category : #'as yet unclassified' }
+Zoa class >> host: aHost database: aDatabase [
+
+	^ self new
+		  repository: (VOMongoRepository host: aHost database: aDatabase);
+		  yourself
+]
+
+{ #category : #'as yet unclassified' }
+Zoa class >> memory [
+
+	^ self new
+		  repository: VOMemoryRepository new;
+		  yourself
 ]
 
 { #category : #'as yet unclassified' }
@@ -93,6 +108,12 @@ Zoa >> articles [
 { #category : #accesing }
 Zoa >> authors [
 	^ (root / #database / #authors) ensureCreateDirectory
+]
+
+{ #category : #find }
+Zoa >> beCurrent [
+
+	Zoa current: self
 ]
 
 { #category : #public }
@@ -411,6 +432,12 @@ Zoa >> repository [
 		  repository := VOMongoRepository host: 'localhost' database: 'zoa' ]
 ]
 
+{ #category : #read }
+Zoa >> repository: aRepository [ 
+	repository := aRepository. 
+
+]
+
 { #category : #save }
 Zoa >> saveArticle: doc [
 
@@ -436,21 +463,4 @@ Zoa >> saveAuthor: aZoaAuthor [
 { #category : #save }
 Zoa >> saveReview: aReview [
 	self repository save: aReview 
-]
-
-{ #category : #read }
-Zoa >> submit [
-	| future |
-	future := [ :spec | 
-	spec
-		command: 'bash';
-		option: '-c';
-		argument:
-			('cd {1} && git add . && git commit -m" generated message" && git pull && git push '
-				format: {root fullName}) ] asOSTask
-		future: TKTNewProcessTaskRunner new.
-	future waitForCompletion: 10 minutes.
-	^ future isFailure
-		ifTrue: [ ' Error during submition. Check your git repo' ]
-		ifFalse: [ 'Submitted!' ]
 ]

@@ -143,14 +143,14 @@ ZoaHTMLVisitor >> loader: aLoader [
 ]
 
 { #category : #visiting }
+ZoaHTMLVisitor >> processElement: anElement [
+	self subclassResponsibility 
+]
+
+{ #category : #visiting }
 ZoaHTMLVisitor >> visitElement: anElement [
 	self processElement: anElement. 
 	super visitElement: anElement.
 
 
-]
-
-{ #category : #visiting }
-ZoaHTMLVisitor >> zoaApi: aZoaApi [
-	zoaApi := aZoaApi 
 ]

@@ -245,7 +245,7 @@ ZoaArticleMetadata >> linkAuthorToArticle: author [
 			 title: article title;
 			 yourself).
 	article addAuthorReference: articleRef.
-	Zoa current saveAuthor: author
+	zoa saveAuthor: author
 ]
 
 { #category : #initialization }

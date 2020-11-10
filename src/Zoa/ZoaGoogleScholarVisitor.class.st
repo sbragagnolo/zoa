@@ -6,7 +6,8 @@ Class {
 	#superclass : #XMLNodeVisitor,
 	#instVars : [
 		'document',
-		'references'
+		'references',
+		'zoa'
 	],
 	#category : #'Zoa-Loader'
 }
@@ -46,7 +47,7 @@ ZoaGoogleScholarVisitor >> loadDocument [
 				  'The google scholar search leads to too many relations! ' ].
 
 		references := { ref } ].
-	^ Zoa current load: references first asZnUrl
+	^ zoa load: references first asZnUrl
 ]
 
 { #category : #accessing }
@@ -67,4 +68,9 @@ ZoaGoogleScholarVisitor >> visitElement: anElement [
 	super visitElement: anElement.
 
 
+]
+
+{ #category : #'as yet unclassified' }
+ZoaGoogleScholarVisitor >> zoa: aZoa [	
+	zoa := aZoa
 ]

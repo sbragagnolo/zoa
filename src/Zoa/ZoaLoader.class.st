@@ -55,7 +55,7 @@ ZoaLoader >> addTo: anArticle authorFirstNamed: firstname lastName: lastname id:
 					 title: anArticle title;
 					 yourself).
 			anArticle addAuthorReference: articleRef.
-			Zoa current saveAuthor: author.
+			zoa saveAuthor: author.
 			articleRef ]
 ]
 
@@ -130,6 +130,11 @@ ZoaLoader >> setAbstractHtmlUrl: aString into: aZoaArticle [
 ZoaLoader >> setAccessed: aCollection into: aZoaDocument [ 
 	" Date when the article information was accessed "
 	
+]
+
+{ #category : #accessing }
+ZoaLoader >> setArxivId: aString into: aZoaDocument [ 
+	aZoaDocument arxivId: aString
 ]
 
 { #category : #accessing }
@@ -351,6 +356,11 @@ ZoaLoader >> setPublisherPlace: aString into: aZoaDocument [
 { #category : #accessing }
 ZoaLoader >> setTitle: aString into: aZoaDocument [ 
 	aZoaDocument title: aString
+]
+
+{ #category : #setting }
+ZoaLoader >> setTwittersite: aString into: aZoaDocument [ 
+  " Nothing to do"
 ]
 
 { #category : #'as yet unclassified' }

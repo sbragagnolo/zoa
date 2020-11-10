@@ -10,6 +10,19 @@ Class {
 	#category : #'Zoa-Loader'
 }
 
+{ #category : #visiting }
+ZoaIEEEVisitor >> itDefinesCitationSection: anElement [
+
+	^ anElement name = 'citations'
+		
+]
+
+{ #category : #visiting }
+ZoaIEEEVisitor >> itDefinesReferenceSection: anElement [
+
+	^ anElement name = 'references'
+]
+
 { #category : #'as yet unclassified' }
 ZoaIEEEVisitor >> loadCitation: element [
 
@@ -36,6 +49,13 @@ ZoaIEEEVisitor >> loadCitation: element [
 
 
 	self addReferenceFrom: fromReference to: toReference
+]
+
+{ #category : #visiting }
+ZoaIEEEVisitor >> loadElement: anElement [
+
+	loading = #references ifTrue: [ self loadReference: anElement ].
+	loading = #citations ifTrue: [ self loadCitation: anElement ]
 ]
 
 { #category : #'as yet unclassified' }
@@ -67,13 +87,23 @@ ZoaIEEEVisitor >> loadReference: element [
 
 { #category : #visiting }
 ZoaIEEEVisitor >> processElement: anElement [
+	(self itDefinesReferenceSection: anElement ) ifTrue: [  self setLoadingModeToReference ].
+	(self itDefinesCitationSection: anElement ) ifTrue: [  self setLoadingModeToCites ].
+	(self element: anElement hasClass: 'reference-container') ifTrue: [ self loadElement: anElement ].
+	
+	
+]
 
-	anElement name = 'references' ifTrue: [ loading := #references ].
-	anElement name = 'citations' ifTrue: [ loading := #citations ].
-	((anElement attributeAt: 'class' ifAbsent:'') includesSubstring: 'reference-container') ifTrue: [ 
-			loading = #references  ifTrue: [ self loadReference: anElement ].
-			loading = #citations  ifTrue: [ self loadCitation: anElement ].
-	 ] 
+{ #category : #visiting }
+ZoaIEEEVisitor >> setLoadingModeToCites [
+
+	loading := #citations
+]
+
+{ #category : #visiting }
+ZoaIEEEVisitor >> setLoadingModeToReference [
+	 loading := #references
+	
 ]
 
 { #category : #visiting }
