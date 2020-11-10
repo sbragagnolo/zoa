@@ -161,7 +161,14 @@ ZoaLoader >> setDOI: aString into: aZoaDocument [
 { #category : #accessing }
 ZoaLoader >> setDate: aString into: aZoaDocument [
 
-	aZoaDocument date: (DateAndTime fuzzyReadFrom: aString readStream)
+	| date |
+	date := aString isString
+		        ifTrue: [ 
+			        [ Date fromString: aString ]
+				        on: Error
+				        do: [ DateAndTime fuzzyReadFrom: aString readStream ] ]
+		        ifFalse: [ aString ].
+	aZoaDocument date: date
 ]
 
 { #category : #accessing }

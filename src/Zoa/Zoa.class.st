@@ -231,9 +231,11 @@ Zoa >> findAllTags [
 
 { #category : #find }
 Zoa >> findArticleByDoi: aDoi [
-	^ self repository
-		selectOne: ZoaArticle
-		where: [ :q | (q fieldNamed: 'doi') = aDoi ]
+
+	^ self repository selectOne: ZoaArticle where: [ :q | 
+		  (q isKindOf: MQQuery)
+			  ifTrue: [ (q fieldNamed: 'doi') = aDoi ]
+			  ifFalse: [ q doi = aDoi ] ]
 ]
 
 { #category : #find }

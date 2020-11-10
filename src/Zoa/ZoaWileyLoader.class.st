@@ -13,7 +13,7 @@ self halt.
 { #category : #api }
 ZoaWileyLoader class >> loads: aString [
 
-	^ aString = 'onlinelibrary.wiley.com'
+	^ {'onlinelibrary.wiley.com' . 'doi.wiley.com'} includes: aString 
 ]
 
 { #category : #accessing }
@@ -29,8 +29,8 @@ ZoaWileyLoader >> createVisitor [
 
 { #category : #'as yet unclassified' }
 ZoaWileyLoader >> idFor: aZnUrl [
-
-	self assert: aZnUrl segments first = #doi.
+	
+	self assert: ((aZnUrl host beginsWith:'doi'  )or:[ aZnUrl segments first = #doi.]).
 	^ '/' join: (aZnUrl segments last: 2)
 ]
 
