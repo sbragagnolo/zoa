@@ -159,8 +159,9 @@ ZoaLoader >> setDOI: aString into: aZoaDocument [
 ]
 
 { #category : #accessing }
-ZoaLoader >> setDate: aString into: aZoaDocument [ 
-	aZoaDocument date: aString asDate
+ZoaLoader >> setDate: aString into: aZoaDocument [
+
+	aZoaDocument date: (DateAndTime fuzzyReadFrom: aString readStream)
 ]
 
 { #category : #accessing }
