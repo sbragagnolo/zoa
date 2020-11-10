@@ -1,0 +1,44 @@
+{
+
+  "manifest_version": 2,
+  "name": "Zoa Reference Extractor",
+  "version": "1.0",
+
+  "description": "to mix with the usage of Zoa State of the Art and paper review planner. This plugin allows the extraction of references from some specific vendors",
+  "icons": {
+    "48": "icons/zoa-48.png"
+  },
+  "content_security_policy": "script-src 'self' https://code.jquery.com; object-src 'self'", 
+  "permissions": [
+      "tabs",
+      "cookies",
+      "<all_urls>"
+  ],
+
+  "web_accessible_resources": [
+      "popup/images/bullseyes.png",
+      "popup/images/starring.png",
+      "popup/images/subtle.png",
+      "popup/images/tactilenoise.png",
+      "popup/images/triangles.png",
+      "popup/images/triangles2.png",
+      "popup/images/washi.png",
+      "popup/images/whitey.png"
+  ],
+
+  "browser_action": {
+    "default_icon": {
+     "32" : "icons/zoa-32.png"
+    },
+    "default_title": "Zoa Reference extractor",
+    "default_popup": "popup/zoa.html"
+  },
+
+
+  "content_scripts": [
+    {
+      "matches": ["<all_urls>"],
+      "js": ["content_scripts/zoa_reference_scrapper.js"]
+    }
+  ]
+}
