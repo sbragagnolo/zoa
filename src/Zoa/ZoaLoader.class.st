@@ -55,7 +55,7 @@ ZoaLoader >> addTo: anArticle authorFirstNamed: firstname lastName: lastname id:
 					 title: anArticle title;
 					 yourself).
 			anArticle addAuthorReference: articleRef.
-			Zoa current saveAuthor: author.
+			zoa saveAuthor: author.
 			articleRef ]
 ]
 
@@ -133,6 +133,11 @@ ZoaLoader >> setAccessed: aCollection into: aZoaDocument [
 ]
 
 { #category : #accessing }
+ZoaLoader >> setArxivId: aString into: aZoaDocument [ 
+	aZoaDocument arxivId: aString
+]
+
+{ #category : #accessing }
 ZoaLoader >> setBooktitle: aString into: aZoaDocument [ 
 	aZoaDocument booktitle: aString.
 ]
@@ -154,8 +159,16 @@ ZoaLoader >> setDOI: aString into: aZoaDocument [
 ]
 
 { #category : #accessing }
-ZoaLoader >> setDate: aString into: aZoaDocument [ 
-	aZoaDocument date: (DateAndTime fuzzyReadFrom: aString readStream)
+ZoaLoader >> setDate: aString into: aZoaDocument [
+
+	| date |
+	date := aString isString
+		        ifTrue: [ 
+			        [ Date fromString: aString ]
+				        on: Error
+				        do: [ DateAndTime fuzzyReadFrom: aString readStream ] ]
+		        ifFalse: [ aString ].
+	aZoaDocument date: date
 ]
 
 { #category : #accessing }
@@ -351,6 +364,11 @@ ZoaLoader >> setPublisherPlace: aString into: aZoaDocument [
 { #category : #accessing }
 ZoaLoader >> setTitle: aString into: aZoaDocument [ 
 	aZoaDocument title: aString
+]
+
+{ #category : #setting }
+ZoaLoader >> setTwittersite: aString into: aZoaDocument [ 
+  " Nothing to do"
 ]
 
 { #category : #'as yet unclassified' }

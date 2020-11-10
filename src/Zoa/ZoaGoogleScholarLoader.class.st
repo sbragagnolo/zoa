@@ -25,6 +25,7 @@ ZoaGoogleScholarLoader >> loadDocument: aZnUrl [
 	entity := (ZnEasy get: aZnUrl) entity.
 	html := entity contents parseHTML.
 	visitor := ZoaGoogleScholarVisitor new.
+	visitor zoa: zoa. 
 	html acceptNodeVisitor: visitor.
 	^ visitor loadDocument
 ]
