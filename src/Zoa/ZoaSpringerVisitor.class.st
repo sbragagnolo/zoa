@@ -105,6 +105,23 @@ ZoaSpringerVisitor >> processDate: aXMLElement [
 ]
 
 { #category : #visiting }
+ZoaSpringerVisitor >> processElement: anElement [
+
+	(self isTitle: anElement) ifTrue: [ self processTitle: anElement ].
+	(self isContributorArea: anElement) ifTrue: [ 
+		self processContributorArea: anElement ].
+	(self isAbstract: anElement) ifTrue: [ 
+		self processAbstract: anElement ].
+	(self isKeywordsArea: anElement) ifTrue: [ 
+		self processKeywords: anElement ].
+	(self isReference: anElement) ifTrue: [ 
+		self processReference: anElement ].
+	(self isDateReference: anElement) ifTrue: [ 
+		self processDate: anElement ].
+
+]
+
+{ #category : #visiting }
 ZoaSpringerVisitor >> processKeywords: anElement [
 	| base keywords |
 	base := anElement nodes select: [  : n | n name = 'span' and: [( n attributeAt: 'class' ifAbsent:'') includesSubstring: 'Keyword' ] ].
@@ -151,22 +168,4 @@ ZoaSpringerVisitor >> splitName: aString [
 	^ name size = 1
 		  ifTrue: [ (Character value: 160) asString split: aString ]
 		  ifFalse: [ name ]
-]
-
-{ #category : #visiting }
-ZoaSpringerVisitor >> visitElement: anElement [
-
-	(self isTitle: anElement) ifTrue: [ self processTitle: anElement ].
-	(self isContributorArea: anElement) ifTrue: [ 
-		self processContributorArea: anElement ].
-	(self isAbstract: anElement) ifTrue: [ 
-		self processAbstract: anElement ].
-	(self isKeywordsArea: anElement) ifTrue: [ 
-		self processKeywords: anElement ].
-	(self isReference: anElement) ifTrue: [ 
-		self processReference: anElement ].
-	(self isDateReference: anElement) ifTrue: [ 
-		self processDate: anElement ].
-
-	super visitElement: anElement
 ]
