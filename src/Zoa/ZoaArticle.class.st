@@ -88,7 +88,6 @@ ZoaArticle >> arxivId [
 
 { #category : #accessing }
 ZoaArticle >> arxivId: aString [ 
-	doi := aString. 
 	data at: #arxiv put: aString
 ]
 

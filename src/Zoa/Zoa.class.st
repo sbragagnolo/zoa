@@ -18,7 +18,7 @@ Class {
 { #category : #accessing }
 Zoa class >> current [
 
-	^ zoa ifNil: [ zoa := self new ]
+	^ zoa ifNil: [ zoa := self host: 'localhost' database: 'zoa' ]
 ]
 
 { #category : #accessing }
