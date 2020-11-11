@@ -9,7 +9,7 @@ ZoaArxivVisitor >> isAbstract: anElement [
 
 	^ (self isMetaElement: anElement) and: [ 
 		  self
-			  attribute: 'name'
+			  attribute: 'property'
 			  inElement: anElement
 			  beginsWith: 'og:description' ]
 ]
