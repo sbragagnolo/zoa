@@ -166,7 +166,8 @@ ZoaLoader >> setDate: aString into: aZoaDocument [
 		        ifTrue: [ 
 			        [ Date fromString: aString ]
 				        on: Error
-				        do: [ DateAndTime fuzzyReadFrom: aString readStream ] ]
+				        do: [ [DateAndTime fuzzyReadFrom: aString readStream]
+							on: Error do: [ aString ] ] ]
 		        ifFalse: [ aString ].
 	aZoaDocument date: date
 ]
