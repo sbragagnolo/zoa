@@ -333,7 +333,8 @@ Zoa >> listAllArticles [
 
 { #category : #load }
 Zoa >> load: anUrl [
-
+	"Load and return an article from a URL.
+	The article is not saved"
 	^ (ZoaLoader loaderFor: anUrl host) new
 		  zoa: self;
 		  loadDocument: anUrl

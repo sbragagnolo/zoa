@@ -54,9 +54,19 @@ ZoaSpringerVisitor >> isTitle: anElement [
 { #category : #visiting }
 ZoaSpringerVisitor >> processAbstract: anElement [
 
-	self assert: anElement nodes second nodes first isStringNode.
-	article abstract:
-		anElement nodes second nodes first asString
+	| abstract |
+	"A Springer abstract can be made of a single string node, or by many paragraphs with style.
+	Extract just a string from it."
+	
+	abstract := String streamContents: [ :stream |
+		"Skip the abstract title"
+		anElement nodes allButFirst do: [ :elem |
+			"For each element besides the title, iterate the tree and extract the strings"
+			elem allElementsDo: [ :subelem |
+				subelem stringNodesDo: [ :stringNode | 
+					stream nextPutAll: stringNode string ] ] ] ].
+
+	article abstract: abstract.
 ]
 
 { #category : #visiting }
@@ -133,28 +143,54 @@ ZoaSpringerVisitor >> processKeywords: anElement [
 { #category : #visiting }
 ZoaSpringerVisitor >> processReference: anElement [
 
-	| reference text fromReference toReference node |
-	self assert: (anElement nodes first isStringNode
-		or: [ anElement nodes first nodes first isStringNode ]).
+	| text fromReference toReference source textStream authors title venue hasQuotedTitle |
+	self assert: (anElement nodes first isStringNode or: [ 
+			 anElement nodes first nodes first isStringNode ]).
 
-	"Sometimes the title is wrapped in e.g., <em/>"
-	node := anElement nodes first isStringNode
-		ifTrue: [ anElement ]
-		ifFalse: [ anElement nodes first ].
-		
-	text := node nodes first asString.
+	"Sometimes the title, venue and authors are wrapped.
+	Extract the strings from the xml, ignoring the last Occurrences tag"
+	self assert:
+		(self element: anElement nodes last hasClass: 'Occurrences').
+	text := String streamContents: [ :stream | 
+		        anElement nodes allButLast do: [ :interestingNode | 
+			        interestingNode isStringNode
+				        ifTrue: [ stream nextPutAll: interestingNode string ]
+				        ifFalse: [ 
+					        interestingNode allElementsDo: [ :element | 
+						        element stringNodesDo: [ :e | 
+							        stream nextPutAll: e string ] ] ] ] ].
 
-
+	"Parse the text. If reference comes from google scholar, it seems it has the form:
+		author and author, title, venue"
+	source := anElement nodes last allElements last nodes first string.
+	self assert: source = 'Google Scholar'.
+	textStream := text readStream.	
+	hasQuotedTitle := (text indexOf: $”) > 0.
+	hasQuotedTitle ifTrue: [
+		authors := (((textStream upTo: $“) splitOn: 'and') flatCollect: [ :e | e substrings: ',' ])
+			collect: [ :e | e trimBoth ]
+			thenSelect: [ :e | e isNotEmpty ].
+		title := (textStream upTo: $”) trimBoth.
+		venue := textStream upToEnd trimBoth.
+	] ifFalse: [ 
+		authors := ((textStream upTo: $,) splitOn: 'and')
+			collect: [ :e | e trimBoth ].
+		title := (textStream upTo: $.) trimBoth.
+		venue := textStream upToEnd trimBoth
+	].
+	self haltIf: (text includesSubstring: 'Jr').
+	self haltIf: (text includesSubstring: 'History').
 	fromReference := ZoaArticleReference new
 		                 reference: article doi;
 		                 title: article title;
 		                 yourself.
 
 	toReference := ZoaArticleReference new
-		               reference: (self detectHrefToArticle: anElement);
-		               title: text;
+		               reference: (self detectHrefToArticle: anElement) urlDecoded;
+		               title: title;
+		               authors: authors;
+		               venue: venue;
 		               yourself.
-
 
 	^ self addReferenceFrom: fromReference to: toReference
 ]
@@ -162,9 +198,15 @@ ZoaSpringerVisitor >> processReference: anElement [
 { #category : #visiting }
 ZoaSpringerVisitor >> processTitle: anElement [
 
-	self assert: anElement nodes first isStringNode.
+	| node |
+	self assert: (anElement nodes first isStringNode
+		or: [ anElement nodes first name = 'span' ]).
 
-	article title: anElement nodes first asString
+	node := anElement nodes first isStringNode
+		ifFalse: [ anElement nodes first ]
+		ifTrue: [ anElement ].
+
+	article title: node nodes first asString
 ]
 
 { #category : #visiting }

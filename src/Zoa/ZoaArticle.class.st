@@ -478,6 +478,41 @@ ZoaArticle >> microdownBriefUsing: aZoa [
 				  newLine ] ]
 ]
 
+{ #category : #reference }
+ZoaArticle >> microdownShortBriefUsing: aZoa [
+
+	^ String streamContents: [ :str | 
+		  str
+			  nextPutAll: '#';
+			  nextPutAll: self title;
+			  newLine.
+		  str
+			  newLine;
+			  nextPutAll: '##Authors';
+			  newLine.
+
+		  authorsReference do: [ :ar | 
+			  str
+				  nextPutAll: 'Auhor Name: ';
+				  nextPutAll: (aZoa findAuthorByIds: ar authorIds) fullName;
+				  newLine ].
+
+		  self abstract ifNotNil: [ 
+			  str
+				  newLine;
+				  nextPutAll: '##Abstract';
+				  newLine;
+				  nextPutAll: self abstract;
+				  newLine ].
+
+		  str
+			  nextPutAll: '##Keywords';
+			  newLine.
+		  str nextPutAll:
+			  (';' join: (self keywords collect: [ :k | k name ])).
+		  str newLine ]
+]
+
 { #category : #acessing }
 ZoaArticle >> name [
 	^ self title
