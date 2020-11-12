@@ -3,7 +3,7 @@ Downloads from Arxiv
 "
 Class {
 	#name : #ZoaArxivLoader,
-	#superclass : #ZoaLoader,
+	#superclass : #ZoaVisitorLoader,
 	#category : #'Zoa-Loader'
 }
 
@@ -17,16 +17,25 @@ ZoaArxivLoader class >> publisher [
 	^ #Arxiv
 ]
 
-{ #category : #accessing }
-ZoaArxivLoader >> loadDocument: aDocument [
-	self halt.
+{ #category : #'as yet unclassified' }
+ZoaArxivLoader >> createVisitor [
+
+	^ ZoaArxivVisitor new
 ]
 
 { #category : #'as yet unclassified' }
-ZoaArxivLoader >> privateAbstractFor: anUrl [
-	| contents stream |
-	contents := ZnEasy get: anUrl.
-	stream := contents entity readStream.
-	stream upToAll: 'Abstract:</span>'.
-	^ stream upToAll: '</blockquote>'
+ZoaArxivLoader >> idFor: aZnUrl [
+
+	^ 'arxiv/' , aZnUrl segments last
+]
+
+{ #category : #'as yet unclassified' }
+ZoaArxivLoader >> loadDocument: anUrl [
+
+	| arxiv article |
+	arxiv := self idFor: anUrl.
+	article := super loadDocument: anUrl.
+	article arxivId: arxiv.
+	article doi ifNil: [ article doi: arxiv ].
+	^ article 
 ]
