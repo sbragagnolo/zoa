@@ -333,7 +333,8 @@ Zoa >> listAllArticles [
 
 { #category : #load }
 Zoa >> load: anUrl [
-
+	"Load and return an article from a URL.
+	The article is not saved"
 	^ (ZoaLoader loaderFor: anUrl host) new
 		  zoa: self;
 		  loadDocument: anUrl
@@ -347,7 +348,7 @@ Zoa >> loadAndSaveArticle: anEntry [
 	   'portal.acm.org'. 'arxiv.org'. 'sciencedirect.com'.
 	   'link.springer.com' } anySatisfy: [ :s | 
 		   (anEntry indexOfSubCollection: s) > 0 ])
-		  ifTrue: [ self loadAndSaveArticleUrl: anEntry asZnUrl]
+		  ifTrue: [ self loadAndSaveArticleUrl: anEntry urlDecoded asZnUrl]
 		  ifFalse: [ self loadAndSaveArticleDoi: anEntry ]
 ]
 
@@ -431,7 +432,7 @@ Zoa >> readArticle: anArticle [
 Zoa >> repository [
 
 	^ repository ifNil: [ 
-		  repository := VOMongoRepository host: 'localhost' database: 'zoa' ]
+		  repository := VOMemoryRepository new ]
 ]
 
 { #category : #read }

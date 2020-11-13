@@ -6,7 +6,7 @@ Class {
 
 { #category : #api }
 ZoaWileyLoader class >> formatUrl: aZnUrl forDoi: aDoi [
-self halt. 
+
 	^ ('https://dl.acm.org/doi/{1}' format: {aDoi}) asUrl
 ]
 

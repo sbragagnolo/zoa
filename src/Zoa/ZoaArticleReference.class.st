@@ -6,7 +6,9 @@ Class {
 	#superclass : #Object,
 	#instVars : [
 		'reference',
-		'title'
+		'title',
+		'authors',
+		'venue'
 	],
 	#category : #'Zoa-Model'
 }
@@ -16,6 +18,12 @@ ZoaArticleReference >> = anOtherRef [
 
 	^ self species = anOtherRef species and: [ 
 		  reference = anOtherRef reference ]
+]
+
+{ #category : #accessing }
+ZoaArticleReference >> authors: aCollection [ 
+	
+	authors := aCollection
 ]
 
 { #category : #accessing }
@@ -69,6 +77,17 @@ ZoaArticleReference >> refersTo: anArticle [
 ]
 
 { #category : #accessing }
+ZoaArticleReference >> title [
+	^ title
+]
+
+{ #category : #accessing }
 ZoaArticleReference >> title: aTitle [
 	title := aTitle
+]
+
+{ #category : #accessing }
+ZoaArticleReference >> venue: aString [ 
+	
+	venue := aString
 ]

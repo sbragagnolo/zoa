@@ -166,7 +166,8 @@ ZoaLoader >> setDate: aString into: aZoaDocument [
 		        ifTrue: [ 
 			        [ Date fromString: aString ]
 				        on: Error
-				        do: [ DateAndTime fuzzyReadFrom: aString readStream ] ]
+				        do: [ [DateAndTime fuzzyReadFrom: aString readStream]
+							on: Error do: [ aString ] ] ]
 		        ifFalse: [ aString ].
 	aZoaDocument date: date
 ]
@@ -232,7 +233,7 @@ ZoaLoader >> setIssued: aCollection into: aZoaDocument [
 	all := (aCollection at: 'date-parts') first.
 	all doWithIndex: [ :each : id  | date at: id put: each ].
 	self
-		setDate: (Date year: date first month: date second day: date third)
+		setDate: (Date year: date first month: date second day: date third) yyyymmdd
 		into: aZoaDocument
 ]
 
