@@ -90,12 +90,12 @@ ZoaBrief >> tags [
 
 { #category : #accessing }
 ZoaBrief >> text [
-	^ text ifEmpty: [ ^ '#', name ]
+	^ (text ifEmpty: [ ^ '#', name ] ) asString
 ]
 
 { #category : #accessing }
 ZoaBrief >> text: aString [ 
-	text := aString
+	text := aString asString. 
 ]
 
 { #category : #accessing }

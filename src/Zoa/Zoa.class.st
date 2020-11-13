@@ -78,7 +78,7 @@ Zoa >> allIncomingReferencesTo: anArticle [
 
 	| allArticles |
 	allArticles := self findAllArticles.
-	^ (allArticles flatCollect: [ :a | a references ]) select: [ :ref | 
+	^ (allArticles flatCollect: [ :a | a references ifNil: [ {  } ] ]) select: [ :ref | 
 		  ref cites: anArticle ]
 ]
 
@@ -87,7 +87,7 @@ Zoa >> allOutgoingReferencesFrom: anArticle [
 
 	| allArticles |
 	allArticles := self findAllArticles.
-	^ (allArticles flatCollect: [ :a | a references ]) select: [ :ref | 
+	^ (allArticles flatCollect: [ :a | a references ifNil:[{} ]]) select: [ :ref | 
 		  ref citedBy: anArticle ]
 ]
 

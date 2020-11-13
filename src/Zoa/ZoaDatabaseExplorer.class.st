@@ -37,12 +37,18 @@ ZoaDatabaseExplorer class >> example [
 ]
 
 { #category : #specs }
+ZoaDatabaseExplorer class >> openZoaDbExplorer [
+
+	(self new openWithSpec title: 'Zoa') extent: 1200 @ 750
+]
+
+{ #category : #specs }
 ZoaDatabaseExplorer class >> worldMenuOn: aBuilder [
 
 	<worldMenu>
 	(aBuilder item: #'DB Explorer')
 		parent: #Zoa;
-		action: [ (self new openWithSpec title: 'Zoa') extent: 1200@750];
+		action: [ self openZoaDbExplorer ];
 		order: 0;
 		help: 'System browser to browse and edit code.';
 		iconName: #databaseAdd.
@@ -53,6 +59,34 @@ ZoaDatabaseExplorer class >> worldMenuOn: aBuilder [
 ZoaDatabaseExplorer >> articlesFor: aTag [
 
 	^ queryModel articles select: [ :a | a keywords includes: aTag ]
+]
+
+{ #category : #'as yet unclassified' }
+ZoaDatabaseExplorer >> changeDatabase [
+
+	| kind host database |
+	kind := UIManager default
+		        chooseFrom: { #Memory. #MongoDB }
+		        values: { #memory. #mongo }
+		        title:
+		        'Choose kind of database. Remember that a memory database will only persist the elements meanwhile is not garbage collected'.
+
+	kind = #memory
+		ifTrue: [ Zoa memory beCurrent ]
+		ifFalse: [ 
+			host := UIManager default
+				        request: 'MongoDB Host'
+				        initialAnswer: 'localhost'
+				        title: 'Change Database'.
+
+			database := UIManager default
+				            request: 'MongoDB Database name'
+				            initialAnswer: 'zoa'
+				            title: 'Change Database'.
+			(Zoa host: host database: database) beCurrent ].
+	self updateViewers.
+	window close.
+	self class openZoaDbExplorer.
 ]
 
 { #category : #'widget creation' }
@@ -218,6 +252,12 @@ ZoaDatabaseExplorer >> initializeToolbar [
 			 action: [ self updateViewers ];
 			 yourself).
 
+toolbar addItemLeft: (self newToolbarButton
+			 label: 'ChangeDB';
+			 icon: (self iconNamed: #database);
+			 help: 'Chande DataBase';
+			 action: [ self changeDatabase ];
+			 yourself).
 	toolbar addItemRight: (self newToolbarButton
 			 label: 'Destroy';
 			 icon: (self iconNamed: #packageDelete);
