@@ -137,6 +137,11 @@ ZoaLoader >> setArxivId: aString into: aZoaDocument [
 	aZoaDocument arxivId: aString
 ]
 
+{ #category : #initialization }
+ZoaLoader >> setBookTitle: aString into: aZoaArticle [ 
+	aZoaArticle booktitle: aString
+]
+
 { #category : #accessing }
 ZoaLoader >> setBooktitle: aString into: aZoaDocument [ 
 	aZoaDocument booktitle: aString.
@@ -265,16 +270,11 @@ ZoaLoader >> setJsonData: aDictionary into: aZoaArticle [
 { #category : #keywords }
 ZoaLoader >> setKeywords: anArrayOfkeywords into: anArticle [
 
-	| existing keywords |
-	existing := zoa findAllTags.
+	|  keywords |
 	keywords := anArrayOfkeywords collect: [ :k | 
-		            existing
-			            detect: [ :a | a name sameAs: k ]
-			            ifFound: [ :a | a ]
-			            ifNone: [ 
-				            ZoaTag new
-					            name: k;
-					            yourself ] ].
+		            ZoaTag new
+			            name: k;
+			            yourself ].
 	anArticle keywords: keywords
 ]
 

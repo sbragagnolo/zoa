@@ -3,8 +3,7 @@ Class {
 	#superclass : #ZoaHTMLVisitor,
 	#instVars : [
 		'author',
-		'affiliations',
-		'existingKeywords'
+		'affiliations'
 	],
 	#category : #'Zoa-Loader'
 }
@@ -19,13 +18,6 @@ ZoaWileyVisitor >> attribute: att inElement: anElement [
 ZoaWileyVisitor >> attribute: att inElement: anElement beginsWith: string [
 
 	^ (anElement attributeAt: att ifAbsent: '') includesSubstring:  string
-]
-
-{ #category : #visiting }
-ZoaWileyVisitor >> existingKeywords [
-
-	^ existingKeywords ifNil: [ 
-		  existingKeywords := loader zoa findAllTags ]
 ]
 
 { #category : #visiting }
@@ -171,13 +163,9 @@ ZoaWileyVisitor >> processKeyword: anElement [
 	| name |
 	name := self attribute: 'content' inElement: anElement.
 
-	article addKeyword: (self existingKeywords
-			 detect: [ :k | k name = name ]
-			 ifFound: [ :t | t ]
-			 ifNone: [ 
-				 ZoaTag new
-					 name: name;
-					 yourself ])
+	article addKeyword: (ZoaTag new
+			 name: name;
+			 yourself)
 ]
 
 { #category : #visiting }

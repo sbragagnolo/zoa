@@ -61,13 +61,13 @@ Zoa class >> regenerate [
 		| article link briefs |
 		link := assoc key.
 		briefs := assoc value.
-		link = 'http://ieeexplore.ieee.org/document/991506/' ifTrue: [ self halt ].
+
 		[ 
 		article := self current load: link.
 		briefs do: [ :tb | article addBrief: tb ].
 		self current saveArticle: article ]
 			on: Error
-			do: [ :err | errors at: links put: err ] ].
+			do: [ :err | errors at: link put: err ] ].
 	errors ifNotEmpty: [ 
 		self error: 'Errors happened during the regeneration ' ].
 	links := nil
@@ -254,11 +254,6 @@ Zoa >> findAllResearchQuestionUnits [
 { #category : #'as yet unclassified' }
 Zoa >> findAllReviews [
 	^ self repository selectAll: ZoaReview
-]
-
-{ #category : #'as yet unclassified' }
-Zoa >> findAllTags [
-	^ (self repository selectAll: ZoaTag ) asSet 
 ]
 
 { #category : #find }

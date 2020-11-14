@@ -10,17 +10,6 @@ Class {
 	#category : #'Zoa-Model'
 }
 
-{ #category : #voyage }
-ZoaTag class >> descriptionContainer [
-	<voyageContainer>
-	^ VOContainer new collectionName: 'ZoaTag' yourself
-]
-
-{ #category : #voyage }
-ZoaTag class >> isVoyageRoot [
-	^ true
-]
-
 { #category : #accessing }
 ZoaTag >> = anOtherTag [
 

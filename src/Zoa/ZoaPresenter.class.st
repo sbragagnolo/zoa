@@ -28,18 +28,18 @@ ZoaPresenter >> newAuthorList [
 			okAction: [ author pushChanges ];
 			title: selection selectedItem fullName ].
 	widget addNewItemRoutine: [ 
-		| input name lastname  |
-		input := UIManager default request:
-			         'Enter author last name, first name'.
-		
-		name := ',' split: input.
-		lastname := name first.
-		name := name second.
-		name ifNotNil: [ 
-			ZoaAuthor new
-				name: name;
-				lastname: lastname;
-				yourself ] ].
+		| authorEntity author |
+		authorEntity := ZoaAuthor new
+			                name: 'FirstName';
+			                lastname: 'Lastname';
+			                yourself.
+		author := self instantiate: ZoaAuthorWidget.
+		author author: authorEntity.
+		author openDialogWithSpec
+			okAction: [ author pushChanges ];
+			title: 'New Author'.
+		authorEntity ].
+
 	^ widget
 ]
 
