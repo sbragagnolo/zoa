@@ -179,6 +179,32 @@ Zoa >> exportArticle: anArticle to: aFolder [
 		close
 ]
 
+{ #category : #save }
+Zoa >> exportReview: aReview to: aFolder [
+
+	| export brief ston |
+	export := aFolder / aReview title.
+	export ensureCreateDirectory.
+	aReview articles do: [ :a | 
+		self exportArticle: a article to: export / #articles ].
+
+	brief := (export / 'review.md')
+		         ensureCreateFile;
+		         writeStream.
+	brief nextPutAll: (aReview microdownBriefUsing: self).
+	brief
+		flush;
+		close.
+	ston := (export / (aReview title , '.ston'))
+		        ensureCreateFile;
+		        writeStream.
+	STON put: aReview onStream: ston.
+
+	ston
+		flush;
+		close
+]
+
 { #category : #find }
 Zoa >> findAllArticleReferences [
 	^ (self repository findAllArticleReferences flatCollect: [ :a | a getAllReferences ]) asSet.
@@ -193,6 +219,12 @@ Zoa >> findAllArticleStates [
 { #category : #find }
 Zoa >> findAllArticles [
 	^ (self repository selectAll: ZoaArticle) asSet
+]
+
+{ #category : #find }
+Zoa >> findAllArticlesAll [
+	^ (self repository selectAll: ZoaArticle) 
+	
 ]
 
 { #category : #find }

@@ -5,12 +5,6 @@ Class {
 }
 
 { #category : #api }
-ZoaWileyLoader class >> formatUrl: aZnUrl forDoi: aDoi [
-
-	^ ('https://dl.acm.org/doi/{1}' format: {aDoi}) asUrl
-]
-
-{ #category : #api }
 ZoaWileyLoader class >> loads: aString [
 
 	^ {'onlinelibrary.wiley.com' . 'doi.wiley.com'} includes: aString 

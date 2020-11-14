@@ -157,8 +157,6 @@ ZoaArticleViewer >> initializeToolbar [
 			 action: [ self exportArticle ];
 			 yourself).
 	
-
-
 ]
 
 { #category : #initialization }

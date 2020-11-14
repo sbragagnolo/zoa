@@ -142,6 +142,17 @@ ZoaDatabaseExplorer >> defaultQueryText [
 	'
 ]
 
+{ #category : #initialization }
+ZoaDatabaseExplorer >> exportAll [
+
+	| folder |
+	folder := UIManager default
+		          chooseDirectory: 'Exporting directory'
+		          from: PlatformResolver forCurrentPlatform home.
+	folder ifNotNil: [ 
+		queryModel articles do: [ :a | zoa exportArticle: a to: folder ] ]
+]
+
 { #category : #'as yet unclassified' }
 ZoaDatabaseExplorer >> focusOn: aZoaArticle [
 
@@ -252,19 +263,31 @@ ZoaDatabaseExplorer >> initializeToolbar [
 			 action: [ self updateViewers ];
 			 yourself).
 
-toolbar addItemLeft: (self newToolbarButton
+	toolbar addItemLeft: (self newToolbarButton
 			 label: 'ChangeDB';
 			 icon: (self iconNamed: #database);
-			 help: 'Chande DataBase';
+			 help: 'Change DataBase';
 			 action: [ self changeDatabase ];
 			 yourself).
+	toolbar addItemLeft: (self newToolbarButton
+			 label: 'Save All';
+			 icon: (self iconNamed: #glamorousSave);
+			 help: 'Save all article modifications!';
+			 action: [ self saveAllArticles ];
+			 yourself).
+	toolbar addItemLeft: (self newToolbarButton
+			 label: 'Export All';
+			 icon: (self iconNamed: #smallExport);
+			 help: 'Export DB';
+			 action: [ self exportAll ];
+			 yourself).
+
 	toolbar addItemRight: (self newToolbarButton
 			 label: 'Destroy';
 			 icon: (self iconNamed: #packageDelete);
 			 help: 'Destroys the WHOLE DB. Reviews included.';
 			 action: [ self removeAll ];
-			 yourself).
-
+			 yourself)
 ]
 
 { #category : #initialization }
@@ -280,15 +303,14 @@ ZoaDatabaseExplorer >> initializeWidgets [
 
 	listables := self newNotebook.
 	articles := self newArticleView.
-	authors := self newAuthorsView.
-	
-	keywords := self newKeywordsView.
+"	authors := self newAuthorsView.
+	keywords := self newKeywordsView."
 	preview := self instantiate: ZoaArticleViewer.
 	"spec script: [ :view | view addShape: RSBox new. value := value + 1 ]."
 	listables
-		addPage: (self newNotebookPageWith: articles and: 'Articles');
+		addPage: (self newNotebookPageWith: articles and: 'Articles')";
 		addPage: (self newNotebookPageWith: authors and: 'Authors');
-		addPage: (self newNotebookPageWith: keywords and: 'Keywords')
+		addPage: (self newNotebookPageWith: keywords and: 'Keywords')"
 ]
 
 { #category : #actions }
@@ -444,6 +466,12 @@ ZoaDatabaseExplorer >> removeAll [
 				self updateViewers ] ]
 ]
 
+{ #category : #'widget creation' }
+ZoaDatabaseExplorer >> saveAllArticles [
+
+	queryModel articles do: [ :a | zoa saveArticle: a ].
+]
+
 { #category : #actions }
 ZoaDatabaseExplorer >> selectArticle: aSelection [
 
@@ -456,9 +484,9 @@ ZoaDatabaseExplorer >> selectArticle: aSelection [
 ZoaDatabaseExplorer >> updateViewers [
 
 	articles items: queryModel articles.
-	authors items:
+	"authors items:
 		(zoa findAllAuthors select: [ :a | a articles isNotEmpty ]).
 	keywords roots:
 		(queryModel articles flatCollect: [ :t | t keywords ]) asSet
-			asOrderedCollection
+			asOrderedCollection"
 ]

@@ -228,6 +228,18 @@ ZoaReviewUI >> excludeArticleFromReview: anArticleRef [
 	anArticleRef codification: codification
 ]
 
+{ #category : #actions }
+ZoaReviewUI >> exportReview [
+
+	| folder |
+	folder := UIManager default
+		          chooseDirectory: 'Exporting directory'
+		          from: PlatformResolver forCurrentPlatform home.
+	folder ifNotNil: [ 
+		zoa exportReview: review to: folder ].
+	
+]
+
 { #category : #accessing }
 ZoaReviewUI >> firstAuthorName: aZoaReviewArticleReference [
 

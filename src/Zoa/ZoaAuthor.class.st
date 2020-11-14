@@ -132,3 +132,9 @@ ZoaAuthor >> printOn: aStream [
 		nextPutAll: ', ';
 		nextPutAll: name
 ]
+
+{ #category : #'as yet unclassified' }
+ZoaAuthor >> threeWayCompareTo: aZoaAuthor [
+	aZoaAuthor isString ifTrue:[^1].
+	^ self fullName threeWayCompareTo: aZoaAuthor fullName
+]

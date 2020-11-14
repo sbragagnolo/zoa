@@ -162,31 +162,33 @@ ZoaSpringerVisitor >> processReference: anElement [
 
 	"Parse the text. If reference comes from google scholar, it seems it has the form:
 		author and author, title, venue"
-	source := anElement nodes last allElements last nodes first string.
-	self assert: source = 'Google Scholar'.
-	textStream := text readStream.	
-	hasQuotedTitle := (text indexOf: $”) > 0.
-	hasQuotedTitle ifTrue: [
-		authors := (((textStream upTo: $“) splitOn: 'and') flatCollect: [ :e | e substrings: ',' ])
-			collect: [ :e | e trimBoth ]
-			thenSelect: [ :e | e isNotEmpty ].
-		title := (textStream upTo: $”) trimBoth.
-		venue := textStream upToEnd trimBoth.
-	] ifFalse: [ 
-		authors := ((textStream upTo: $,) splitOn: 'and')
-			collect: [ :e | e trimBoth ].
-		title := (textStream upTo: $.) trimBoth.
-		venue := textStream upToEnd trimBoth
-	].
-	self haltIf: (text includesSubstring: 'Jr').
-	self haltIf: (text includesSubstring: 'History').
+	anElement nodes last allElements last nodes first ifNotNil: [ 
+		source := anElement nodes last allElements last nodes first string.
+		self assert: source = 'Google Scholar'.
+		textStream := text readStream.
+		hasQuotedTitle := (text indexOf: $”) > 0.
+		hasQuotedTitle
+			ifTrue: [ 
+				authors := (((textStream upTo: $“) splitOn: 'and') flatCollect: [ 
+					            :e | e substrings: ',' ])
+					           collect: [ :e | e trimBoth ]
+					           thenSelect: [ :e | e isNotEmpty ].
+				title := (textStream upTo: $”) trimBoth.
+				venue := textStream upToEnd trimBoth ]
+			ifFalse: [ 
+				authors := ((textStream upTo: $,) splitOn: 'and') collect: [ :e | 
+					           e trimBoth ].
+				title := (textStream upTo: $.) trimBoth.
+				venue := textStream upToEnd trimBoth ] ].
+
 	fromReference := ZoaArticleReference new
 		                 reference: article doi;
 		                 title: article title;
 		                 yourself.
 
 	toReference := ZoaArticleReference new
-		               reference: (self detectHrefToArticle: anElement) urlDecoded;
+		               reference:
+			               (self detectHrefToArticle: anElement) urlDecoded;
 		               title: title;
 		               authors: authors;
 		               venue: venue;

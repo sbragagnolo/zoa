@@ -47,7 +47,7 @@ ZoaArticle >> abstract [
 
 { #category : #accessing }
 ZoaArticle >> abstract: anObject [
-	abstract := anObject
+	abstract := anObject asString 
 ]
 
 { #category : #'as yet unclassified' }
