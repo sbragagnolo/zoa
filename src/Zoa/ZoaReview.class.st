@@ -107,7 +107,7 @@ ZoaReview >> initialize [
 
 { #category : #accessing }
 ZoaReview >> keywords [
-	^ (articles flatCollect: [ :a | a keywords  ]) asSet asOrderedCollection sorted: [: x :y | 
+	^ (articles flatCollect: [ :a | a keywords  ]) asSet  asOrderedCollection  sorted: [: x :y | 
 			x name > y name 
 		].
 ]

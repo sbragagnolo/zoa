@@ -16,6 +16,31 @@ Class {
 }
 
 { #category : #specs }
+ZoaDatabaseExplorer class >> changeDatabase [
+
+	| kind host database |
+	kind := UIManager default
+		        chooseFrom: { #Memory. #MongoDB }
+		        values: { #memory. #mongo }
+		        title:
+		        'Choose kind of database. Remember that a memory database will only persist the elements meanwhile is not garbage collected'.
+
+	kind = #memory
+		ifTrue: [ Zoa memory beCurrent ]
+		ifFalse: [ 
+			host := UIManager default
+				        request: 'MongoDB Host'
+				        initialAnswer: 'localhost'
+				        title: 'Change Database'.
+
+			database := UIManager default
+				            request: 'MongoDB Database name'
+				            initialAnswer: 'zoa'
+				            title: 'Change Database'.
+			(Zoa host: host database: database) beCurrent ]
+]
+
+{ #category : #specs }
 ZoaDatabaseExplorer class >> defaultSpec [
 	^ SpBoxLayout newVertical
 		add: #toolbar height: self toolbarHeight * 1.5;
@@ -52,6 +77,12 @@ ZoaDatabaseExplorer class >> worldMenuOn: aBuilder [
 		order: 0;
 		help: 'System browser to browse and edit code.';
 		iconName: #databaseAdd.
+	(aBuilder item: #'Change Selected Database')
+		parent: #Zoa;
+		action: [ self changeDatabase ];
+		order: 0;
+		help: 'Allows the user to change from one to other database.';
+		iconName: #database.
 		
 ]
 

@@ -334,7 +334,11 @@ ZoaArticle >> journal: aString [
 { #category : #accessing }
 ZoaArticle >> keywords [
 
-	^ keywords ifNil: [ keywords := Set new ]
+	^ keywords ifNil: [ keywords := Set new ] ifNotNil: [ 
+		  (keywords isKindOf: Set) ifFalse: [ keywords := keywords asSet ].
+		  keywords := keywords reject: [ :k | k isNil ].
+
+		  keywords ]
 ]
 
 { #category : #accessing }

@@ -105,9 +105,12 @@ ZoaArticleArticleReference >> oppositeArticleTo: article using: aZoa [
 
 { #category : #accessing }
 ZoaArticleArticleReference >> printOn: aStream [
+
 	aStream
 		nextPutAll: 'REF:';
-		nextPutAll: text
+		nextPutAll: fromReference reference;
+		nextPutAll: '=>';
+		nextPutAll: toReference reference
 ]
 
 { #category : #'as yet unclassified' }
