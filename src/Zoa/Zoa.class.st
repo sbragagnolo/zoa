@@ -116,6 +116,12 @@ Zoa >> beCurrent [
 	Zoa current: self
 ]
 
+{ #category : #command }
+Zoa >> crawlPDFAccessFromPublisher: doc [
+
+	self notYetImplemented
+]
+
 { #category : #public }
 Zoa >> delete: aZoaArticle [
 
@@ -139,6 +145,35 @@ Zoa >> doiToUrl: aDoi [
 	^ ZoaLoader formatUrl: url asUrl forDoi: aDoi
 ]
 
+{ #category : #command }
+Zoa >> downloadFromUrlPromptedToUser: doc [
+
+	| entity binary url ref |
+	url := self privateGetUrlFor: doc.
+	[ 
+	entity := (ZnEasy get: url asZnUrl) entity.
+	entity contentType sub = 'html' ifTrue: [ 
+		binary := self manageRedirect: entity contents ].
+	entity contentType sub = 'pdf' ifFalse: [ 
+		doc pdfUrl: nil.
+		self error: 'The url is either wrong or no longer valid' ].
+	binary := entity bytes ]
+		on: Error
+		do: [ :e | 
+			doc pdfUrl: nil.
+			self error: 'The url is either wrong or no longer valid' ].
+	ref := self articles / doc fileBasename , 'pdf'.
+	ref
+		ensureDelete;
+		ensureCreateFile.
+	ref binaryWriteStream
+		nextPutAll: binary;
+		flush;
+		close.
+	self saveArticle: doc.
+	^ self articles / doc fileBasename , 'pdf'
+]
+
 { #category : #find }
 Zoa >> dropDatabase [
 
@@ -156,12 +191,15 @@ Zoa >> emptyDatabase [
 ]
 
 { #category : #save }
-Zoa >> exportArticle: anArticle to: aFolder [
+Zoa >> exportArticle2: anArticle to: aFolder [
 
 	| export pdf brief ston |
 	export := aFolder / anArticle fileBasename.
+	export ensureCreateDirectory .
 	pdf := self pdfFileFor: anArticle ifNotYetResolved: [ nil ].
-	pdf ifNotNil: [ pdf copyTo: export ].
+	pdf ifNotNil: [
+	(export / anArticle exportingName, 'pdf')  ensureDelete.
+		 pdf copyTo: (export / anArticle exportingName, 'pdf') ].
 	brief := (export / 'brief.md')
 		         ensureCreateFile;
 		         writeStream.
@@ -177,6 +215,19 @@ Zoa >> exportArticle: anArticle to: aFolder [
 	ston
 		flush;
 		close
+]
+
+{ #category : #save }
+Zoa >> exportArticle: anArticle to: aFolder [
+
+	| export pdf brief ston |
+	export := aFolder .
+	export ensureCreateDirectory .
+	pdf := self pdfFileFor: anArticle ifNotYetResolved: [ nil ].
+	pdf ifNotNil: [
+	(export / anArticle exportingName, 'pdf')  ensureDelete.
+		 pdf copyTo: (export / anArticle exportingName, 'pdf') ].
+
 ]
 
 { #category : #save }
@@ -292,32 +343,17 @@ Zoa >> findAuthorLike: anOtherAuthor [
 ]
 
 { #category : #command }
-Zoa >> getPdfFileForArticle: doc [
+Zoa >> findLocalPdfFor: doc [
 
-	| entity binary url ref |
-	url := self privateGetUrlFor: doc.
-	[ 
-	entity := (ZnEasy get: url asZnUrl) entity.
-	entity contentType sub = 'html' ifTrue: [ 
-		binary := self manageRedirect: entity contents ].
-	entity contentType sub = 'pdf' ifFalse: [ 
-		doc pdfUrl: nil.
-		self error: 'The url is either wrong or no longer valid' ].
-	binary := entity bytes ]
-		on: Error
-		do: [ :e | 
-			doc pdfUrl: nil.
-			self error: 'The url is either wrong or no longer valid' ].
-	ref := self articles / doc fileBasename , 'pdf'.
-	ref
-		ensureDelete;
-		ensureCreateFile.
-	ref binaryWriteStream
-		nextPutAll: binary;
-		flush;
-		close.
-	self saveArticle: doc.
-	^ self articles / doc fileBasename , 'pdf'
+	| pdf |
+	pdf := UIManager default
+		       chooseExistingFileReference:
+		       'Please, choose the PDF File for ' , doc title
+		       extensions: { #pdf }
+		       path: '/users/sbragagn/Downloads'
+		       preview: true.
+	pdf ifNil: [ ^ self ].
+	self savePdf: pdf asArticleFor: doc
 ]
 
 { #category : #public }
@@ -425,7 +461,25 @@ Zoa >> manageRedirect: aString [
 { #category : #read }
 Zoa >> pdfFileFor: doc [
 
-	^ self pdfFileFor: doc ifNotYetResolved: [ self getPdfFileForArticle: doc ]
+	^ self pdfFileFor: doc ifNotYetResolved: [ 
+		  doc pdfUrl
+			  ifNil: [ 
+				  | resolvingSelector |
+				  resolvingSelector := UIManager default
+					                       chooseFrom:
+					                       { 'Find in local file system'.
+					                       'Insert Pdf URL'. 'Re-crawl pdf from publisher website' }
+					                       values:
+						                       { #findLocalPdfFor:. #downloadFromUrlPromptedToUser:.
+						                       #crawlPDFAccessFromPublisher: }
+					                       title:
+					                       'The article does not have a valid source for the pdf. Please choose an option to solve this problem '.
+				  self perform: resolvingSelector withArguments: { doc } ]
+			  ifNotNil: [ self downloadFromUrlPromptedToUser: doc ].
+
+		  (self articles / doc fileBasename , 'pdf') exists
+			  ifTrue: [ self articles / doc fileBasename , 'pdf' ]
+			  ifFalse: [ self error: 'The article pdf cannot be solved' ] ]
 ]
 
 { #category : #read }
@@ -488,6 +542,11 @@ Zoa >> saveArticle: doc [
 { #category : #'as yet unclassified' }
 Zoa >> saveAuthor: aZoaAuthor [
 	self repository save: aZoaAuthor
+]
+
+{ #category : #command }
+Zoa >> savePdf: aPdf asArticleFor: doc [
+	aPdf copyTo: self articles / doc fileBasename , 'pdf'
 ]
 
 { #category : #save }

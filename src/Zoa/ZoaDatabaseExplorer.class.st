@@ -130,20 +130,20 @@ ZoaDatabaseExplorer >> contextMenuForArticle [
 					  anItem
 						  name: 'Inspect Article';
 						  action: [ articles selectedItem inspect ] ];
-				 
 				  addItem: [ :anItem | 
 					  anItem
 						  name: 'Import All References';
 						  action: [ self importReferences: articles selectedItem ] ];
-					addItem: [ :anItem | 
+				  addItem: [ :anItem | 
 					  anItem
 						  name: 'Load references and citations from HTML';
-						  action: [ self importCitationsAndReferences: articles selectedItem ] ];
-					addItem: [ :anItem | 
+						  action: [ 
+							  self importCitationsAndReferences: articles selectedItem ] ];
+				  addItem: [ :anItem | 
 					  anItem
 						  name: 'Open in browser';
 						  action: [ self openInBrowser: articles selectedItem ] ];
-					 addItem: [ :anItem | 
+				  addItem: [ :anItem | 
 					  anItem
 						  name: 'Read!';
 						  action: [ self readPdf: articles selectedItem ] ] ];
@@ -475,7 +475,6 @@ ZoaDatabaseExplorer >> openInBrowser: anArticle [
 
 { #category : #actions }
 ZoaDatabaseExplorer >> readPdf: anArticle [
-
 	zoa readArticle: anArticle 
 ]
 

@@ -218,6 +218,11 @@ ZoaArticle >> doi: aString [
 ]
 
 { #category : #accessing }
+ZoaArticle >> exportingName [
+	^ self fileBasename , '-', ((title select:[ : i | i isLetter or: [ i = Character space ]  ]) readStream next: 30)
+]
+
+{ #category : #accessing }
 ZoaArticle >> fileBasename [
 
 	self doi ifEmpty: [ 

@@ -93,6 +93,13 @@ ZoaReviewArticleReference >> keywords [
 ]
 
 { #category : #accessing }
+ZoaReviewArticleReference >> printOn: aStream [
+
+	aStream nextPutAll: 'Reference'.
+	article title printOn: aStream
+]
+
+{ #category : #accessing }
 ZoaReviewArticleReference >> reason [
 	^ reason
 ]
